@@ -11,11 +11,13 @@ sin ninguna cifra verdadera. Sirven para recorrer la plataforma completa.
 
 `gestiones_con_texto.csv` lo produce [`generar_gestiones.py`](generar_gestiones.py),
 que está acá para que se pueda auditar cómo se armó. La señal vive donde
-viviría en la realidad —atraso, monto, contacto efectivo, historial de
-promesas y canal—, y la nota del gestor **aporta sin contener la respuesta**:
-entrenando sobre él, el AUC del holdout ciego ronda 0,88, y si se excluye el
-texto baja apenas. Un ejemplo cuyo texto dijera «confirma la transferencia»
-daría AUC 1,0 y no enseñaría nada: eso es fuga, no una variable.
+viviría en la realidad: entrenando con el motor real, el AUC del holdout ciego
+ronda **0,88** y las variables que más pesan son el contacto efectivo (≈18 %
+de caída al permutar), los días de atraso (≈14 %) y las promesas cumplidas
+(≈7 %). La nota del gestor entra al modelo como texto vectorizado y **aporta
+poco** (≈1 %), que es justamente lo que se quiere mostrar: un texto que dijera
+«confirma la transferencia» daría AUC 1,0 y no enseñaría nada, porque sería la
+respuesta disfrazada de variable.
 
 Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
