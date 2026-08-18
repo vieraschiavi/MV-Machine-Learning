@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# MV AutoML Studio — empaquetado de escritorio
+#
+# El instalador NSIS es asistido (no one-click): el usuario ELIGE el
+# directorio de instalación, y por omisión va al perfil del usuario
+# (%LOCALAPPDATA%\Programs), nunca clavado en C:\Program Files.
+# Crea accesos directos en el Escritorio y en el Menú de inicio, con el
+# icono del producto, y el desinstalador queda registrado en Windows.
+# ─────────────────────────────────────────────────────────────────────────────
+appId: com.mvautoml.studio
+productName: MV AutoML Studio
+copyright: © Martín Viera
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - electron/**/*
+  - package.json
+
+extraResources:
+  # el backend compilado con PyInstaller (lo produce el CI antes de empaquetar)
+  - from: ../pybuild/mv-backend
+    to: mv-backend
+  # la interfaz, tal como la sirve el backend
+  - from: ../frontend
+    to: frontend
+  # credenciales de la compilación owner (sólo existen en ese canal)
+  - from: owner
+    to: owner
+    filter: ["**/*"]
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: build/icon.ico
+  artifactName: "MV-AutoML-Studio-${channel}-${version}-Setup.${ext}"
+
+nsis:
+  oneClick: false                              # instalador asistido
+  perMachine: false                            # por usuario: sin admin, sin C:\ fijo
+  allowToChangeInstallationDirectory: true     # el usuario elige la carpeta
+  allowElevation: true
+  createDesktopShortcut: true                  # icono en el escritorio
+  createStartMenuShortcut: true                # icono en el menú de programas
+  shortcutName: MV AutoML Studio
+  uninstallDisplayName: MV AutoML Studio
+  deleteAppDataOnUninstall: false              # los datos del usuario no se borran
+  license: build/licencia.txt

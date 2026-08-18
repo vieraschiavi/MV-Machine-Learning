@@ -1,7 +1,8 @@
 /** Panel de inicio: qué hace la plataforma y en qué estado está. */
 import { t, num } from '../i18n.js';
 import * as store from '../store.js';
-import { el, clear, icon, stat, badge } from '../ui.js';
+import * as api from '../api.js';
+import { el, clear, icon, stat, badge, note, toast, fail } from '../ui.js';
 
 let nav = null;
 
@@ -71,6 +72,42 @@ export default {
         el('button', { class: 'btn btn-primary', onClick: () => nav?.('data') }, t('overview.start'))));
     host.appendChild(card);
 
+    host.appendChild(this.licenseCard());
     host.appendChild(el('div', { class: 'note accent' }, t('model.protocol_text')));
+  },
+
+  licenseCard() {
+    const holder = el('div');
+    const pintar = (st) => {
+      clear(holder);
+      const esDemo = st.tier === 'demo';
+      const input = el('input', { type: 'text', placeholder: t('license.token_placeholder'),
+        style: 'font-family:var(--mono);font-size:12px' });
+      const activar = el('button', { class: 'btn btn-primary' }, t('license.activate'));
+      activar.onclick = async () => {
+        activar.disabled = true;
+        try {
+          const r = await api.post('/api/license/activate', { token: input.value.trim() });
+          toast(`${t('license.activated')} · ${r.status.label}`, 'ok');
+          pintar(r.status);
+        } catch (err) { fail(err); } finally { activar.disabled = false; }
+      };
+      holder.appendChild(el('div', { class: 'card' },
+        el('div', { class: 'card-head' },
+          el('h2', { text: t('license.title') }),
+          badge(st.label, esDemo ? 'warn' : 'ok')),
+        esDemo
+          ? el('div', {},
+              note(t('license.demo_note'), 'warn'),
+              el('div', { class: 'row mt-2' },
+                el('div', { style: 'flex:1;min-width:280px' }, input), activar))
+          : el('dl', { class: 'kv' },
+              el('dt', { text: t('license.licensee') }), el('dd', { text: st.licensee || '—' }),
+              el('dt', { text: t('license.expires') }),
+              el('dd', { text: st.days_left == null ? t('license.no_expiry')
+                : `${st.days_left} ${t('license.days_left')}` }))));
+    };
+    api.get('/api/license/status').then(pintar).catch(() => {});
+    return holder;
   },
 };

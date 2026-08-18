@@ -21,7 +21,8 @@
     "export": "Export",
     "section_data": "Data",
     "section_ml": "Modelling",
-    "section_system": "System"
+    "section_system": "System",
+    "dashboard": "Dashboard"
   },
   "common": {
     "loading": "Loading",
@@ -382,5 +383,44 @@
     "created": "Workspace created",
     "delete_confirm": "Delete this workspace with all its datasets and models?",
     "isolated": "Data in one workspace is not visible from another."
+  },
+  "dash": {
+    "title": "Dashboard",
+    "lead": "KPIs, filters and charts inferred automatically from the dataset. Everything you see can be exported with the active filters applied.",
+    "generate": "Build dashboard",
+    "refresh": "Apply filters",
+    "clear_filters": "Clear filters",
+    "export_xlsx": "Export Excel",
+    "export_csv": "Export CSV",
+    "kpis": "Indicators",
+    "vs_prev": "vs previous period",
+    "records": "Records",
+    "filters": "Filters",
+    "from": "From",
+    "to": "To",
+    "table": "Filtered data",
+    "showing": "showing",
+    "notes": "How this dashboard was built",
+    "ask_title": "Ask your data",
+    "ask_placeholder": "For example: total collected by state in 2025",
+    "ask_hint": "With AI configured, the provider translates the question to SQL and writes the answer from the executed result. Without AI, a local translator covers totals, averages, counts, top N and group-bys.",
+    "ask_send": "Ask",
+    "ask_engine": "Engine",
+    "ask_sql": "Executed query",
+    "no_dataset": "Pick a dataset first in the Data section."
+  },
+  "license": {
+    "title": "License",
+    "tier": "Tier",
+    "demo_note": "You are in Demo mode: up to 50,000 rows per dataset, 3 model families, no SQL connectors or AI engine.",
+    "activate": "Activate license",
+    "token_placeholder": "Paste your license here (MVAS.…)",
+    "activated": "License activated",
+    "licensee": "Licensee",
+    "expires": "Expires",
+    "days_left": "days left",
+    "no_expiry": "No expiry",
+    "deactivate": "Deactivate",
+    "buy": "Buy the Professional edition"
   }
 }

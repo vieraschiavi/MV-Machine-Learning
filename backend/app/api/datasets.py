@@ -10,6 +10,7 @@ from typing import Any
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
+from ..core import licensing as L
 from ..core import profiling, storage, workspace
 
 router = APIRouter(prefix="/api/datasets", tags=["datasets"])
@@ -45,7 +46,13 @@ async def upload_stream(request: Request, filename: str = Query(...),
                     written += len(chunk)
         if written == 0:
             raise HTTPException(400, "El archivo llegó vacío.")
+        L.check_count(len(storage.list_datasets()), "max_datasets")
         meta = storage.ingest_file(dest, name or Path(filename).stem, source="upload")
+        try:
+            L.check_rows(meta.rows)
+        except PermissionError:
+            storage.delete_dataset(meta.id)     # no se deja a medias en el workspace
+            raise
         return {"dataset": meta.to_dict(), "bytes_received": written}
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc
@@ -62,7 +69,13 @@ async def upload_multipart(file: UploadFile = File(...),
         with dest.open("wb") as fh:
             while chunk := await file.read(4 * 1024 * 1024):
                 fh.write(chunk)
+        L.check_count(len(storage.list_datasets()), "max_datasets")
         meta = storage.ingest_file(dest, name or Path(file.filename or "dataset").stem)
+        try:
+            L.check_rows(meta.rows)
+        except PermissionError:
+            storage.delete_dataset(meta.id)
+            raise
         return {"dataset": meta.to_dict()}
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc

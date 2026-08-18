@@ -13,11 +13,13 @@ import model from './views/model.js';
 import results from './views/results.js';
 import aiView from './views/ai.js';
 import exportView from './views/export.js';
+import dashboard from './views/dashboard.js';
 
 const VIEWS = {
   overview: { icon: 'overview', section: null, mod: overview },
   data: { icon: 'data', section: 'section_data', mod: dataView },
   explore: { icon: 'explore', section: null, mod: explore },
+  dashboard: { icon: 'overview', section: null, mod: dashboard },
   etl: { icon: 'etl', section: null, mod: etl },
   model: { icon: 'model', section: 'section_ml', mod: model },
   results: { icon: 'results', section: null, mod: results },

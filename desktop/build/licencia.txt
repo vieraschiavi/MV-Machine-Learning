@@ -1,0 +1,15 @@
+MV AutoML Studio
+Acuerdo de uso
+
+1. Este software se instala y ejecuta localmente. Sus datos no salen de su
+   equipo: la aplicacion no envia datasets, modelos ni resultados a ningun
+   servidor propio.
+2. La version Demo es gratuita y tiene topes de tamano y de funciones.
+3. La version Profesional se habilita con una licencia firmada, personal e
+   intransferible, emitida a nombre del titular.
+4. Las llamadas opcionales a proveedores de IA (OpenAI, Anthropic, xAI,
+   Google, GitHub) usan las claves del propio usuario y estan sujetas a los
+   terminos de cada proveedor.
+5. El software se entrega tal cual, sin garantia de idoneidad para un
+   proposito particular. El titular es responsable de validar los resultados
+   antes de tomar decisiones sobre ellos.

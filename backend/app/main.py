@@ -16,8 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import ai, automl, connectors, datasets, etl, exports, jobs, workspaces
+from .api import ai, automl, connectors, dashboards, datasets, etl, exports, jobs, licenses, workspaces
 from .config import settings
+from .core import licensing as L
+from .core import security as S
 from .core import workspace as W
 
 log = logging.getLogger("mv")
@@ -39,8 +41,34 @@ app.add_middleware(
 )
 
 for r in (datasets.router, connectors.router, etl.router, automl.router,
-          ai.router, exports.router, jobs.router, workspaces.router):
+          ai.router, exports.router, jobs.router, workspaces.router, licenses.router,
+          dashboards.router):
     app.include_router(r)
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    """Exige el token de sesión cuando la app corre empaquetada.
+
+    El token lo genera Electron y lo comparte por entorno con el backend y por
+    el puente seguro con la interfaz. Sin él, cualquier proceso del equipo
+    podría consultar los datos del usuario en 127.0.0.1.
+    """
+    if S.enabled() and not S.is_public(request.url.path):
+        token = (request.headers.get(S.HEADER)
+                 or request.query_params.get(S.QUERY))
+        if not S.check(token):
+            return JSONResponse(status_code=401,
+                                content={"detail": "Credencial de sesión inválida o ausente."})
+    return await call_next(request)
+
+
+@app.exception_handler(PermissionError)
+async def limite_de_licencia(request: Request, exc: PermissionError) -> JSONResponse:
+    """Los topes del nivel llegan como 402, no como error interno."""
+    return JSONResponse(status_code=402,
+                        content={"detail": str(exc), "tier": L.current_tier().name,
+                                 "code": "license_limit"})
 
 
 @app.middleware("http")
@@ -89,6 +117,8 @@ def health() -> dict[str, Any]:
         "limits": {"chunk_rows": settings.chunk_rows,
                    "max_train_rows": settings.max_train_rows,
                    "upload_max_bytes": None},
+        "auth": {"required": S.enabled(), "header": S.HEADER},
+        "license": L.status(),
     }
 
 

@@ -121,9 +121,33 @@ def build_report(path: Path, *, report: dict | None = None, profile: dict | None
     if not sheets:
         ws = wb.add_worksheet("Sin contenido")
         _title(ws, f, "No se seleccionó ningún contenido para exportar.", 6)
+    _marca_de_agua(wb, f)
     wb.close()
     return {"path": str(path), "sheets": sheets, "seconds": round(time.time() - t0, 1),
             "size_bytes": path.stat().st_size}
+
+
+def _marca_de_agua(wb, f) -> None:
+    """Hoja de origen en las exportaciones del nivel demo.
+
+    No degrada los datos —eso sería entregar un número equivocado— sino que
+    deja constancia de con qué versión se generó el informe.
+    """
+    from . import licensing as L
+
+    if not L.current_tier().export_watermark:
+        return
+    ws = wb.add_worksheet("Version")
+    ws.set_column(0, 0, 96)
+    _title(ws, f, "INFORME GENERADO CON MV AUTOML STUDIO — VERSIÓN DEMO", 1)
+    for i, linea in enumerate([
+        "Los números de este informe son los que produjo el motor: la versión demo "
+        "no altera ni recorta resultados.",
+        "Los topes de la versión demo son de tamaño y de funciones "
+        "(filas por dataset, familias de modelos, conectores SQL y motor de IA).",
+        "La versión Profesional levanta esos topes y quita esta hoja.",
+    ], start=2):
+        ws.write(i, 0, linea, f["wrap"])
 
 
 def _sheet_resumen(wb, f, r, title):

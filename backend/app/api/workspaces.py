@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from ..core import licensing as L
 from ..core import workspace as W
 
 router = APIRouter(prefix="/api/workspaces", tags=["workspaces"])
@@ -22,6 +23,7 @@ class CreateBody(BaseModel):
 
 @router.post("")
 def create(body: CreateBody) -> dict[str, Any]:
+    L.check_count(len(W.listing()), "max_workspaces")
     try:
         return {"workspace": W.create(body.name)}
     except W.WorkspaceError as exc:

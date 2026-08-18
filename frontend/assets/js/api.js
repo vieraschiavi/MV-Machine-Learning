@@ -1,5 +1,9 @@
 /** Cliente HTTP de la API. Todo error del servidor llega acá con mensaje legible. */
 
+/** Token de sesión del escritorio: lo inyecta Electron por el puente seguro.
+ * En el navegador no existe y la autenticación queda del lado del servidor. */
+const sessionToken = () => (window.mvDesktop && window.mvDesktop.token) || null;
+
 /** Workspace activo: viaja en cada request y aísla datasets, modelos y archivos. */
 export const workspaceName = () => localStorage.getItem('mv.workspace') || 'principal';
 export function setWorkspace(name) {
@@ -8,7 +12,10 @@ export function setWorkspace(name) {
 /** Anexa el workspace a URLs que no pueden mandar encabezados (SSE, descargas). */
 export function withWorkspace(url) {
   const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}workspace=${encodeURIComponent(workspaceName())}`;
+  let out = `${url}${sep}workspace=${encodeURIComponent(workspaceName())}`;
+  const tok = sessionToken();
+  if (tok) out += `&token=${encodeURIComponent(tok)}`;   // SSE y descargas no mandan headers
+  return out;
 }
 
 export class ApiError extends Error {
@@ -27,6 +34,7 @@ async function request(method, path, body, options = {}) {
       method,
       headers: {
         'X-Workspace': workspaceName(),
+        ...(sessionToken() ? { 'X-MV-Token': sessionToken() } : {}),
         ...(body instanceof FormData || body == null ? {} : { 'Content-Type': 'application/json' }),
       },
       body: body == null ? undefined : (body instanceof FormData ? body : JSON.stringify(body)),
@@ -58,6 +66,7 @@ export function uploadFile(file, { name, onProgress } = {}) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `/api/datasets/upload-stream?${params}`);
     xhr.setRequestHeader('X-Workspace', workspaceName());
+    if (sessionToken()) xhr.setRequestHeader('X-MV-Token', sessionToken());
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total, e.loaded, e.total);
     };
