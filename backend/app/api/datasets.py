@@ -10,8 +10,7 @@ from typing import Any
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
 
-from ..config import settings
-from ..core import profiling, storage
+from ..core import profiling, storage, workspace
 
 router = APIRouter(prefix="/api/datasets", tags=["datasets"])
 
@@ -20,7 +19,7 @@ SAFE_NAME = re.compile(r"[^A-Za-z0-9._\- ]+")
 
 def _tmp(filename: str) -> Path:
     safe = SAFE_NAME.sub("_", Path(filename or "dataset.csv").name)[:120] or "dataset.csv"
-    return settings.upload_dir / f"{uuid.uuid4().hex[:10]}__{safe}"
+    return workspace.dir_for("uploads") / f"{uuid.uuid4().hex[:10]}__{safe}"
 
 
 @router.get("")

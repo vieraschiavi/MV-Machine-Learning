@@ -13,8 +13,9 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from ..config import settings
+from ..config import settings  # noqa: F401 - la conserva la firma pública
 from . import storage as S
+from . import workspace
 
 
 def new_id() -> str:
@@ -24,7 +25,7 @@ def new_id() -> str:
 def model_path(model_id: str) -> Path:
     if not S.SAFE_ID.match(model_id):
         raise ValueError(f"Identificador de modelo inválido: {model_id!r}")
-    return settings.model_dir / model_id
+    return workspace.dir_for("models") / model_id
 
 
 def save(bundle: dict[str, Any], report: dict[str, Any], name: str,
@@ -46,6 +47,8 @@ def save(bundle: dict[str, Any], report: dict[str, Any], name: str,
     }
     (folder / "card.json").write_text(json.dumps(card, ensure_ascii=False, indent=2, default=str),
                                       encoding="utf-8")
+    resumen = {k: v for k, v in card.items() if k != "report"}
+    workspace.record_model(resumen)
     return card
 
 
@@ -67,7 +70,7 @@ def load(model_id: str) -> tuple[dict[str, Any], dict[str, Any]]:
 
 def list_models() -> list[dict[str, Any]]:
     out = []
-    for folder in sorted(settings.model_dir.glob("mdl_*"),
+    for folder in sorted(workspace.dir_for("models").glob("mdl_*"),
                          key=lambda p: p.stat().st_mtime, reverse=True):
         f = folder / "card.json"
         if not f.exists():
@@ -87,6 +90,7 @@ def card(model_id: str) -> dict[str, Any]:
 
 def delete(model_id: str) -> None:
     shutil.rmtree(model_path(model_id), ignore_errors=True)
+    workspace.forget_model(model_id)
 
 
 # ────────────────────────────────────────────────────────────── scoring ───────

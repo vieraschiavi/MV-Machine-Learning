@@ -8,8 +8,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
-from ..config import settings
-from ..core import exporter, jobs, registry, storage
+from ..core import exporter, jobs, registry, storage, workspace
 
 router = APIRouter(prefix="/api/exports", tags=["exports"])
 
@@ -56,7 +55,7 @@ def excel(body: ExcelBody) -> dict[str, Any]:
                             "columns_out": len(meta.columns)}
         progress(60, "Escribiendo el libro de Excel")
         stamp = time.strftime("%Y%m%d-%H%M%S")
-        out = settings.export_dir / f"MV_AutoML_Informe_{stamp}.xlsx"
+        out = workspace.dir_for("exports") / f"MV_AutoML_Informe_{stamp}.xlsx"
         info = exporter.build_report(
             out, report=report, profile=profile, etl=etl_info,
             dataset_id=ds_id if body.include_data else None,
@@ -96,7 +95,7 @@ def data(body: DataBody) -> dict[str, Any]:
 @router.get("/list")
 def listing() -> dict[str, Any]:
     files = []
-    for p in sorted(settings.export_dir.glob("*"), key=lambda p: -p.stat().st_mtime)[:100]:
+    for p in sorted(workspace.dir_for("exports").glob("*"), key=lambda p: -p.stat().st_mtime)[:100]:
         if p.is_file():
             files.append({"filename": p.name, "size_bytes": p.stat().st_size,
                           "modified": p.stat().st_mtime,
@@ -106,7 +105,8 @@ def listing() -> dict[str, Any]:
 
 @router.get("/download/{filename}")
 def download(filename: str):
-    path = (settings.export_dir / filename).resolve()
-    if not str(path).startswith(str(settings.export_dir.resolve())) or not path.is_file():
+    base = workspace.dir_for("exports").resolve()
+    path = (base / filename).resolve()
+    if not str(path).startswith(str(base)) or not path.is_file():
         raise HTTPException(404, "Archivo inexistente.")
     return FileResponse(path, filename=path.name, media_type="application/octet-stream")

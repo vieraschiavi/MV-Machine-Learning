@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from . import metrics as MT
-from .features import Preprocessor
+from .features import Preprocessor, base_column
 
 
 def explain_model(task: str, champion: dict, fitted: dict, ens_members: list[str],
@@ -38,7 +38,7 @@ def explain_model(task: str, champion: dict, fitted: dict, ens_members: list[str
         imp = mdl.importances(names)
         total = sum(abs(v) for v in imp.values()) or 1.0
         for k, v in imp.items():
-            col = k.split("=")[0].replace("__log", "")
+            col = base_column(k)
             native[col] = native.get(col, 0.0) + abs(v) / total / len(members)
 
     # ── importancia por permutación sobre el holdout ciego ───────────────────
@@ -115,10 +115,9 @@ def _permutation(task, champion, fitted, ens_members, pre, data, tt, metric,
     t0 = time.time()
     lin_index: dict[str, list[int]] = {}
     for j, n in enumerate(pre.feature_names_linear):
-        lin_index.setdefault(n.split("=")[0].replace("__log", ""), []).append(j)
+        lin_index.setdefault(base_column(n), []).append(j)
 
-    columns = list(dict.fromkeys([c.split("=")[0].replace("__log", "")
-                                  for c in pre.feature_names_tree]))
+    columns = list(dict.fromkeys([base_column(c) for c in pre.feature_names_tree]))
     for col in columns:
         if time.time() - t0 > budget_s:
             break
@@ -126,7 +125,7 @@ def _permutation(task, champion, fitted, ens_members, pre, data, tt, metric,
         for _ in range(n_repeats):
             order = rng.permutation(len(Xt))
             Xt2 = Xt.copy()
-            for c in [c for c in Xt.columns if c.split("=")[0].replace("__log", "") == col]:
+            for c in [c for c in Xt.columns if base_column(c) == col]:
                 Xt2[c] = Xt[c].to_numpy()[order]
             Xl2 = Xl.copy()
             for j in lin_index.get(col, []):
@@ -169,7 +168,7 @@ def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) 
 
     by_col: dict[str, dict[str, Any]] = {}
     for j, name in enumerate(X.columns):
-        col = name.split("=")[0].replace("__log", "")
+        col = base_column(name)
         e = by_col.setdefault(col, {"mean_abs": 0.0, "corr": []})
         e["mean_abs"] += float(np.mean(vals[:, j]))
         if signed is not None:

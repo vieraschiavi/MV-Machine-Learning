@@ -14,6 +14,8 @@ from collections import deque
 from collections.abc import Callable
 from typing import Any
 
+from . import workspace
+
 _LOCK = threading.Lock()
 _JOBS: dict[str, dict[str, Any]] = {}
 MAX_JOBS = 200
@@ -27,6 +29,7 @@ def create(kind: str, title: str, meta: dict | None = None) -> dict[str, Any]:
     jid = _new_id()
     job = {
         "id": jid, "kind": kind, "title": title, "meta": meta or {},
+        "workspace": workspace.current(),
         "status": "pendiente", "progress": 0.0, "message": "En cola",
         "log": deque(maxlen=400), "result": None, "error": None,
         "created_at": time.time(), "started_at": None, "finished_at": None,
@@ -66,7 +69,11 @@ def run(kind: str, title: str, fn: Callable[[Callable[[float, str], None]], Any]
     def progress(pct: float, msg: str) -> None:
         update(jid, progress=pct, message=msg)
 
+    ws = workspace.current()
+
     def target() -> None:
+        # el hilo hereda el workspace desde el que se lanzó el trabajo
+        token = workspace.activate(ws)
         with _LOCK:
             _JOBS[jid]["status"] = "corriendo"
             _JOBS[jid]["started_at"] = time.time()
@@ -91,6 +98,8 @@ def run(kind: str, title: str, fn: Callable[[Callable[[float, str], None]], Any]
                 j["message"] = f"Error: {str(exc)[:200]}"
                 j["finished_at"] = time.time()
                 j["version"] += 1
+        workspace.record_job(public(jid) or {"id": jid})
+        workspace.deactivate(token)
 
     threading.Thread(target=target, daemon=True, name=f"job-{kind}").start()
     return public(jid)

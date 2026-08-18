@@ -22,8 +22,9 @@ from urllib.parse import quote_plus
 
 import pandas as pd
 
-from ..config import settings
+from ..config import settings  # noqa: F401
 from . import storage as S
+from . import workspace
 
 ENGINES: dict[str, dict[str, Any]] = {
     "sqlserver": {"label": "Microsoft SQL Server", "driver": "mssql+pymssql", "port": 1433,
@@ -46,7 +47,7 @@ class ConnectionError_(RuntimeError):
 
 # ───────────────────────────────────────────────────────────── perfiles ───────
 def _profiles_file() -> Path:
-    return settings.secrets_dir / "connections.json"
+    return workspace.dir_for("secrets") / "connections.json"
 
 
 def _read_profiles() -> dict[str, dict]:

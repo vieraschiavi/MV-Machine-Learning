@@ -35,6 +35,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from ..config import settings
+from . import workspace
 
 SAFE_ID = re.compile(r"^[A-Za-z0-9_\-]{1,64}$")
 TEXT_EXT = {".csv", ".txt", ".tsv", ".dat", ".psv"}
@@ -346,7 +347,7 @@ def _ingest_json(path: Path, sink: _ParquetSink) -> None:
 def dataset_path(ds_id: str) -> Path:
     if not SAFE_ID.match(ds_id):
         raise IngestError(f"Identificador de dataset inválido: {ds_id!r}")
-    return settings.dataset_dir / ds_id
+    return workspace.dir_for("datasets") / ds_id
 
 
 def new_id(prefix: str = "ds") -> str:
@@ -369,6 +370,7 @@ def register_folder(ds_id: str, meta: DatasetMeta) -> DatasetMeta:
     (folder / "meta.json").write_text(
         json.dumps(meta.to_dict(), ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
+    workspace.record_dataset(meta.to_dict())
     return meta
 
 
@@ -448,8 +450,19 @@ def load_meta(ds_id: str) -> DatasetMeta:
 
 
 def list_datasets() -> list[dict[str, Any]]:
+    # el catálogo SQLite es el índice; el filesystem, la verdad de respaldo
+    cat = workspace.catalog_datasets()
+    folder_ids = {p.name for p in workspace.dir_for("datasets").glob("ds_*")
+                  if (p / "meta.json").exists()}
+    if cat is not None:
+        vivos = [d for d in cat if d.get("id") in folder_ids]
+        if len(vivos) == len(folder_ids):
+            return vivos
+        # catálogo desincronizado (p. ej. recién creado): se reconstruye
+        workspace.rebuild_from_disk()
     out = []
-    for folder in sorted(settings.dataset_dir.glob("*/"), key=os.path.getmtime, reverse=True):
+    for folder in sorted(workspace.dir_for("datasets").glob("*/"),
+                         key=os.path.getmtime, reverse=True):
         f = folder / "meta.json"
         if f.exists():
             try:
@@ -461,6 +474,7 @@ def list_datasets() -> list[dict[str, Any]]:
 
 def delete_dataset(ds_id: str) -> None:
     shutil.rmtree(dataset_path(ds_id), ignore_errors=True)
+    workspace.forget_dataset(ds_id)
 
 
 def glob_expr(ds_id: str) -> str:

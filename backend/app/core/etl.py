@@ -85,11 +85,13 @@ def propose(ds_id: str, target: str | None = None,
             continue
         det = detected.get(name, {})
         is_date = c["kind"] == "datetime" or det.get("as") == "datetime"
-        # Un importe con dos decimales no repite nunca, y aun así no es una
-        # clave: descartarlo por "identificador" borraría la variable que más
-        # informa. Sólo cuenta como identificador lo que además es entero.
-        continua = (det.get("as") == "numeric" and not det.get("integer_like", True)) or \
-                   (c["kind"] == "numeric" and c["unique_key"] and _tiene_decimales(ds_id, name))
+        is_text = bool(c.get("is_text"))
+        # Una clave es numérica ENTERA y DENSA: sus valores llenan el rango
+        # (1, 2, 3… con huecos). Un monto entero único no: "391.311.281" tiene
+        # un rango millones de veces mayor que la cantidad de filas. Y un
+        # importe con decimales no repite nunca y tampoco es una clave.
+        # Descartar cualquiera de los dos borraría la variable que más informa.
+        continua = _es_magnitud(ds_id, name, c, det)
         if o["drop_constant"] and c["constant"]:
             # una columna con un único valor y muchos nulos no es "constante" a
             # secas: conviene decir las dos cosas para que el motivo no engañe.
@@ -103,7 +105,7 @@ def propose(ds_id: str, target: str | None = None,
             add("drop_column", name, f"{c['null_pct']:.1f}% de nulos, por encima del umbral "
                                      f"({o['null_threshold']:.0f}%).", severity="high")
             dropped.add(name)
-        elif o["drop_identifiers"] and c["unique_key"] and not is_date and not continua:
+        elif o["drop_identifiers"] and c["unique_key"] and not is_date and not continua and not is_text:
             add("drop_column", name, "Identificador único por fila: memoriza, no generaliza.", severity="medium")
             dropped.add(name)
 
@@ -161,11 +163,17 @@ def propose(ds_id: str, target: str | None = None,
                     f"Imputación con categoría explícita sobre {c['null_pct']:.1f}% de nulos.",
                     {"value": "(sin dato)"})
 
+    # ── 4 bis. texto libre: se declara, no se transforma ─────────────────────
+    for name in [n for n in live if cols[n].get("is_text") and n != target]:
+        add("text_column", name,
+            "Texto libre: se vectoriza con TF-IDF y se comprime a componentes "
+            "numéricas al entrenar. No se agrupa ni se descarta.")
+
     # ── 5. categorías raras y alta cardinalidad ──────────────────────────────
     if o["group_rare"]:
         for name in [n for n in live if cols[n]["kind"] == "categorical" and n != target]:
             c = cols[name]
-            if c["distinct"] <= 2:
+            if c["distinct"] <= 2 or c.get("is_text"):
                 continue
             keep = _frequent_values(ds_id, name, o["rare_threshold"], o["max_categories"])
             if keep is not None and len(keep) < c["distinct"]:
@@ -214,6 +222,32 @@ def propose(ds_id: str, target: str | None = None,
     }
     plan["sql"] = compile_sql(ds_id, plan)
     return plan
+
+
+def _es_magnitud(ds_id: str, name: str, col: dict, det: dict) -> bool:
+    """¿Esta columna única es una magnitud (monto, medida) y no una clave?
+
+    Nunca lo es si el nombre grita identificador. Después: decimales ⇒
+    magnitud; enteros ⇒ magnitud sólo si son dispersos (densidad < 1‰ del
+    rango). Los IDs secuenciales, aun con huecos grandes, son densos.
+    """
+    if not col.get("unique_key"):
+        return False
+    if ID_HINT.search(name):
+        return False
+    if det.get("as") == "numeric":
+        if not det.get("integer_like", True):
+            return True
+        return det.get("density", 1.0) < 1e-3
+    if col["kind"] != "numeric":
+        return False
+    if _tiene_decimales(ds_id, name):
+        return True
+    st = col.get("stats") or {}
+    mn, mx = st.get("min"), st.get("max")
+    if mn is None or mx is None or mx <= mn:
+        return False
+    return (col["non_null"] / (float(mx) - float(mn) + 1)) < 1e-3
 
 
 def _tiene_decimales(ds_id: str, name: str) -> bool:
@@ -286,9 +320,11 @@ def _detect_cast(ds_id: str, name: str, col: dict) -> dict[str, Any] | None:
         parsed = comma if use_comma else dot
         finitos = parsed.dropna()
         entero = bool(len(finitos) and (finitos % 1 == 0).all())
+        rango = float(finitos.max() - finitos.min()) if len(finitos) > 1 else 0.0
+        densidad = len(finitos) / (rango + 1) if rango > 0 else 1.0
         return {"as": "numeric", "ratio": max(r_dot, r_comma), "decimal_comma": use_comma,
                 "strip_symbols": bool((cleaned != stripped).any()),
-                "integer_like": entero,
+                "integer_like": entero, "density": densidad,
                 "needs_trim": needs_trim, "mixed_case": mixed_case}
 
     # fecha: sólo si el nombre lo sugiere o el patrón es inequívoco
@@ -437,9 +473,17 @@ def audit_leakage(ds_id: str, target: str, threshold: float = 0.98,
         strength = float(rel.get("strength") or 0.0)
         blocked, detail = False, ""
         if strength >= threshold:
-            blocked = True
-            detail = (f"Asociación univariada casi perfecta con «{target}» "
-                      f"({rel['metric']} = {rel['value']}).")
+            if rel["metric"] == "eta2" and not name_echo:
+                # una categórica de pocos niveles no puede reconstruir un
+                # target continuo: explica varianza ENTRE grupos, que en un
+                # panel agregado es estructura legítima. Se marca, no se corta.
+                detail = (f"Explica casi toda la varianza de «{target}» entre sus grupos "
+                          f"(eta² = {rel['value']}). En un panel agregado suele ser "
+                          f"estructura, no fuga: revisá si existe al momento de predecir.")
+            else:
+                blocked = True
+                detail = (f"Asociación univariada casi perfecta con «{target}» "
+                          f"({rel['metric']} = {rel['value']}).")
         elif name_echo and strength >= 0.85:
             blocked = True
             detail = (f"El nombre deriva de «{target}» y la asociación es muy alta "

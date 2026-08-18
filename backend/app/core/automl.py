@@ -34,17 +34,14 @@ from .features import Preprocessor, base_columns, select_by_importance
 warnings.filterwarnings("ignore")
 
 try:
-    import lightgbm as lgb
     HAS_LGB = True
 except Exception:                                   # pragma: no cover
     HAS_LGB = False
 try:
-    import xgboost as xgb
     HAS_XGB = True
 except Exception:                                   # pragma: no cover
     HAS_XGB = False
 try:
-    import catboost as cb
     HAS_CB = True
 except Exception:                                   # pragma: no cover
     HAS_CB = False
@@ -75,6 +72,7 @@ class TrainConfig:
     holdout_size: float = 0.20
     budget_seconds: int = 120          # presupuesto de optimización
     max_models: int = 6
+    models: list[str] | None = None    # familias explícitas del catálogo (None = automático)
     feature_selection: bool = True
     calibrate: bool = True             # calibración isotónica (clasificación)
     ensemble: bool = True              # combinar los mejores en vez de coronar uno
@@ -164,151 +162,17 @@ def _n_classes(y) -> int:
 
 
 def build_zoo(task: str, cfg: TrainConfig, n_rows: int, n_feats: int) -> dict[str, dict]:
-    """Catálogo de familias con su espacio de búsqueda de hiperparámetros."""
-    rs = cfg.random_state
-    small = n_rows < 5_000
-    zoo: dict[str, dict] = {}
+    """Catálogo de familias, resuelto por el registro extensible (`core/zoo`)."""
+    from . import zoo as Z
 
-    if HAS_LGB:
-        zoo["lightgbm"] = {
-            "matrix": "tree",
-            "space": lambda t: {
-                "num_leaves": t.suggest_int("num_leaves", 7, 127, log=True),
-                "learning_rate": t.suggest_float("learning_rate", 0.02, 0.25, log=True),
-                "n_estimators": t.suggest_int("n_estimators", 120, 700),
-                "min_child_samples": t.suggest_int("min_child_samples", 5, 200, log=True),
-                "reg_lambda": t.suggest_float("reg_lambda", 1e-3, 50.0, log=True),
-                "colsample_bytree": t.suggest_float("colsample_bytree", 0.5, 1.0),
-                "subsample": t.suggest_float("subsample", 0.6, 1.0),
-            },
-            "default": {"num_leaves": 31, "learning_rate": 0.06, "n_estimators": 300,
-                        "min_child_samples": 40, "reg_lambda": 5.0,
-                        "colsample_bytree": 0.8, "subsample": 0.85},
-            "make": lambda p: _lgb(task, p, rs),
-        }
-    if HAS_XGB:
-        zoo["xgboost"] = {
-            "matrix": "tree",
-            "space": lambda t: {
-                "max_depth": t.suggest_int("max_depth", 3, 10),
-                "learning_rate": t.suggest_float("learning_rate", 0.02, 0.3, log=True),
-                "n_estimators": t.suggest_int("n_estimators", 120, 600),
-                "min_child_weight": t.suggest_float("min_child_weight", 0.5, 30.0, log=True),
-                "reg_lambda": t.suggest_float("reg_lambda", 1e-2, 50.0, log=True),
-                "subsample": t.suggest_float("subsample", 0.6, 1.0),
-                "colsample_bytree": t.suggest_float("colsample_bytree", 0.5, 1.0),
-            },
-            "default": {"max_depth": 6, "learning_rate": 0.08, "n_estimators": 300,
-                        "min_child_weight": 3.0, "reg_lambda": 2.0,
-                        "subsample": 0.85, "colsample_bytree": 0.8},
-            "make": lambda p: _xgb(task, p, rs),
-        }
-    zoo["hist_gradient_boosting"] = {
-        "matrix": "tree",
-        "space": lambda t: {
-            "max_leaf_nodes": t.suggest_int("max_leaf_nodes", 7, 96, log=True),
-            "learning_rate": t.suggest_float("learning_rate", 0.02, 0.3, log=True),
-            "max_iter": t.suggest_int("max_iter", 120, 500),
-            "min_samples_leaf": t.suggest_int("min_samples_leaf", 5, 150, log=True),
-            "l2_regularization": t.suggest_float("l2_regularization", 1e-3, 30.0, log=True),
-        },
-        "default": {"max_leaf_nodes": 31, "learning_rate": 0.07, "max_iter": 250,
-                    "min_samples_leaf": 30, "l2_regularization": 3.0},
-        "make": lambda p: _hgb(task, p, rs),
-    }
-    zoo["random_forest"] = {
-        "matrix": "tree",
-        "space": lambda t: {
-            "n_estimators": t.suggest_int("n_estimators", 150, 500),
-            "max_depth": t.suggest_int("max_depth", 5, 28),
-            "min_samples_leaf": t.suggest_int("min_samples_leaf", 1, 40, log=True),
-            "max_features": t.suggest_float("max_features", 0.3, 1.0),
-        },
-        "default": {"n_estimators": 250, "max_depth": 18, "min_samples_leaf": 5,
-                    "max_features": 0.7},
-        "make": lambda p: _forest(task, p, rs, extra=False),
-    }
-    zoo["extra_trees"] = {
-        "matrix": "tree",
-        "space": lambda t: {
-            "n_estimators": t.suggest_int("n_estimators", 150, 500),
-            "max_depth": t.suggest_int("max_depth", 5, 28),
-            "min_samples_leaf": t.suggest_int("min_samples_leaf", 1, 40, log=True),
-            "max_features": t.suggest_float("max_features", 0.3, 1.0),
-        },
-        "default": {"n_estimators": 250, "max_depth": 20, "min_samples_leaf": 3,
-                    "max_features": 0.8},
-        "make": lambda p: _forest(task, p, rs, extra=True),
-    }
-    zoo["linear"] = {
-        "matrix": "linear",
-        "space": lambda t: {"alpha": t.suggest_float("alpha", 1e-3, 30.0, log=True)},
-        "default": {"alpha": 1.0},
-        "make": lambda p: _linear(task, p, rs),
-    }
-    if HAS_CB and small:
-        zoo["catboost"] = {
-            "matrix": "tree",
-            "space": lambda t: {
-                "depth": t.suggest_int("depth", 4, 9),
-                "learning_rate": t.suggest_float("learning_rate", 0.03, 0.3, log=True),
-                "iterations": t.suggest_int("iterations", 150, 500),
-                "l2_leaf_reg": t.suggest_float("l2_leaf_reg", 1.0, 20.0, log=True),
-            },
-            "default": {"depth": 6, "learning_rate": 0.1, "iterations": 300, "l2_leaf_reg": 3.0},
-            "make": lambda p: _catboost(task, p, rs),
-        }
-    return zoo
+    return Z.build_zoo(task, cfg, n_rows, n_feats)
 
 
-def _lgb(task, p, rs):
-    kw = dict(verbosity=-1, random_state=rs, n_jobs=-1, subsample_freq=1, **p)
-    if task == "regression":
-        return lgb.LGBMRegressor(**kw)
-    return lgb.LGBMClassifier(class_weight="balanced" if task == "binary" else None, **kw)
+def _hgb(task: str, params: dict, rs: int):
+    """Acceso directo al HistGradientBoosting del catálogo (uso interno)."""
+    from . import zoo as Z
 
-
-def _xgb(task, p, rs):
-    kw = dict(random_state=rs, n_jobs=-1, tree_method="hist", verbosity=0,
-              enable_categorical=False, **p)
-    if task == "regression":
-        return xgb.XGBRegressor(**kw)
-    return xgb.XGBClassifier(eval_metric="logloss", **kw)
-
-
-def _hgb(task, p, rs):
-    from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
-    kw = dict(random_state=rs, early_stopping=False, **p)
-    return (HistGradientBoostingRegressor(**kw) if task == "regression"
-            else HistGradientBoostingClassifier(**kw))
-
-
-def _forest(task, p, rs, extra: bool):
-    from sklearn.ensemble import (
-        ExtraTreesClassifier,
-        ExtraTreesRegressor,
-        RandomForestClassifier,
-        RandomForestRegressor,
-    )
-    kw = dict(random_state=rs, n_jobs=-1, **p)
-    if task == "regression":
-        return (ExtraTreesRegressor if extra else RandomForestRegressor)(**kw)
-    return (ExtraTreesClassifier if extra else RandomForestClassifier)(
-        class_weight="balanced_subsample" if task == "binary" else None, **kw)
-
-
-def _linear(task, p, rs):
-    from sklearn.linear_model import LogisticRegression, Ridge
-    if task == "regression":
-        return Ridge(alpha=p.get("alpha", 1.0), random_state=rs)
-    return LogisticRegression(C=1.0 / max(p.get("alpha", 1.0), 1e-6), max_iter=3000,
-                              class_weight="balanced" if task == "binary" else None,
-                              n_jobs=-1)
-
-
-def _catboost(task, p, rs):
-    kw = dict(random_seed=rs, verbose=0, allow_writing_files=False, **p)
-    return cb.CatBoostRegressor(**kw) if task == "regression" else cb.CatBoostClassifier(**kw)
+    return Z.all_specs()["hist_gradient_boosting"].make(task, params, rs)
 
 
 # ═════════════════════════════════════════════════ transformación target ═════
