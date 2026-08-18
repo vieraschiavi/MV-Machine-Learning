@@ -106,6 +106,9 @@ def profile(ds_id: str, top_k: int = 12, hist_bins: int = 20) -> dict[str, Any]:
                         f"SELECT avg(length({q})), max(length({q})) FROM {t} WHERE {q} IS NOT NULL"
                     ).fetchone()
                     info["stats"] = {"avg_len": _f(lens[0]), "max_len": _f(lens[1])}
+                    # texto libre: largo y variedad altos. No se trata como
+                    # categórica: se vectoriza con TF-IDF al entrenar.
+                    info["is_text"] = bool((lens[0] or 0) >= 25 and info["distinct_pct"] >= 50)
             cols.append(info)
 
         dups = con.execute(f"SELECT count(*) FROM (SELECT * FROM {t} GROUP BY ALL HAVING count(*)>1)").fetchone()[0]
@@ -160,10 +163,20 @@ def quality_report(rows: int, cols: list[dict], dup_groups: int) -> dict[str, An
         elif c["null_pct"] >= 20:
             issues.append({"column": n, "severity": "medium", "code": "nulls_medium",
                            "detail": f"{c['null_pct']:.1f}% de nulos."})
-        if c["kind"] == "categorical" and c["distinct"] > 200 and not c["unique_key"]:
+        if c.get("is_text"):
+            issues.append({"column": n, "severity": "low", "code": "text",
+                           "detail": "Texto libre: se vectoriza con TF-IDF al entrenar."})
+        elif c["kind"] == "categorical" and c["distinct"] > 200 and not c["unique_key"]:
             issues.append({"column": n, "severity": "medium", "code": "high_cardinality",
                            "detail": f"{c['distinct']} categorías distintas."})
-        if c["unique_key"]:
+        st_id = c.get("stats") or {}
+        if c["kind"] == "numeric":
+            entero = all((st_id.get(k) is None or float(st_id[k]) % 1 == 0)
+                         for k in ("min", "p25", "median", "p75", "max"))
+        else:
+            entero = True     # el criterio de enteros sólo aplica a numéricas
+        if c["unique_key"] and not c.get("is_text") and (c["kind"] != "numeric" or entero):
+            # un importe continuo no repite nunca y no es una clave
             issues.append({"column": n, "severity": "low", "code": "identifier",
                            "detail": "Parece un identificador: se excluye como feature."})
         st = c.get("stats") or {}
@@ -281,6 +294,9 @@ def _association(x: pd.Series, y: pd.Series, task: str) -> dict[str, Any] | None
         return None
     x, y = x[ok], y[ok]
     x_num = pd.api.types.is_numeric_dtype(x) and not pd.api.types.is_bool_dtype(x)
+    if not x_num and x.nunique() > 2000:
+        # texto libre o clave: la tabla de contingencia no cabe ni informa
+        return None
     try:
         if task == "regression":
             yf = y.astype(float)

@@ -10,8 +10,16 @@ let nav = null;
 let cfg = {
   budget_seconds: 120, max_models: 6, feature_selection: true, calibrate: true,
   ensemble: true, shap: true, permutation_importance: true, time_column: null,
-  metric: null, exclude: [],
+  metric: null, exclude: [], models: null,
 };
+let familyCatalog = null;
+
+async function loadCatalog() {
+  if (familyCatalog) return familyCatalog;
+  try { familyCatalog = (await api.get('/api/automl/catalog')).families; }
+  catch { familyCatalog = []; }
+  return familyCatalog;
+}
 
 /* ── el cartel: escribí qué querés predecir ──────────────────────────────── */
 function objectiveCard(onTarget) {
@@ -146,6 +154,39 @@ async function targetAnalysis(datasetId, target) {
   return box;
 }
 
+/* ── catálogo de familias ────────────────────────────────────────────────── */
+function familiesBlock() {
+  const host = el('div', { class: 'field' },
+    el('label', { text: t('model.families') }),
+    el('div', { class: 'small muted', text: t('common.loading') }));
+  loadCatalog().then((families) => {
+    const grid = el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px' });
+    families.forEach((f) => {
+      const inp = el('input', { type: 'checkbox', checked: (cfg.models || []).includes(f.name),
+        disabled: !f.available });
+      inp.onchange = () => {
+        const set = new Set(cfg.models || []);
+        if (inp.checked) set.add(f.name); else set.delete(f.name);
+        cfg.models = set.size ? [...set] : null;
+        hint.textContent = cfg.models
+          ? `${cfg.models.length} ${t('model.families').toLowerCase()}`
+          : t('model.families_auto');
+      };
+      grid.appendChild(el('label', { class: 'switch', title: f.description },
+        inp, el('span', { class: 'switch-track' }),
+        el('span', { text: f.label })));
+    });
+    const hint = el('div', { class: 'hint',
+      text: cfg.models ? `${cfg.models.length}` : t('model.families_auto') });
+    clear(host);
+    host.appendChild(el('label', { text: t('model.families') }));
+    host.appendChild(grid);
+    host.appendChild(hint);
+    host.appendChild(el('div', { class: 'hint', text: t('model.families_hint') }));
+  });
+  return host;
+}
+
 /* ── configuración ───────────────────────────────────────────────────────── */
 function configCard() {
   const cols = store.columns();
@@ -208,7 +249,8 @@ function configCard() {
     el('div', { class: 'grid grid-2' },
       el('div', { class: 'field' }, el('label', { text: t('model.exclude_columns') }), excludeSel),
       el('div', { class: 'field' }, el('label', { text: t('common.advanced') }),
-        el('div', { style: 'display:flex;flex-direction:column;gap:10px' }, ...toggles))));
+        el('div', { style: 'display:flex;flex-direction:column;gap:10px' }, ...toggles))),
+    familiesBlock());
 }
 
 export default {

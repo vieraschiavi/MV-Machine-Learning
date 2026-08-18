@@ -55,7 +55,8 @@ interfaz son módulos ES nativos.
 La plataforma analiza el dataset real y **propone un plan**, paso por paso, con
 el motivo de cada uno:
 
-* columnas constantes, identificadores y columnas casi vacías;
+* columnas constantes, identificadores y columnas casi vacías (un monto
+  entero único **no** es un identificador: la clave es entera *y densa*);
 * texto que en realidad es numérico (`$ 1.234,56` → `1234.56`, con la convención
   decimal deducida de la forma de los valores);
 * texto que en realidad es fecha, del que se derivan año, mes, día, día de
@@ -68,6 +69,22 @@ el motivo de cada uno:
 Nada se ejecuta hasta que lo aprobás. Podés desactivar cualquier paso. El plan
 se compila a **una sola sentencia SQL que la interfaz te muestra**.
 
+### 2 bis. Texto libre como feature
+
+Una columna de observaciones o comentarios se detecta sola, se vectoriza con
+TF-IDF + SVD **ajustado únicamente sobre la ventana de entrenamiento**, y sus
+componentes compiten junto a las variables numéricas y categóricas del mismo
+modelo. El ETL la declara y la protege. A diferencia de dashAI, el texto no es
+una tarea aparte: convive con el resto de la tabla.
+
+### 2 ter. Workspaces aislados con catálogo SQLite
+
+Cada workspace separa datasets, modelos, conexiones, exportaciones e historial
+de trabajos; se cambia desde la barra superior y viaja en cada request
+(`X-Workspace`). Un catálogo **SQLite** por workspace indexa los artefactos y
+persiste el historial de trabajos entre reinicios; si se pierde, se
+reconstruye solo desde el disco.
+
 ### 3. Decís qué querés predecir, en tus palabras
 
 Escribís *"si el cliente va a pagar en los próximos 30 días"* y la plataforma
@@ -78,9 +95,14 @@ heurística propia que entiende los tres idiomas.
 
 ### 4. AutoML con validación honesta
 
-Compiten LightGBM, XGBoost, CatBoost, HistGradientBoosting, Random Forest,
-Extra Trees y modelos lineales, con búsqueda de hiperparámetros (Optuna) sujeta
-a un presupuesto de tiempo que fijás vos. Además:
+Compiten **15 familias registradas** — LightGBM, XGBoost, CatBoost,
+HistGradientBoosting, Random Forest, Extra Trees, Gradient Boosting clásico,
+AdaBoost, árbol de decisión, lineal, Elastic Net, SGD, KNN, MLP y Naive
+Bayes — con búsqueda de hiperparámetros (Optuna) sujeta a un presupuesto de
+tiempo que fijás vos. El catálogo es **extensible al estilo de dashAI**:
+cada familia es un archivo en `backend/app/core/zoo/` y agregar un modelo no
+toca el motor; toda familia registrada hereda el protocolo de validación, la
+calibración y la comparación contra la combinación. Además:
 
 * **depuración automática de features**, aceptada sólo si no empeora la métrica;
 * **calibración isotónica**, aplicada sólo si mejora el error de calibración;
@@ -198,3 +220,8 @@ pipeline por motivos que no son del código.
   límite de tamaño y qué hace cada módulo.
 * [Modelos adjuntos](docs/MODELOS_ADJUNTOS.md) — qué se tomó de los motores
   ProbPago v12/v13 y MV AutoML V50, qué no, y por qué.
+* [dashAI](docs/DASHAI.md) — qué se tomó de su código real (registro de
+  componentes, catálogo sklearn, texto) y qué se hizo distinto a propósito.
+* [`examples/`](examples/README.md) — datasets sintéticos listos para recorrer
+  la plataforma, incluida una columna de texto libre y un panel de cobranzas
+  con fuga contable para que la auditoría trabaje.

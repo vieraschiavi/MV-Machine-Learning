@@ -16,8 +16,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import ai, automl, connectors, datasets, etl, exports, jobs
+from .api import ai, automl, connectors, datasets, etl, exports, jobs, workspaces
 from .config import settings
+from .core import workspace as W
 
 log = logging.getLogger("mv")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -38,8 +39,29 @@ app.add_middleware(
 )
 
 for r in (datasets.router, connectors.router, etl.router, automl.router,
-          ai.router, exports.router, jobs.router):
+          ai.router, exports.router, jobs.router, workspaces.router):
     app.include_router(r)
+
+
+@app.middleware("http")
+async def workspace_middleware(request: Request, call_next):
+    """Activa el workspace del encabezado X-Workspace (o query ?workspace=).
+
+    El query param existe porque EventSource y los links de descarga no pueden
+    mandar encabezados. Un workspace inexistente cae al principal en las
+    lecturas y devuelve 400 en el alta de datos.
+    """
+    name = (request.headers.get("x-workspace")
+            or request.query_params.get("workspace") or W.DEFAULT)
+    if not W.exists(name):
+        name = W.DEFAULT
+    token = W.activate(name)
+    try:
+        response = await call_next(request)
+    finally:
+        W.deactivate(token)
+    response.headers["X-Workspace"] = W.normalize(name)
+    return response
 
 
 @app.exception_handler(Exception)

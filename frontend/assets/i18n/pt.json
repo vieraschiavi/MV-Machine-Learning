@@ -243,7 +243,10 @@
     "training": "Treinando",
     "train_again": "Treinar de novo",
     "protocol_title": "Protocolo de validação",
-    "protocol_text": "Os dados são divididos em três: treinamento para ajustar, seleção para escolher e holdout cego que nenhuma decisão toca. O número reportado é o do holdout, porque reportar a janela usada para escolher o modelo sempre parece melhor do que o modelo realmente é."
+    "protocol_text": "Os dados são divididos em três: treinamento para ajustar, seleção para escolher e holdout cego que nenhuma decisão toca. O número reportado é o do holdout, porque reportar a janela usada para escolher o modelo sempre parece melhor do que o modelo realmente é.",
+    "families": "Famílias de modelos",
+    "families_auto": "Seleção automática por prioridade",
+    "families_hint": "Sem seleção, competem as melhores famílias disponíveis para o tamanho do dataset. O catálogo é extensível: cada família é um arquivo em backend/app/core/zoo."
   },
   "results": {
     "title": "Resultados",
@@ -368,5 +371,16 @@
     "sounds": "Sons da interface",
     "listening": "Ouvindo",
     "voice_unsupported": "Este navegador não suporta ditado por voz."
+  },
+  "workspace": {
+    "title": "Workspace",
+    "switch": "Trocar de workspace",
+    "new": "Novo workspace…",
+    "name": "Nome do workspace",
+    "name_hint": "Minúsculas, números, hífen e sublinhado. Cada workspace isola seus datasets, modelos, conexões e arquivos.",
+    "create": "Criar workspace",
+    "created": "Workspace criado",
+    "delete_confirm": "Excluir este workspace com todos os seus datasets e modelos?",
+    "isolated": "Os dados de um workspace não são visíveis de outro."
   }
 }

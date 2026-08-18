@@ -243,7 +243,10 @@
     "training": "Training",
     "train_again": "Train again",
     "protocol_title": "Validation protocol",
-    "protocol_text": "The data is split three ways: training to fit, selection to choose, and a blind holdout that no decision ever touches. The number reported is the holdout one, because reporting the window used to choose the model always looks better than the model really is."
+    "protocol_text": "The data is split three ways: training to fit, selection to choose, and a blind holdout that no decision ever touches. The number reported is the holdout one, because reporting the window used to choose the model always looks better than the model really is.",
+    "families": "Model families",
+    "families_auto": "Automatic selection by priority",
+    "families_hint": "With nothing selected, the best available families for the dataset size compete. The catalog is extensible: each family is one file under backend/app/core/zoo."
   },
   "results": {
     "title": "Results",
@@ -368,5 +371,16 @@
     "sounds": "Interface sounds",
     "listening": "Listening",
     "voice_unsupported": "This browser does not support voice dictation."
+  },
+  "workspace": {
+    "title": "Workspace",
+    "switch": "Switch workspace",
+    "new": "New workspace…",
+    "name": "Workspace name",
+    "name_hint": "Lowercase, numbers, dash and underscore. Each workspace isolates its datasets, models, connections and files.",
+    "create": "Create workspace",
+    "created": "Workspace created",
+    "delete_confirm": "Delete this workspace with all its datasets and models?",
+    "isolated": "Data in one workspace is not visible from another."
   }
 }

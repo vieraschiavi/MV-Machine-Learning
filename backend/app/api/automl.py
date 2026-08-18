@@ -22,6 +22,7 @@ class TrainBody(BaseModel):
     metric: str | None = None
     budget_seconds: int = 120
     max_models: int = 6
+    models: list[str] | None = None
     feature_selection: bool = True
     calibrate: bool = True
     ensemble: bool = True
@@ -47,7 +48,7 @@ def train(body: TrainBody) -> dict[str, Any]:
     cfg = A.TrainConfig(
         target=body.target, task=body.task, time_column=body.time_column,
         exclude=body.exclude, metric=body.metric, budget_seconds=body.budget_seconds,
-        max_models=body.max_models, feature_selection=body.feature_selection,
+        max_models=body.max_models, models=body.models, feature_selection=body.feature_selection,
         calibrate=body.calibrate, ensemble=body.ensemble, log_target=body.log_target,
         shap=body.shap, permutation_importance=body.permutation_importance,
         selection_size=body.selection_size, holdout_size=body.holdout_size,
@@ -68,6 +69,14 @@ def train(body: TrainBody) -> dict[str, Any]:
 
     return jobs.run("training", f"Entrenamiento sobre «{body.target}»", work,
                     meta={"dataset_id": body.dataset_id, "target": body.target})
+
+
+@router.get("/catalog")
+def catalog(task: str | None = None) -> dict[str, Any]:
+    """Catálogo de familias de modelos registradas y su disponibilidad."""
+    from ..core import zoo
+
+    return {"families": zoo.catalog(task)}
 
 
 @router.get("/models")

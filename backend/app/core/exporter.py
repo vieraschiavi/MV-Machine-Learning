@@ -20,8 +20,9 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from ..config import settings
+from ..config import settings  # noqa: F401
 from . import storage as S
+from . import workspace
 
 AZUL, VERDE, AMBAR, ROJO, GRIS = "#1E3A8A", "#C6EFCE", "#FFEB9C", "#FFC7CE", "#F2F2F2"
 XLSX_MAX_ROWS = 1_048_575
@@ -431,7 +432,7 @@ def export_dataset(dataset_id: str, fmt: str = "csv", sep: str = ";",
     meta = S.load_meta(dataset_id)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     safe = "".join(ch if ch.isalnum() or ch in "-_ " else "_" for ch in meta.name)[:60].strip()
-    out = settings.export_dir / f"{safe or 'dataset'}_{stamp}.{ 'parquet' if fmt=='parquet' else fmt}"
+    out = workspace.dir_for("exports") / f"{safe or 'dataset'}_{stamp}.{ 'parquet' if fmt=='parquet' else fmt}"
     t0 = time.time()
 
     if fmt == "parquet":

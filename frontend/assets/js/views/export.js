@@ -1,5 +1,6 @@
 /** Exportación: informe Excel corporativo y datos en CSV o Parquet. */
 import * as api from '../api.js';
+import { withWorkspace } from '../api.js';
 import { t, num, bytes, when } from '../i18n.js';
 import * as store from '../store.js';
 import * as audio from '../audio.js';
@@ -59,7 +60,7 @@ export default {
         audio.beep('done');
         clear(out).appendChild(note(
           `${r.filename} · ${bytes(r.size_bytes)} · ${r.sheets.join(' · ')}`, 'ok'));
-        out.appendChild(el('a', { class: 'btn btn-primary mt-1', href: r.download_url, download: '' },
+        out.appendChild(el('a', { class: 'btn btn-primary mt-1', href: withWorkspace(r.download_url), download: '' },
           icon('download', 15), t('common.download')));
         toast(r.filename, 'ok', t('common.success'));
         self.renderFiles();
@@ -101,7 +102,7 @@ export default {
           }, (j) => job2.update(j));
           audio.beep('done');
           clear(out2).appendChild(note(`${r.filename} · ${num(r.rows)} ${t('common.rows')} · ${bytes(r.size_bytes)}`, 'ok'));
-          out2.appendChild(el('a', { class: 'btn btn-primary mt-1', href: r.download_url, download: '' },
+          out2.appendChild(el('a', { class: 'btn btn-primary mt-1', href: withWorkspace(r.download_url), download: '' },
             icon('download', 15), t('common.download')));
           self.renderFiles();
         } catch (err) { fail(err); } finally { b.disabled = false; }
@@ -140,7 +141,7 @@ export default {
         { key: 'size_bytes', label: t('common.size'), align: 'right', format: (v) => bytes(v) },
         { key: 'modified', label: t('common.created'), format: (v) => when(v) },
         { key: 'download_url', label: '',
-          render: (v) => el('a', { class: 'btn btn-sm', href: v, download: '' }, t('common.download')) },
+          render: (v) => el('a', { class: 'btn btn-sm', href: withWorkspace(v), download: '' }, t('common.download')) },
       ], r.files, { maxHeight: '380px' }));
     } catch { /* la lista es accesoria */ }
   },

@@ -2,6 +2,7 @@
 import * as i18n from './i18n.js';
 import * as audio from './audio.js';
 import * as store from './store.js';
+import * as api from './api.js';
 import { $, $$, el, icon, clear, toast, fail, modal } from './ui.js';
 
 import overview from './views/overview.js';
@@ -69,6 +70,59 @@ function buildNav() {
     }, icon(cfg.icon), el('span', { text: i18n.t(`nav.${name}`), 'data-i18n': `nav.${name}` }));
     nav.appendChild(btn);
   });
+}
+
+/* ── selector de workspace ───────────────────────────────────────────────── */
+async function buildWorkspaceSelect() {
+  const sel = $('#workspace-select');
+  if (!sel) return;
+  let list = [{ name: 'principal' }];
+  try { list = (await api.get('/api/workspaces')).workspaces; } catch { /* offline */ }
+  const active = api.workspaceName();
+  clear(sel);
+  list.forEach((w) => sel.appendChild(el('option', {
+    value: w.name, selected: w.name === active,
+    text: w.name + (w.datasets ? ` (${w.datasets})` : ''),
+  })));
+  sel.appendChild(el('option', { value: '__new__', text: i18n.t('workspace.new') }));
+  if (![...sel.options].some((o) => o.selected)) sel.value = 'principal';
+  sel.title = i18n.t('workspace.switch');
+
+  sel.onchange = async () => {
+    if (sel.value !== '__new__') {
+      api.setWorkspace(sel.value);
+      audio.beep('click');
+      await store.boot();
+      go(currentView || 'overview');
+      return;
+    }
+    sel.value = api.workspaceName();
+    const input = el('input', { type: 'text', placeholder: 'equipo-a' });
+    const { modal } = await import('./ui.js');
+    modal({
+      title: i18n.t('workspace.new'),
+      body: el('div', { class: 'field' },
+        el('label', { text: i18n.t('workspace.name') }), input,
+        el('div', { class: 'hint', text: i18n.t('workspace.name_hint') })),
+      actions: [
+        { label: i18n.t('common.cancel'), kind: 'ghost' },
+        {
+          label: i18n.t('workspace.create'), kind: 'primary',
+          onClick: () => {
+            api.post('/api/workspaces', { name: input.value.trim() })
+              .then(async () => {
+                api.setWorkspace(input.value.trim().toLowerCase());
+                toast(i18n.t('workspace.created'), 'ok');
+                await buildWorkspaceSelect();
+                await store.boot();
+                go(currentView || 'overview');
+              })
+              .catch((err) => fail(err));
+          },
+        },
+      ],
+    });
+  };
 }
 
 /* ── barra superior ──────────────────────────────────────────────────────── */
@@ -181,6 +235,7 @@ async function start() {
     || (navigator.language || 'es').slice(0, 2).toLowerCase());
   buildNav();
   buildTopbar();
+  await buildWorkspaceSelect();
   store.subscribe((_, keys) => { if (keys.includes('ai')) renderAiChip(); });
 
   try {
@@ -197,7 +252,7 @@ async function start() {
     const name = (location.hash.match(/#\/(\w+)/) || [])[1];
     if (name && name !== currentView) go(name);
   });
-  i18n.onChange(() => { renderAiChip(); renderAudioButton(); });
+  i18n.onChange(() => { renderAiChip(); renderAudioButton(); buildWorkspaceSelect(); });
 }
 
 start();

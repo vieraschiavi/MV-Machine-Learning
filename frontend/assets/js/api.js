@@ -1,5 +1,16 @@
 /** Cliente HTTP de la API. Todo error del servidor llega acá con mensaje legible. */
 
+/** Workspace activo: viaja en cada request y aísla datasets, modelos y archivos. */
+export const workspaceName = () => localStorage.getItem('mv.workspace') || 'principal';
+export function setWorkspace(name) {
+  localStorage.setItem('mv.workspace', name || 'principal');
+}
+/** Anexa el workspace a URLs que no pueden mandar encabezados (SSE, descargas). */
+export function withWorkspace(url) {
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}workspace=${encodeURIComponent(workspaceName())}`;
+}
+
 export class ApiError extends Error {
   constructor(message, status, payload) {
     super(message);
@@ -14,7 +25,10 @@ async function request(method, path, body, options = {}) {
   try {
     res = await fetch(path, {
       method,
-      headers: body instanceof FormData || body == null ? {} : { 'Content-Type': 'application/json' },
+      headers: {
+        'X-Workspace': workspaceName(),
+        ...(body instanceof FormData || body == null ? {} : { 'Content-Type': 'application/json' }),
+      },
       body: body == null ? undefined : (body instanceof FormData ? body : JSON.stringify(body)),
       signal: options.signal,
     });
@@ -43,6 +57,7 @@ export function uploadFile(file, { name, onProgress } = {}) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `/api/datasets/upload-stream?${params}`);
+    xhr.setRequestHeader('X-Workspace', workspaceName());
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total, e.loaded, e.total);
     };
@@ -93,7 +108,7 @@ export function followJob(jobId, { onProgress } = {}) {
     };
 
     try {
-      source = new EventSource(`/api/jobs/${jobId}/stream`);
+      source = new EventSource(withWorkspace(`/api/jobs/${jobId}/stream`));
       source.onmessage = (e) => { try { handle(JSON.parse(e.data)); } catch { /* ignorado */ } };
       source.onerror = () => {
         if (settled) return;
