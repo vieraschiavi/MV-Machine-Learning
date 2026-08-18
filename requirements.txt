@@ -19,6 +19,8 @@ xlsxwriter>=3.1
 
 # Machine Learning
 scikit-learn>=1.4
+optuna>=3.5
+shap>=0.44
 scipy>=1.11
 lightgbm>=4.1
 xgboost>=2.0
