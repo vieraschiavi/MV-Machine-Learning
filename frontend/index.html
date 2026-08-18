@@ -1,0 +1,55 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="MV AutoML Studio — ETL automático, AutoML y análisis estadístico sobre cualquier dataset.">
+<meta name="color-scheme" content="light dark">
+<title>MV AutoML Studio</title>
+<link rel="stylesheet" href="/assets/css/app.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Ctext x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EMV%3C/text%3E%3C/svg%3E">
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <div class="brand-logo">MV</div>
+        <div>
+          <div class="brand-name" data-i18n="app.name">MV AutoML Studio</div>
+          <div class="brand-sub" data-i18n="app.tagline"></div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot">
+      <span id="version">v1.0.0</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="btn btn-ghost btn-icon menu-toggle" id="menu-btn" type="button" aria-label="Menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="topbar-title" id="topbar-title"></div>
+      <div class="topbar-spacer"></div>
+      <span class="badge" id="ai-chip"></span>
+      <select id="lang-select" style="width:auto;min-width:118px" aria-label="Language"></select>
+      <button class="btn btn-ghost btn-icon" id="audio-btn" type="button"></button>
+      <button class="btn btn-ghost btn-icon" id="audio-settings-btn" type="button" data-i18n-title="audio.title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 5 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9.5a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-icon" id="theme-btn" type="button"></button>
+    </header>
+
+    <main class="content">
+      <section class="view" id="view-overview"></section>
+      <section class="view" id="view-data"></section>
+      <section class="view" id="view-explore"></section>
+      <section class="view" id="view-etl"></section>
+      <section class="view" id="view-model"></section>
+      <section class="view" id="view-results"></section>
+      <section class="view" id="view-ai"></section>
+      <section class="view" id="view-export"></section>
+    </main>
+  </div>
+</div>
+
+<script type="module" src="/assets/js/app.js"></script>
