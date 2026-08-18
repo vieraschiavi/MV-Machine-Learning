@@ -36,3 +36,6 @@ pymssql>=2.2
 
 # Proveedores de IA (HTTP genérico, sin SDKs propietarios)
 httpx>=0.26
+
+# Licencias (firmas Ed25519)
+cryptography>=41.0
