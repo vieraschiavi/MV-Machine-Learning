@@ -1,0 +1,30 @@
+# ── datos del workspace (nunca se versionan) ─────────────────────────────────
+data/
+!data/.gitkeep
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node (sólo para la prueba de navegador opcional) ─────────────────────────
+node_modules/
+package-lock.json
+
+# ── sistema ──────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
