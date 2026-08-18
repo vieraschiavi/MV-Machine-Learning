@@ -28,3 +28,11 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
+
+# ── escritorio: artefactos de build y llaves (nunca se versionan) ────────────
+pybuild/
+desktop/cachedir/
+desktop/keys/
+desktop/owner/
+desktop/release/
+!desktop/build/

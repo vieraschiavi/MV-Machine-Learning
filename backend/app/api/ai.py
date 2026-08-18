@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from ..core import ai as AI
+from ..core import licensing as L
 from ..core import registry, storage
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
@@ -27,6 +28,7 @@ class ConfigBody(BaseModel):
 
 @router.post("/config")
 def config(body: ConfigBody) -> dict[str, Any]:
+    L.require("ai_providers")
     try:
         cfg = AI.save_config(body.provider, body.api_key, body.model, body.base_url)
         if body.set_active:
@@ -39,6 +41,7 @@ def config(body: ConfigBody) -> dict[str, Any]:
 @router.post("/models/refresh")
 def refresh(body: ConfigBody) -> dict[str, Any]:
     """Botón *Actualizar*: trae el catálogo real de modelos del proveedor."""
+    L.require("ai_providers")
     if body.api_key:
         AI.save_config(body.provider, body.api_key, base_url=body.base_url)
     try:
@@ -248,6 +251,25 @@ def narrate(body: NarrateBody) -> dict[str, Any]:
         return AI.narrate(payload, body.kind, body.lang, body.provider, body.model)
     except AI.AIError as exc:
         raise HTTPException(400, str(exc)) from exc
+
+
+class AskBody(BaseModel):
+    dataset_id: str
+    question: str
+    lang: str = "es"
+
+
+@router.post("/ask")
+def ask_data(body: AskBody) -> dict[str, Any]:
+    """Preguntale a tus datos. Con IA traduce y redacta; sin IA, reglas locales."""
+    from ..core import ask as ASK
+
+    try:
+        return ASK.ask(body.dataset_id, body.question, body.lang)
+    except ASK.AskError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    except storage.IngestError as exc:
+        raise HTTPException(404, str(exc)) from exc
 
 
 class ReviewBody(BaseModel):

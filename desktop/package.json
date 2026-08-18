@@ -1,0 +1,17 @@
+{
+  "name": "mv-automl-studio",
+  "productName": "MV AutoML Studio",
+  "version": "1.1.0",
+  "description": "ETL automático, AutoML y análisis estadístico sobre cualquier dataset",
+  "author": "Martín Viera <vieraschiavi@gmail.com>",
+  "license": "SEE LICENSE",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --config electron-builder.yml"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  }
+}

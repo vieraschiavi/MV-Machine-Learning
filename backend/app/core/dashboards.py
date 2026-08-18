@@ -1,0 +1,407 @@
+"""Dashboards automáticos: KPIs, gráficos y tabla, deducidos del dataset.
+
+No hay plantillas por rubro. El motor mira el perfil real —tipos, cardinalidad,
+nombres, varianza— y decide qué merece un KPI, qué serie se grafica y por qué
+dimensiones se puede filtrar. El mismo código arma el tablero de un panel de
+cobranzas, de un CSV de ventas o de una extracción SQL.
+
+Todo el cálculo es SQL sobre DuckDB contra el Parquet: los filtros y las
+agregaciones corren fuera de memoria, así que el tablero de 200 filas y el de
+20 millones responden igual.
+"""
+from __future__ import annotations
+
+import math
+import re
+from typing import Any
+
+from . import profiling as P
+from . import storage as S
+
+# nombres que delatan una métrica de negocio (es señal, no requisito)
+MONEY_HINT = re.compile(
+    r"(monto|importe|total|cobrado|cobrar|venta|revenue|amount|precio|price|"
+    r"saldo|deuda|facturacion|ingreso|cost|gasto|valor)", re.I)
+COUNT_HINT = re.compile(r"(cantidad|cuota|socio|cliente|count|unidade|qty|numero)", re.I)
+PCT_HINT = re.compile(r"(porcentaje|pct|tasa|ratio|percent|_pc$)", re.I)
+ID_LIKE = re.compile(r"(^id|_id$|codigo|uuid|nro)", re.I)
+
+MAX_METRICS = 6
+MAX_DIMENSIONS = 4
+MAX_FILTER_LEVELS = 40
+
+
+def _q(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+# ═══════════════════════════════════════════════════════ especificación ══════
+def detect_spec(ds_id: str) -> dict[str, Any]:
+    """Analiza el dataset y propone el tablero: KPIs, gráficos, filtros, tabla."""
+    prof = P.profile(ds_id)
+    cols = prof["columns"]
+
+    tiempo = _pick_time(cols)
+    metricas = _pick_metrics(cols)
+    dimensiones = _pick_dimensions(cols, prof["rows"])
+    ml = _pick_ml(cols)
+
+    kpis = _build_kpis(metricas, ml, tiempo, prof["rows"])
+    charts = _build_charts(metricas, dimensiones, tiempo, ml)
+    filtros = _build_filters(ds_id, dimensiones, tiempo)
+
+    return {
+        "dataset_id": ds_id,
+        "title": prof["name"],
+        "rows": prof["rows"],
+        "time_column": tiempo,
+        "metrics": metricas,
+        "dimensions": [d["name"] for d in dimensiones],
+        "ml_columns": ml,
+        "kpis": kpis,
+        "charts": charts,
+        "filters": filtros,
+        "table": {"columns": [c["name"] for c in cols][:24], "page_size": 50},
+        "notes": _notes(tiempo, metricas, dimensiones, ml),
+    }
+
+
+def _pick_time(cols: list[dict]) -> str | None:
+    fechas = [c for c in cols if c["kind"] == "datetime"]
+    if not fechas:
+        return None
+    # la de mayor cardinalidad suele ser la observación, no un vencimiento fijo
+    return max(fechas, key=lambda c: c["distinct"])["name"]
+
+
+def _pick_metrics(cols: list[dict]) -> list[dict[str, Any]]:
+    """Numéricas que informan, ordenadas por cuánto parecen 'de negocio'."""
+    candidatas = []
+    for c in cols:
+        # una magnitud continua no repite nunca y sigue siendo métrica: la
+        # exclusión por unicidad sólo vale para claves con nombre de clave
+        if c["kind"] != "numeric" or c["constant"]:
+            continue
+        if ID_LIKE.search(c["name"]):
+            continue
+        st = c.get("stats") or {}
+        if st.get("std") in (None, 0):
+            continue
+        es_conteo = bool(COUNT_HINT.search(c["name"]))
+        es_monto = bool(MONEY_HINT.search(c["name"])) and not es_conteo
+        es_pct = bool(PCT_HINT.search(c["name"]) or
+                      (st.get("min", 0) >= 0 and st.get("max", 0) <= 100 and
+                       "pct" in c["name"].lower()))
+        # el monto manda; el conteo acompaña; el porcentaje se promedia
+        puntaje = (3.0 if es_monto else (2.0 if es_pct else (1.2 if es_conteo else 0.5)))
+        puntaje += min((st.get("cv") or 0), 1.0)          # variar informa
+        candidatas.append({"name": c["name"], "score": round(puntaje, 2),
+                           "format": "percent" if es_pct else ("money" if es_monto else "number"),
+                           "agg": "avg" if es_pct else "sum"})
+    candidatas.sort(key=lambda m: -m["score"])
+    return candidatas[:MAX_METRICS]
+
+
+def _pick_dimensions(cols: list[dict], rows: int) -> list[dict[str, Any]]:
+    """Categóricas de baja cardinalidad: por ellas se filtra y se agrupa."""
+    out = []
+    for c in cols:
+        if c["kind"] != "categorical" or c.get("is_text") or c["constant"]:
+            continue
+        if 2 <= c["distinct"] <= min(MAX_FILTER_LEVELS, max(rows // 5, 2)):
+            out.append({"name": c["name"], "levels": c["distinct"]})
+    out.sort(key=lambda d: d["levels"])
+    return out[:MAX_DIMENSIONS]
+
+
+def _pick_ml(cols: list[dict]) -> dict[str, Any]:
+    """Columnas que dejó un scoring: probabilidades y predicción."""
+    probas = [c["name"] for c in cols if c["name"].startswith("prob_")]
+    pred = next((c["name"] for c in cols if c["name"] == "prediccion"), None)
+    return {"probabilities": probas, "prediction": pred}
+
+
+def _build_kpis(metricas, ml, tiempo, rows) -> list[dict[str, Any]]:
+    kpis: list[dict[str, Any]] = [{
+        "id": "filas", "label": "Registros", "kind": "rows", "format": "number",
+    }]
+    for m in metricas[:4]:
+        kpis.append({
+            "id": f"{m['agg']}_{m['name']}", "label": m["name"], "kind": "metric",
+            "column": m["name"], "agg": m["agg"], "format": m["format"],
+            "delta_vs_prev": bool(tiempo),      # variación contra el período anterior
+        })
+    if ml["probabilities"]:
+        kpis.append({"id": "prob_media", "label": ml["probabilities"][0],
+                     "kind": "metric", "column": ml["probabilities"][0],
+                     "agg": "avg", "format": "percent_unit"})
+    return kpis
+
+
+def _build_charts(metricas, dimensiones, tiempo, ml) -> list[dict[str, Any]]:
+    charts: list[dict[str, Any]] = []
+    if tiempo and metricas:
+        for m in metricas[:2]:
+            charts.append({"id": f"serie_{m['name']}", "type": "line",
+                           "x": tiempo, "grain": "month",
+                           "y": m["name"], "agg": m["agg"], "format": m["format"],
+                           "title": f"{m['name']} por mes"})
+    for d in dimensiones[:2]:
+        if metricas:
+            m = metricas[0]
+            charts.append({"id": f"por_{d['name']}", "type": "bars",
+                           "x": d["name"], "y": m["name"], "agg": m["agg"],
+                           "format": m["format"],
+                           "title": f"{m['name']} por {d['name']}"})
+        else:
+            charts.append({"id": f"conteo_{d['name']}", "type": "bars",
+                           "x": d["name"], "y": None, "agg": "count",
+                           "format": "number", "title": f"Registros por {d['name']}"})
+    if metricas:
+        charts.append({"id": f"dist_{metricas[0]['name']}", "type": "histogram",
+                       "column": metricas[0]["name"],
+                       "title": f"Distribución de {metricas[0]['name']}"})
+    if ml["probabilities"]:
+        charts.append({"id": "dist_prob", "type": "histogram",
+                       "column": ml["probabilities"][0],
+                       "title": f"Distribución de {ml['probabilities'][0]}"})
+    return charts[:6]
+
+
+def _build_filters(ds_id, dimensiones, tiempo) -> list[dict[str, Any]]:
+    filtros = []
+    if tiempo:
+        r = S.query(ds_id, f"SELECT min({_q(tiempo)}) a, max({_q(tiempo)}) b FROM {{t}}")
+        filtros.append({"id": tiempo, "type": "daterange", "column": tiempo,
+                        "min": str(r["a"].iloc[0]), "max": str(r["b"].iloc[0])})
+    for d in dimensiones:
+        vals = S.query(ds_id, f"""
+            SELECT CAST({_q(d['name'])} AS VARCHAR) v, count(*) c FROM {{t}}
+            WHERE {_q(d['name'])} IS NOT NULL GROUP BY 1 ORDER BY c DESC
+            LIMIT {MAX_FILTER_LEVELS}""")
+        filtros.append({"id": d["name"], "type": "multiselect", "column": d["name"],
+                        "options": [str(v) for v in vals["v"]]})
+    return filtros
+
+
+def _notes(tiempo, metricas, dimensiones, ml) -> list[str]:
+    notas = []
+    if tiempo:
+        notas.append(f"Serie temporal detectada en «{tiempo}»: los KPIs comparan "
+                     f"contra el período anterior.")
+    if not metricas:
+        notas.append("No se detectaron métricas numéricas de negocio: el tablero "
+                     "muestra conteos por categoría.")
+    if ml["probabilities"]:
+        notas.append("El dataset trae columnas de scoring: se agregan los KPIs del modelo.")
+    return notas
+
+
+# ═══════════════════════════════════════════════════════════ ejecución ═══════
+def _where(spec: dict, filters: dict[str, Any] | None) -> tuple[str, list]:
+    """Compila los filtros activos a un WHERE parametrizado (sin inyección)."""
+    if not filters:
+        return "", []
+    conds, params = [], []
+    validos = {f["column"]: f for f in spec.get("filters", [])}
+    for col, valor in filters.items():
+        f = validos.get(col)
+        if f is None or valor in (None, "", []):
+            continue
+        q = _q(col)
+        if f["type"] == "daterange":
+            desde, hasta = (valor.get("from"), valor.get("to")) if isinstance(valor, dict) else (None, None)
+            if desde:
+                conds.append(f"{q} >= CAST(? AS TIMESTAMP)")
+                params.append(str(desde))
+            if hasta:
+                conds.append(f"{q} <= CAST(? AS TIMESTAMP) + INTERVAL 1 DAY")
+                params.append(str(hasta))
+        else:
+            valores = valor if isinstance(valor, list) else [valor]
+            marcas = ", ".join("?" for _ in valores)
+            conds.append(f"CAST({q} AS VARCHAR) IN ({marcas})")
+            params.extend(str(v) for v in valores)
+    return (" WHERE " + " AND ".join(conds)) if conds else "", params
+
+
+def _and(where: str, cond: str) -> str:
+    """Suma una condición al WHERE ya compilado, exista o no."""
+    return f"{where} AND {cond}" if where else f" WHERE {cond}"
+
+
+def run(ds_id: str, spec: dict[str, Any] | None = None,
+        filters: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Ejecuta el tablero con los filtros activos y devuelve todos los datos."""
+    spec = spec or detect_spec(ds_id)
+    where, params = _where(spec, filters)
+    tiempo = spec.get("time_column")
+
+    out: dict[str, Any] = {"spec": spec, "filters": filters or {}}
+    out["kpis"] = [_run_kpi(ds_id, k, where, params, tiempo) for k in spec["kpis"]]
+    out["charts"] = [_run_chart(ds_id, c, where, params) for c in spec["charts"]]
+
+    tabla_cols = ", ".join(_q(c) for c in spec["table"]["columns"])
+    df = S.query(ds_id, f"SELECT {tabla_cols} FROM {{t}}{where} "
+                        f"LIMIT {int(spec['table']['page_size'])}", params)
+    total = S.query(ds_id, f"SELECT count(*) n FROM {{t}}{where}", params)
+    import json as _json
+    out["table"] = {
+        "columns": spec["table"]["columns"],
+        "rows": _json.loads(df.to_json(orient="records", date_format="iso")),
+        "total": int(total["n"].iloc[0]),
+    }
+    return out
+
+
+def _run_kpi(ds_id, kpi, where, params, tiempo) -> dict[str, Any]:
+    if kpi["kind"] == "rows":
+        df = S.query(ds_id, f"SELECT count(*) v FROM {{t}}{where}", params)
+        return {**kpi, "value": float(df["v"].iloc[0])}
+    q = _q(kpi["column"])
+    agg = {"sum": f"sum({q})", "avg": f"avg({q})", "min": f"min({q})",
+           "max": f"max({q})"}[kpi["agg"]]
+    df = S.query(ds_id, f"SELECT {agg} v FROM {{t}}{where}", params)
+    valor = df["v"].iloc[0]
+    ok = valor is not None and math.isfinite(float(valor))
+    resultado = {**kpi, "value": float(valor) if ok else None}
+
+    # variación contra el período anterior: último mes completo vs el previo,
+    # dentro del recorte filtrado
+    if kpi.get("delta_vs_prev") and tiempo:
+        qt = _q(tiempo)
+        serie = S.query(ds_id, f"""
+            SELECT date_trunc('month', {qt}) p, {agg} v FROM {{t}}{where}
+            GROUP BY 1 ORDER BY 1 DESC LIMIT 2""", params)
+        if (len(serie) == 2 and serie["v"].iloc[1] is not None
+                and math.isfinite(float(serie["v"].iloc[1])) and float(serie["v"].iloc[1]) != 0):
+            resultado["delta_pct"] = round(
+                (float(serie["v"].iloc[0]) / float(serie["v"].iloc[1]) - 1) * 100, 2)
+            resultado["delta_period"] = str(serie["p"].iloc[0])[:7]
+    return resultado
+
+
+def _run_chart(ds_id, chart, where, params) -> dict[str, Any]:
+    t = dict(chart)
+    if chart["type"] == "line":
+        qx, qy = _q(chart["x"]), _q(chart["y"])
+        agg = f"sum({qy})" if chart["agg"] == "sum" else f"avg({qy})"
+        df = S.query(ds_id, f"""
+            SELECT date_trunc('{chart.get('grain', 'month')}', {qx}) x, {agg} y
+            FROM {{t}}{where} GROUP BY 1 ORDER BY 1""", params)
+        t["data"] = [{"x": str(a)[:10], "y": None if b is None else float(b)}
+                     for a, b in zip(df["x"], df["y"], strict=False)]
+    elif chart["type"] == "bars":
+        qx = _q(chart["x"])
+        agg = ("count(*)" if chart["y"] is None else
+               (f"sum({_q(chart['y'])})" if chart["agg"] == "sum" else f"avg({_q(chart['y'])})"))
+        df = S.query(ds_id, f"""
+            SELECT CAST({qx} AS VARCHAR) x, {agg} y
+            FROM {{t}}{_and(where, f"{qx} IS NOT NULL")}
+            GROUP BY 1 ORDER BY y DESC LIMIT 14""", params)
+        t["data"] = [{"x": str(a), "y": None if b is None else float(b)}
+                     for a, b in zip(df["x"], df["y"], strict=False)]
+    elif chart["type"] == "histogram":
+        q = _q(chart["column"])
+        r = S.query(ds_id, f"""
+            SELECT quantile_cont({q}, 0.01) lo, quantile_cont({q}, 0.99) hi
+            FROM {{t}}{where}""", params)
+        lo, hi = r["lo"].iloc[0], r["hi"].iloc[0]
+        # con 0 filas filtradas los percentiles llegan como NaN, no como None:
+        # interpolar nan en el SQL haría que DuckDB lo lea como columna
+        if (lo is None or hi is None
+                or not math.isfinite(float(lo)) or not math.isfinite(float(hi))
+                or float(hi) <= float(lo)):
+            t["data"] = []
+        else:
+            w = (float(hi) - float(lo)) / 20
+            cond = f"{q} IS NOT NULL AND {q} BETWEEN {float(lo)} AND {float(hi)}"
+            df = S.query(ds_id, f"""
+                SELECT least(floor(({q} - {float(lo)}) / {w}), 19) b, count(*) c
+                FROM {{t}}{_and(where, cond)}
+                GROUP BY 1 ORDER BY 1""", params)
+            cuentas = {int(b): int(c) for b, c in zip(df["b"], df["c"], strict=False) if b is not None}
+            t["data"] = [{"x": float(lo) + i * w, "y": cuentas.get(i, 0)} for i in range(20)]
+    return t
+
+
+# ═══════════════════════════════════════════════════════ exportación ═════════
+def export(ds_id: str, spec: dict | None, filters: dict | None,
+           fmt: str = "xlsx") -> dict[str, Any]:
+    """Exporta el estado filtrado del tablero: KPIs + datos de cada gráfico +
+    la tabla completa (no sólo la página visible)."""
+    import time as _t
+
+    from . import workspace
+
+    datos = run(ds_id, spec, filters)
+    spec = datos["spec"]
+    where, params = _where(spec, filters)
+    stamp = _t.strftime("%Y%m%d-%H%M%S")
+
+    if fmt == "csv":
+        out = workspace.dir_for("exports") / f"tablero_{stamp}.csv"
+        cols = ", ".join(_q(c) for c in spec["table"]["columns"])
+        con = S.connect()
+        try:
+            full = f"SELECT {cols} FROM {S.glob_expr(ds_id)}{where}"
+            con.execute(f"COPY ({full}) TO '{out.as_posix()}' "
+                        f"(HEADER, DELIMITER ';')", params)
+        finally:
+            con.close()
+        return {"path": str(out), "filename": out.name, "format": "csv",
+                "rows": datos["table"]["total"]}
+
+    import xlsxwriter
+
+    from .exporter import _fmts, _header, _title, _v
+    out = workspace.dir_for("exports") / f"tablero_{stamp}.xlsx"
+    wb = xlsxwriter.Workbook(str(out), {"constant_memory": True, "nan_inf_to_errors": True})
+    f = _fmts(wb)
+
+    ws = wb.add_worksheet("KPIs")
+    _title(ws, f, f"TABLERO — {spec['title']}", 4)
+    _header(ws, f, 2, ["KPI", "Valor", "Variación vs período anterior", "Período"],
+            [34, 20, 26, 12])
+    for i, k in enumerate(datos["kpis"], start=3):
+        ws.write(i, 0, k["label"], f["cell"])
+        fmt_celda = {"money": f["money"], "percent": f["pct"], "percent_unit": f["pct"],
+                     "number": f["int"]}.get(k["format"], f["num"])
+        v = k.get("value")
+        if k["format"] == "percent_unit" and v is not None:
+            v = v * 100
+        ws.write(i, 1, _v(v), fmt_celda)
+        ws.write(i, 2, _v(k.get("delta_pct")), f["pct"])
+        ws.write(i, 3, _v(k.get("delta_period") or ""), f["cell"])
+    fila = 4 + len(datos["kpis"])
+    if filters:
+        ws.write(fila, 0, f"Filtros aplicados: {filters}", f["cell"])
+
+    for ch in datos["charts"]:
+        nombre = re.sub(r"[^\w ]", "", ch["title"])[:28] or ch["id"][:28]
+        ws = wb.add_worksheet(nombre)
+        _title(ws, f, ch["title"].upper(), 2)
+        _header(ws, f, 2, [ch.get("x") or ch.get("column") or "x", "valor"], [30, 20])
+        for i, punto in enumerate(ch.get("data") or [], start=3):
+            ws.write(i, 0, _v(punto["x"]), f["cell"])
+            ws.write(i, 1, _v(punto["y"]), f["num"])
+
+    ws = wb.add_worksheet("Datos")
+    cols = spec["table"]["columns"]
+    _header(ws, f, 0, cols, [max(12, min(26, len(c) + 5)) for c in cols])
+    paso = 50_000
+    fila = 1
+    total = datos["table"]["total"]
+    for off in range(0, max(total, 1), paso):
+        df = S.query(ds_id, f"SELECT {', '.join(_q(c) for c in cols)} FROM {{t}}{where} "
+                            f"LIMIT {paso} OFFSET {off}", params)
+        if df.empty:
+            break
+        for rec in df.itertuples(index=False, name=None):
+            for j, v in enumerate(rec):
+                ws.write(fila, j, _v(v), f["cell"])
+            fila += 1
+    from .exporter import _marca_de_agua
+    _marca_de_agua(wb, f)
+    wb.close()
+    return {"path": str(out), "filename": out.name, "format": "xlsx", "rows": total}

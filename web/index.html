@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MV AutoML Studio — de cualquier dataset a un modelo validado</title>
+<meta name="description" content="ETL automático, AutoML con validación honesta y dashboards con IA sobre cualquier dataset o servidor SQL. Instalable en Windows, datos siempre en tu equipo.">
+<meta property="og:title" content="MV AutoML Studio">
+<meta property="og:description" content="De cualquier dataset a un modelo validado, sin escribir código.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EMV%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0a0c12;--bg2:#0f1219;--panel:#141926;--line:#232b3f;
+  --text:#e9ecf4;--dim:#98a2b8;--faint:#5b6478;
+  --accent:#4f7cf7;--accent2:#8bc3f4;--glow:rgba(79,124,247,.35);
+  --ok:#38c780;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);
+  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent2);text-decoration:none}
+img,video{max-width:100%}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.15}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,12,18,.82);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--text)}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:#1e3a8a;display:grid;
+  place-items:center;font-size:12px;font-weight:800;color:#fff}
+.nav-links{display:flex;gap:22px;margin-left:auto}
+.nav-links a{color:var(--dim);font-size:14.5px}
+.nav-links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;
+  font-weight:600;font-size:15px;border:1px solid var(--line);color:var(--text);
+  transition:transform .15s,box-shadow .15s,background .15s;cursor:pointer;background:var(--panel)}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#2a52c9,#4f7cf7);border-color:transparent;color:#fff;
+  box-shadow:0 8px 28px var(--glow)}
+.btn-primary:hover{box-shadow:0 12px 36px var(--glow)}
+.btn-sm{padding:9px 16px;font-size:13.5px}
+
+/* hero */
+.hero{padding:110px 0 70px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-40% -20% auto;height:120%;
+  background:radial-gradient(600px 380px at 70% 20%,rgba(79,124,247,.16),transparent 65%),
+             radial-gradient(500px 320px at 20% 10%,rgba(30,58,138,.25),transparent 60%);
+  pointer-events:none}
+.hero .wrap{position:relative}
+.kicker{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
+  color:var(--accent2);font-size:13px;font-weight:600;margin-bottom:22px;background:var(--bg2)}
+.hero h1{font-size:clamp(34px,5.2vw,58px);font-weight:800;max-width:820px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,#7ea4ff,#8bc3f4);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--dim);font-size:19px;max-width:640px;margin:22px 0 34px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.hero-note{color:var(--faint);font-size:13px;margin-top:14px}
+
+/* video */
+.video-frame{margin:64px auto 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:var(--bg2);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.video-bar{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.video-bar span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.video-slot{aspect-ratio:16/9;display:grid;place-items:center;color:var(--faint);position:relative}
+.video-slot video,.video-slot iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* secciones */
+section{padding:88px 0}
+.sec-head{max-width:660px;margin-bottom:52px}
+.sec-head .kicker{margin-bottom:14px}
+.sec-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:750}
+.sec-head p{color:var(--dim);margin-top:14px;font-size:17px}
+.grid{display:grid;gap:18px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.g3,.g2{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;
+  transition:border-color .2s}
+.card:hover{border-color:#31405f}
+.card h3{font-size:17px;margin-bottom:10px}
+.card p{color:var(--dim);font-size:14.5px}
+.card .num{font-family:ui-monospace,monospace;color:var(--accent2);font-size:12px;
+  letter-spacing:.14em;margin-bottom:14px;display:block}
+
+/* método */
+.method{background:var(--bg2);border-block:1px solid var(--line)}
+.method-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:28px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
+  color:var(--dim);overflow-x:auto;white-space:pre;line-height:1.9}
+.method-box b{color:var(--accent2);font-weight:600}
+
+/* precios */
+.price-card{position:relative;display:flex;flex-direction:column}
+.price-card.featured{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 20px 60px var(--glow)}
+.price-tag{position:absolute;top:-13px;right:22px;background:linear-gradient(135deg,#2a52c9,#4f7cf7);
+  color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px}
+.price{font-size:44px;font-weight:800;margin:14px 0 2px}
+.price small{font-size:15px;color:var(--dim);font-weight:500}
+.price-per{color:var(--faint);font-size:13px;margin-bottom:20px}
+.feat{list-style:none;margin:0 0 26px;flex:1}
+.feat li{padding:7px 0;color:var(--dim);font-size:14.5px;display:flex;gap:10px;align-items:baseline}
+.feat li::before{content:"—";color:var(--accent);font-weight:700}
+.feat li.si::before{content:"✓";color:var(--ok)}
+
+/* faq / footer */
+details{border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  padding:18px 22px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:600;font-size:15.5px}
+details p{color:var(--dim);margin-top:12px;font-size:14.5px}
+footer{border-top:1px solid var(--line);padding:44px 0;color:var(--faint);font-size:13.5px}
+.foot{display:flex;gap:24px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <div class="logo"><div class="logo-mark">MV</div>MV AutoML Studio</div>
+  <div class="nav-links">
+    <a href="#producto">Producto</a>
+    <a href="#metodo">Método</a>
+    <a href="#precios">Precios</a>
+    <a href="#faq">Preguntas</a>
+  </div>
+  <a class="btn btn-primary btn-sm" href="#precios">Descargar</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <span class="kicker">Machine learning honesto, en tu escritorio</span>
+  <h1>De cualquier dataset a un <em>modelo validado</em>, sin escribir código.</h1>
+  <p>Conectás un Excel, un CSV o tu servidor SQL. MV AutoML Studio hace el ETL,
+     compite 15 familias de modelos, valida contra un holdout ciego y te devuelve
+     dashboards, informes y respuestas en lenguaje natural. Todo corre en tu
+     equipo: <strong>tus datos nunca salen de tu máquina</strong>.</p>
+  <div class="hero-ctas">
+    <a class="btn btn-primary" id="cta-demo"
+       href="https://github.com/vieraschiavi/MV-Machine-Learning/releases">Descargar Demo gratis</a>
+    <a class="btn" href="#video">Ver la demo de 3 minutos</a>
+  </div>
+  <div class="hero-note">Windows 10/11 · instalador con directorio a elección · sin nube, sin cuenta</div>
+
+  <div class="video-frame" id="video">
+    <div class="video-bar"><span></span><span></span><span></span></div>
+    <div class="video-slot" id="video-slot">
+      <!-- data-video: URL de YouTube embed o .mp4 propio; se configura abajo -->
+      <div id="video-placeholder" style="text-align:center;padding:30px">
+        <div style="font-size:15px;color:var(--dim)">Demo del producto</div>
+        <div style="font-size:13px;margin-top:8px">Subida → ETL → objetivo en tus palabras → entrenamiento → dashboard</div>
+      </div>
+    </div>
+  </div>
+</div></header>
+
+<section id="producto"><div class="wrap">
+  <div class="sec-head">
+    <span class="kicker">Qué hace</span>
+    <h2>El equipo de datos completo, en una aplicación</h2>
+    <p>Cada pieza corre de punta a punta y se audita: los pasos del ETL se explican
+       uno por uno, cada consulta SQL que responde una pregunta se muestra, y el
+       número que se reporta sale de datos que el modelo nunca vio.</p>
+  </div>
+  <div class="grid g3">
+    <div class="card"><span class="num">01 · DATOS</span><h3>Sin límite de tamaño</h3>
+      <p>Excel, CSV, Parquet, JSON o una consulta directa a SQL Server, PostgreSQL,
+      MySQL y más. Procesamiento por bloques: el límite es tu disco, no la memoria.</p></div>
+    <div class="card"><span class="num">02 · ETL</span><h3>Limpieza automática y auditable</h3>
+      <p>Tipos, nulos, fechas, categorías raras y fuga de información, con el motivo
+      de cada paso. Nada corre hasta que lo aprobás, y ves el SQL exacto.</p></div>
+    <div class="card"><span class="num">03 · OBJETIVO</span><h3>Escribí qué querés predecir</h3>
+      <p>«Si el cliente va a pagar en 30 días.» La plataforma identifica la columna,
+      detecta el tipo de problema y arma la competencia de modelos.</p></div>
+    <div class="card"><span class="num">04 · AUTOML</span><h3>15 familias compitiendo</h3>
+      <p>LightGBM, XGBoost, CatBoost y doce más, con optimización de hiperparámetros
+      y presupuesto de tiempo que definís vos. El texto libre también entra al modelo.</p></div>
+    <div class="card"><span class="num">05 · DASHBOARD</span><h3>KPIs detectados solos</h3>
+      <p>Indicadores, filtros, series y comparación contra el período anterior,
+      deducidos del dataset. Exportá el estado filtrado a Excel o CSV.</p></div>
+    <div class="card"><span class="num">06 · PREGUNTAS</span><h3>Preguntale a tus datos</h3>
+      <p>«¿Total cobrado por estado en 2025?» Con tu proveedor de IA la pregunta se
+      traduce a SQL, se ejecuta de verdad y la respuesta cita la consulta.</p></div>
+  </div>
+</div></section>
+
+<section class="method" id="metodo"><div class="wrap">
+  <div class="sec-head">
+    <span class="kicker">Por qué es distinto</span>
+    <h2>El número que ves es el número honesto</h2>
+    <p>La mayoría de las herramientas reporta la métrica de la ventana con la que
+       eligió el modelo — y esa siempre se ve mejor de lo que el modelo es.
+       Acá el protocolo es de tres ventanas:</p>
+  </div>
+  <div class="method-box">
+<b>ENTRENAMIENTO</b>  ajusta los modelos
+<b>SELECCIÓN</b>      elige hiperparámetros, features, calibración y campeón
+<b>HOLDOUT CIEGO</b>  no participa de ninguna decisión.
+               Es el único número que se reporta,
+               junto con la degradación selección → holdout.
+
+Además: auditoría de fuga de información ANTES de entrenar,
+walk-forward temporal si declarás una fecha, corrección de sesgo
+del monto (smearing de Duan) y calibración de probabilidades.</div>
+</div></section>
+
+<section id="precios"><div class="wrap">
+  <div class="sec-head">
+    <span class="kicker">Precios</span>
+    <h2>Empezá gratis, activá cuando lo necesites</h2>
+    <p>La versión Demo es funcional de verdad: mismo motor, topes de tamaño.
+       La Profesional se activa con una licencia firmada, sin suscripción a la nube.</p>
+  </div>
+  <div class="grid g2" style="max-width:860px">
+    <div class="card price-card">
+      <h3>Demo</h3>
+      <div class="price">US$ 0</div>
+      <div class="price-per">para evaluar con tus propios datos</div>
+      <ul class="feat">
+        <li class="si">Hasta 50.000 filas por dataset</li>
+        <li class="si">ETL completo con auditoría de fuga</li>
+        <li class="si">3 familias de modelos con holdout ciego</li>
+        <li class="si">Dashboard con KPIs automáticos</li>
+        <li class="si">Exportación a Excel y CSV</li>
+        <li>Conectores SQL</li>
+        <li>Motor de IA y preguntas en lenguaje natural</li>
+        <li>Texto libre como variable</li>
+      </ul>
+      <a class="btn" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases">Descargar Demo</a>
+    </div>
+    <div class="card price-card featured">
+      <span class="price-tag">Licencia perpetua del año</span>
+      <h3>Profesional</h3>
+      <div class="price">US$ 390<small> /año</small></div>
+      <div class="price-per">por equipo, con actualizaciones del año incluidas</div>
+      <ul class="feat">
+        <li class="si">Sin tope de filas ni de datasets</li>
+        <li class="si">Las 15 familias de modelos y ensambles</li>
+        <li class="si">Conectores SQL Server, PostgreSQL, MySQL y más</li>
+        <li class="si">Preguntas en lenguaje natural con tu proveedor de IA</li>
+        <li class="si">Texto libre como variable (TF-IDF)</li>
+        <li class="si">Scoring de carteras completas</li>
+        <li class="si">Workspaces ilimitados</li>
+        <li class="si">Informes sin marca de agua</li>
+      </ul>
+      <a class="btn btn-primary" id="cta-comprar" href="#comprar"
+         data-mp-link="">Comprar con Mercado Pago</a>
+    </div>
+  </div>
+  <p class="hero-note" style="margin-top:26px">El pago se procesa por Mercado Pago.
+     Recibís la licencia por correo en el día, emitida a tu nombre. Factura disponible.</p>
+</div></section>
+
+<section id="faq" style="padding-top:0"><div class="wrap">
+  <div class="sec-head"><span class="kicker">Preguntas frecuentes</span>
+  <h2>Lo que siempre preguntan</h2></div>
+  <details><summary>¿Mis datos suben a algún servidor?</summary>
+    <p>No. La aplicación corre completa en tu equipo: la ingesta, el entrenamiento y
+    los informes son locales. La única salida de red opcional es hacia el proveedor
+    de IA que vos configures con tu propia clave (para las respuestas en lenguaje
+    natural), y podés no configurar ninguno.</p></details>
+  <details><summary>¿Qué necesito para instalarlo?</summary>
+    <p>Windows 10 u 11 de 64 bits. El instalador te deja elegir el directorio,
+    crea los accesos directos y no requiere permisos de administrador.</p></details>
+  <details><summary>¿La Demo es el producto real?</summary>
+    <p>Sí: mismo motor, misma validación. Los topes son de tamaño (50.000 filas por
+    dataset) y de funciones (sin SQL ni IA). Los números que produce no se degradan.</p></details>
+  <details><summary>¿Cómo recibo la licencia?</summary>
+    <p>Después del pago te llega un archivo de licencia firmado, emitido a tu nombre.
+    Lo pegás en la pantalla principal de la aplicación y el nivel Profesional queda
+    activo. Sin cuentas ni conexión permanente.</p></details>
+  <details><summary>¿Funciona con mi base de datos?</summary>
+    <p>SQL Server, PostgreSQL, MySQL/MariaDB, SQLite y DuckDB de fábrica, y cualquier
+    otro motor con URL de SQLAlchemy (Oracle, Snowflake, BigQuery, Redshift…).
+    El conector es de sólo lectura por diseño.</p></details>
+</div></section>
+
+<footer><div class="wrap foot">
+  <div class="logo"><div class="logo-mark">MV</div>MV AutoML Studio</div>
+  <div>Hecho por Martín Viera · <a href="https://github.com/vieraschiavi/MV-Machine-Learning">GitHub</a>
+    · <a href="mailto:vieraschiavi@gmail.com">Contacto</a></div>
+</div></footer>
+
+<script>
+/* Configuración editable sin tocar el resto de la página */
+const CONFIG = {
+  // URL de embed de YouTube (https://www.youtube.com/embed/XXXX) o .mp4 propio
+  videoUrl: "",
+  // Link de pago de Mercado Pago (Botón de pago / Link de pago del panel MP)
+  mercadoPagoLink: "",
+};
+(function () {
+  const slot = document.getElementById("video-slot");
+  if (CONFIG.videoUrl) {
+    slot.innerHTML = CONFIG.videoUrl.endsWith(".mp4")
+      ? `<video controls preload="metadata" src="${CONFIG.videoUrl}"></video>`
+      : `<iframe src="${CONFIG.videoUrl}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  }
+  const buy = document.getElementById("cta-comprar");
+  if (CONFIG.mercadoPagoLink) {
+    buy.href = CONFIG.mercadoPagoLink;
+  } else {
+    buy.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("El link de pago de Mercado Pago se configura en CONFIG.mercadoPagoLink " +
+            "(web/index.html). Mientras tanto, escribinos: vieraschiavi@gmail.com");
+    });
+  }
+})();
+</script>
+</body>
+</html>

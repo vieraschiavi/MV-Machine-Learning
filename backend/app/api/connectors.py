@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from ..core import connectors as C
 from ..core import jobs
+from ..core import licensing as L
 
 router = APIRouter(prefix="/api/connections", tags=["connections"])
 
@@ -44,6 +45,7 @@ def list_profiles() -> dict[str, Any]:
 
 @router.post("/test")
 def test(p: Profile) -> dict[str, Any]:
+    L.require("sql_connectors")
     prof = p.to_dict()
     if prof.get("id") and not prof.get("password"):
         try:
@@ -55,6 +57,7 @@ def test(p: Profile) -> dict[str, Any]:
 
 @router.post("/save")
 def save(p: Profile) -> dict[str, Any]:
+    L.require("sql_connectors")
     return {"connection": C.save_profile(p.to_dict())}
 
 
@@ -105,6 +108,8 @@ def extract(profile_id: str, body: ExtractBody) -> dict[str, Any]:
         profile = C.get_profile(profile_id)
     except C.ConnectionError_ as exc:
         raise HTTPException(404, str(exc)) from exc
+
+    L.require("sql_connectors")
 
     def work(progress):
         return C.extract(profile, body.sql, body.name, progress, body.max_rows)

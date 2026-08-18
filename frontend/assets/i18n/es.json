@@ -21,7 +21,8 @@
     "export": "Exportación",
     "section_data": "Datos",
     "section_ml": "Modelado",
-    "section_system": "Sistema"
+    "section_system": "Sistema",
+    "dashboard": "Dashboard"
   },
   "common": {
     "loading": "Cargando",
@@ -382,5 +383,44 @@
     "created": "Workspace creado",
     "delete_confirm": "¿Eliminar este workspace con todos sus datasets y modelos?",
     "isolated": "Los datos de un workspace no se ven desde otro."
+  },
+  "dash": {
+    "title": "Dashboard",
+    "lead": "KPIs, filtros y gráficos deducidos automáticamente del dataset. Todo lo que ves se puede exportar con los filtros aplicados.",
+    "generate": "Generar tablero",
+    "refresh": "Aplicar filtros",
+    "clear_filters": "Limpiar filtros",
+    "export_xlsx": "Exportar Excel",
+    "export_csv": "Exportar CSV",
+    "kpis": "Indicadores",
+    "vs_prev": "vs período anterior",
+    "records": "Registros",
+    "filters": "Filtros",
+    "from": "Desde",
+    "to": "Hasta",
+    "table": "Datos filtrados",
+    "showing": "mostrando",
+    "notes": "Cómo se armó este tablero",
+    "ask_title": "Preguntale a tus datos",
+    "ask_placeholder": "Por ejemplo: total cobrado por estado en 2025",
+    "ask_hint": "Con IA configurada, el proveedor traduce la pregunta a SQL y redacta la respuesta con el resultado real. Sin IA, un traductor local cubre totales, promedios, conteos, top N y agrupaciones.",
+    "ask_send": "Preguntar",
+    "ask_engine": "Motor",
+    "ask_sql": "Consulta ejecutada",
+    "no_dataset": "Elegí primero un dataset en la sección Datos."
+  },
+  "license": {
+    "title": "Licencia",
+    "tier": "Nivel",
+    "demo_note": "Estás en modo Demo: hasta 50.000 filas por dataset, 3 familias de modelos, sin conectores SQL ni motor de IA.",
+    "activate": "Activar licencia",
+    "token_placeholder": "Pegá acá tu licencia (MVAS.…)",
+    "activated": "Licencia activada",
+    "licensee": "Titular",
+    "expires": "Vence",
+    "days_left": "días restantes",
+    "no_expiry": "Sin vencimiento",
+    "deactivate": "Desactivar",
+    "buy": "Comprar la versión Profesional"
   }
 }

@@ -22,6 +22,18 @@ os.environ["MV_CHUNK_ROWS"] = "1500"
 # ninguna prueba debe salir a internet: se anulan las claves del entorno
 for var in ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "XAI_API_KEY", "GEMINI_API_KEY", "GITHUB_TOKEN"]:
     os.environ.pop(var, None)
+os.environ.pop("MV_API_TOKEN", None)          # la suite prueba la API sin token salvo tests propios
+
+# La suite corre con una licencia OWNER emitida con un par de claves de prueba:
+# así se prueba el producto completo. El modo demo tiene sus tests propios.
+from app.core import licensing as _lic  # noqa: E402
+
+_PRIV, _PUB = _lic.generate_keypair()
+os.environ["MV_LICENSE_PUBLIC_KEY"] = _PUB
+_lic.PUBLIC_KEY_B64 = _PUB
+os.environ["MV_LICENSE"] = _lic.issue("owner", "suite de pruebas", days=None,
+                                      private_key_b64=_PRIV)
+os.environ["MV_TEST_PRIVATE_KEY"] = _PRIV     # para los tests de emisión
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402

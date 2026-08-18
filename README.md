@@ -166,6 +166,63 @@ en voz alta de los resultados con la voz del idioma activo, señales sonoras de
 la interfaz y dictado por voz para escribir el objetivo. Todo se sintetiza en el
 navegador: no hay servicio externo ni archivos de sonido.
 
+### 9. Dashboards automáticos
+
+Para cualquier dataset (archivo o SQL) la plataforma detecta sola las métricas,
+dimensiones y columna de tiempo, arma KPIs con variación contra el período
+anterior, gráficos interactivos (línea temporal, barras por dimensión,
+histogramas) y una tabla, todo con **filtros** por rango de fechas y por
+categoría. Si el dataset tiene predicciones del modelo (`prob_*`,
+`prediccion`), se suman como métricas. El tablero completo, ya filtrado, se
+exporta a **Excel** (una hoja por gráfico más los datos) o **CSV**. Los filtros
+se compilan a SQL parametrizado: no hay inyección posible.
+
+### 10. Preguntas en lenguaje natural
+
+Un espacio de NLP para preguntarle al dataset en tus palabras («¿cuánto se
+cobró por sucursal en 2025?»). Con un proveedor de IA configurado, la pregunta
+se traduce a SQL de sólo lectura, **se ejecuta de verdad** sobre DuckDB y la
+respuesta se narra a partir del resultado real — nunca de memoria del modelo.
+Sin IA hay un traductor local que resuelve las preguntas frecuentes
+(agregaciones, «por» dimensión, filtros de año, top N). La respuesta muestra el
+SQL usado, las filas y se puede escuchar en voz alta.
+
+### 11. Versiones: demo, profesional y owner
+
+Licencias firmadas con **Ed25519**: el binario sólo trae la clave pública, los
+tokens se emiten con la privada (secreto del repositorio, nunca en el código).
+
+| | Demo | Profesional | Owner |
+|---|---|---|---|
+| Filas por dataset | 50.000 | sin límite | sin límite |
+| Conectores SQL / IA / texto libre | — | sí | sí |
+| Familias de modelos | 3 | todas | todas |
+| Diagnóstico y emisión de licencias | — | — | sí |
+
+La demo no degrada números: los resultados son reales, con marca de agua en el
+Excel. Activar una licencia convierte la demo en profesional sin reinstalar.
+
+### 12. Instalador de escritorio (Windows)
+
+`desktop/` empaqueta el motor con **Electron + PyInstaller**: un instalador
+NSIS que **permite elegir la carpeta de instalación** (no fuerza `C:`), crea
+íconos en el escritorio y el menú de inicio, y corre todo local con un token de
+sesión entre la ventana y el backend. El workflow
+`.github/workflows/desktop.yml` compila en Windows real, corre una prueba de
+humo sobre el `.exe` congelado (subida, entrenamiento, AUC verificado) y
+publica dos instaladores: la **demo** como release público y la versión
+**owner** como *draft* que sólo ven los colaboradores del repositorio. Con los
+secretos `MV_LICENSE_PRIVATE_KEY` / `MV_LICENSE_PUBLIC_KEY` las licencias son
+estables entre builds; sin ellos se genera un par efímero y el workflow lo
+advierte.
+
+### 13. Web de venta
+
+`web/` es el sitio estático de venta (Vercel): producto, método de validación,
+precios demo/profesional y enlace de pago por MercadoPago. Los campos
+`videoUrl` y `mercadoPagoLink` del bloque `CONFIG` en `web/index.html` se
+completan con el video y el link de pago reales.
+
 ---
 
 ## Estructura
@@ -174,10 +231,12 @@ navegador: no hay servicio externo ni archivos de sonido.
 backend/app/
   main.py            aplicación FastAPI y servido de la interfaz
   config.py          rutas y límites, configurables por entorno
-  api/               datasets, connections, etl, automl, ai, exports, jobs
+  api/               datasets, connections, etl, automl, ai, exports, jobs,
+                     dashboards, licenses, workspaces
   core/              storage, profiling, etl, features, automl, explain,
-                     metrics, registry, connectors, exporter, ai, jobs
-  tests/             132 pruebas
+                     metrics, registry, connectors, exporter, ai, jobs,
+                     dashboards, ask, licensing, security, zoo/
+  tests/             193 pruebas
 frontend/
   index.html         una página, sin build
   assets/css/        sistema de diseño con tema claro y oscuro
@@ -188,6 +247,12 @@ docs/
   MODELOS_ADJUNTOS.md qué se tomó de los motores ProbPago y V50
 scripts/
   run.sh · run.bat   arranque con instalación automática
+desktop/
+  electron/          ventana, arranque del backend, token de sesión
+  backend_entry.py   entrada PyInstaller · mv-backend.spec
+  electron-builder.yml  instalador NSIS con elección de carpeta e íconos
+web/
+  index.html         sitio de venta (Vercel) · vercel.json
 ```
 
 ---
@@ -196,7 +261,7 @@ scripts/
 
 ```bash
 pip install pytest
-pytest                       # 132 pruebas
+pytest                       # 193 pruebas
 ruff check backend           # lint
 ```
 
@@ -208,7 +273,7 @@ momento.
 
 Hay además una prueba de humo en navegador real
 (`node scripts/browser-smoke.cjs`, con el servidor levantado) que recorre las
-ocho vistas en los tres idiomas verificando que no haya errores de consola. No
+nueve vistas en los tres idiomas verificando que no haya errores de consola. No
 corre en CI a propósito: depende del entorno, y una prueba así vuelve rojo el
 pipeline por motivos que no son del código.
 

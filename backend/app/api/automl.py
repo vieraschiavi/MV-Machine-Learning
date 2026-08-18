@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from ..core import automl as A
 from ..core import jobs, registry, storage
+from ..core import licensing as L
 
 router = APIRouter(prefix="/api/automl", tags=["automl"])
 
@@ -45,10 +46,15 @@ def train(body: TrainBody) -> dict[str, Any]:
     if body.target not in names:
         raise HTTPException(400, f"La columna objetivo «{body.target}» no existe en el dataset.")
 
+    # los topes del nivel se aplican ANTES de encolar: que la negativa llegue
+    # ahora y no después de que el usuario espere el entrenamiento entero
+    L.check_rows(meta.rows)
     cfg = A.TrainConfig(
         target=body.target, task=body.task, time_column=body.time_column,
-        exclude=body.exclude, metric=body.metric, budget_seconds=body.budget_seconds,
-        max_models=body.max_models, models=body.models, feature_selection=body.feature_selection,
+        exclude=body.exclude, metric=body.metric,
+        budget_seconds=L.cap_budget(body.budget_seconds),
+        max_models=L.cap_families(body.max_models) or body.max_models,
+        models=body.models, feature_selection=body.feature_selection,
         calibrate=body.calibrate, ensemble=body.ensemble, log_target=body.log_target,
         shap=body.shap, permutation_importance=body.permutation_importance,
         selection_size=body.selection_size, holdout_size=body.holdout_size,
@@ -107,6 +113,8 @@ class ScoreBody(BaseModel):
 
 @router.post("/score")
 def score(body: ScoreBody) -> dict[str, Any]:
+    L.require("scoring")
+
     def work(progress):
         progress(5, "Aplicando el modelo por bloques")
         return registry.score_dataset(body.model_id, body.dataset_id,

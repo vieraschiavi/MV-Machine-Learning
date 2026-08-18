@@ -35,7 +35,8 @@ class Settings:
     model_dir: Path = field(default_factory=lambda: _sub("MV_MODEL_DIR", "models"))
     export_dir: Path = field(default_factory=lambda: _sub("MV_EXPORT_DIR", "exports"))
     secrets_dir: Path = field(default_factory=lambda: _sub("MV_SECRETS_DIR", "secrets"))
-    frontend_dir: Path = ROOT / "frontend"
+    frontend_dir: Path = field(default_factory=lambda: Path(
+        os.environ.get("MV_FRONTEND_DIR", ROOT / "frontend")))
 
     # Ingesta: tamaño de bloque al convertir a Parquet. No hay límite de tamaño
     # total de archivo; el límite es el disco, no la RAM.

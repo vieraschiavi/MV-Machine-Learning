@@ -1,0 +1,161 @@
+name: Escritorio Windows
+
+# Compila el instalador .exe en un runner Windows REAL, prueba el binario
+# congelado de punta a punta (token, subida, entrenamiento) y publica:
+#   · el instalador Demo en un release público;
+#   · el instalador Owner en un release BORRADOR: sólo lo ven los
+#     colaboradores del repositorio, que es exactamente el pedido
+#     ("un exe versión owner en GitHub sólo para probar el programa full").
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Instalador Windows (demo + owner)
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Dependencias del backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Suite de pruebas (gate antes de empaquetar)
+        run: pytest backend/tests -q
+
+      - name: Compilar el backend (PyInstaller)
+        working-directory: desktop
+        run: python -m PyInstaller --distpath ../pybuild -y mv-backend.spec
+
+      # ── credenciales de licencia ────────────────────────────────────────────
+      # Con secrets configurados se usan las claves estables de producción.
+      # Sin secrets, se genera un par efímero y se avisa: las licencias que se
+      # vendan sólo validan contra builds hechos con la MISMA clave pública.
+      - name: Claves y licencia owner
+        shell: bash
+        env:
+          PRIV: ${{ secrets.MV_LICENSE_PRIVATE_KEY }}
+          PUB: ${{ secrets.MV_LICENSE_PUBLIC_KEY }}
+        run: |
+          mkdir -p desktop/keys desktop/owner
+          python - <<'PY'
+          import os, sys
+          sys.path.insert(0, "backend")
+          from app.core import licensing as L
+
+          priv = os.environ.get("PRIV") or ""
+          pub = os.environ.get("PUB") or ""
+          if not priv or not pub:
+              priv, pub = L.generate_keypair()
+              print("::warning::Sin secrets MV_LICENSE_*: par de claves efímero. "
+                    "Configurá los secrets para que las licencias vendidas "
+                    "validen contra futuros builds.")
+          open("desktop/keys/public.key", "w").write(pub)
+          token = L.issue("owner", "Owner build (CI)", days=None, private_key_b64=priv)
+          open("desktop/owner/license.key", "w").write(token)
+          # se valida acá mismo: un owner.exe con licencia rota no debe publicarse
+          L.PUBLIC_KEY_B64 = pub
+          assert L.verify(token).tier == "owner"
+          print("licencia owner emitida y verificada")
+          PY
+
+      # ── smoke del binario CONGELADO en Windows ──────────────────────────────
+      - name: Probar el .exe del backend (auth + subida + entrenamiento)
+        shell: bash
+        run: |
+          export MV_DATA_DIR="$RUNNER_TEMP/mvdata"
+          export MV_PORT=8475
+          export MV_API_TOKEN=tok-ci
+          export MV_FRONTEND_DIR="$PWD/frontend"
+          ./pybuild/mv-backend/mv-backend.exe &
+          BACK=$!
+          python - <<'PY'
+          import os, time, requests
+          B = "http://127.0.0.1:8475"; H = {"X-MV-Token": "tok-ci"}
+          for _ in range(60):
+              try:
+                  requests.get(f"{B}/api/health", timeout=2); break
+              except Exception: time.sleep(2)
+          assert requests.get(f"{B}/api/datasets").status_code == 401, "la auth no corta"
+          assert requests.get(f"{B}/api/datasets", headers=H).status_code == 200
+          data = open("examples/gestiones_con_texto.csv", "rb").read()
+          r = requests.post(f"{B}/api/datasets/upload-stream",
+                            params={"filename": "g.csv", "name": "ci"},
+                            data=data, headers=H).json()
+          job = requests.post(f"{B}/api/automl/train", headers=H, json={
+              "dataset_id": r["dataset"]["id"], "target": "Pago30d",
+              "budget_seconds": 8, "max_models": 2, "shap": False,
+              "permutation_importance": False, "exclude": ["IdGestion"]}).json()
+          for _ in range(120):
+              st = requests.get(f"{B}/api/jobs/{job['id']}", headers=H).json()
+              if st["status"] in ("terminado", "error"): break
+              time.sleep(2)
+          assert st["status"] == "terminado", st.get("error")
+          auc = st["result"]["report"]["champion"]["holdout"]["auc"]
+          print(f"ENTRENAMIENTO EN EL .EXE: AUC holdout = {auc:.4f}")
+          assert auc > 0.9
+          PY
+          kill $BACK || true
+
+      # ── instaladores ────────────────────────────────────────────────────────
+      - name: Instalador OWNER (con licencia embebida)
+        working-directory: desktop
+        run: |
+          npm install
+          npx electron-builder --win -c electron-builder.yml `
+            -c.extraMetadata.channel=owner `
+            -c.artifactName="MV-AutoML-Studio-Owner-Setup.exe"
+
+      - name: Instalador DEMO (sin licencia; misma clave pública)
+        working-directory: desktop
+        shell: bash
+        run: |
+          rm -f owner/license.key         # el demo NO lleva la licencia
+          npx electron-builder --win -c electron-builder.yml \
+            -c.extraMetadata.channel=demo \
+            -c.artifactName="MV-AutoML-Studio-Demo-Setup.exe"
+
+      - name: Publicar DEMO (release público)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'desktop-latest' }}
+          name: MV AutoML Studio — instalador Windows
+          files: desktop/dist/MV-AutoML-Studio-Demo-Setup.exe
+          body: |
+            Instalador de Windows (64 bits). Arranca en modo Demo y se
+            activa a Profesional con una licencia. El instalador permite
+            elegir el directorio de instalación y crea los accesos directos
+            en el Escritorio y el Menú de inicio.
+
+      - name: Publicar OWNER (release borrador, sólo colaboradores)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: owner-${{ github.run_number }}
+          name: "Owner build ${{ github.run_number }} (privado)"
+          draft: true
+          files: desktop/dist/MV-AutoML-Studio-Owner-Setup.exe
+          body: |
+            Compilación con licencia OWNER embebida: todas las funciones
+            habilitadas, incluida la emisión de licencias. Este release es
+            un borrador: no es visible públicamente.
