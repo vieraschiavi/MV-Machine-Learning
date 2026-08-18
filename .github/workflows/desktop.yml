@@ -107,7 +107,7 @@ jobs:
                      content=data, headers=H).json()
           job = C.post(f"{B}/api/automl/train", headers=H, json={
               "dataset_id": r["dataset"]["id"], "target": "Pago30d",
-              "budget_seconds": 8, "max_models": 2, "shap": False,
+              "budget_seconds": 20, "max_models": 3, "shap": False,
               "permutation_importance": False, "exclude": ["IdGestion"]}).json()
           for _ in range(120):
               st = C.get(f"{B}/api/jobs/{job['id']}", headers=H).json()
@@ -116,7 +116,9 @@ jobs:
           assert st["status"] == "terminado", st.get("error")
           auc = st["result"]["report"]["champion"]["holdout"]["auc"]
           print(f"ENTRENAMIENTO EN EL .EXE: AUC holdout = {auc:.4f}")
-          assert auc > 0.9
+          # el ejemplo tiene señal realista, no fuga: un AUC perfecto sería
+          # la señal de que algo se rompió, no de que anda bien
+          assert 0.78 < auc < 0.99, f"AUC fuera de lo esperable: {auc}"
           PY
           kill $BACK || true
 

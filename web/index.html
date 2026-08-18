@@ -278,7 +278,7 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 <section class="panel" id="videos"><div class="wrap">
   <div class="eyebrow" data-i="vey">Video</div>
   <h2 class="h2" data-i="vh">Mirá el programa funcionando</h2>
-  <p class="lead-d" data-i="vl">Grabaciones de la aplicación real, sin cortes ni animaciones: se ve el dataset entrando, el modelo entrenándose y el tablero armándose solo.</p>
+  <p class="lead-d" data-i="vl">Grabaciones de la aplicación real, no animaciones: se ve el dataset entrando, el modelo entrenándose y el tablero armándose solo. La única edición es la espera del entrenamiento, que va acelerada.</p>
 
   <div class="vgrid">
     <div>
@@ -288,7 +288,7 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
           <source src="video/recorrido.webm" type="video/webm">
         </video>
       </div>
-      <p class="vcap" data-i="vc1"><b>Recorrido completo.</b> Se sube un archivo, la plataforma lo perfila, se escribe la variable objetivo en un cuadro de texto y entrena; al final se ve el informe con el modelo campeón y sus métricas.</p>
+      <p class="vcap" data-i="vc1"><b>Recorrido completo.</b> Se sube un archivo, la plataforma lo perfila, se escribe la variable objetivo en castellano y entrena; al final se ve el informe con el modelo campeón, su AUC sobre el holdout ciego y el análisis de variables.</p>
     </div>
     <div>
       <div class="vframe">
@@ -297,7 +297,7 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
           <source src="video/tablero.webm" type="video/webm">
         </video>
       </div>
-      <p class="vcap" data-i="vc2"><b>Tablero y preguntas.</b> Los KPIs, los gráficos y los filtros salen del propio dataset, sin configurarlos; abajo se le pregunta en castellano y responde con los datos reales.</p>
+      <p class="vcap" data-i="vc2"><b>Tablero y preguntas.</b> Los KPIs con su variación contra el mes anterior, las series y los filtros salen del propio dataset, sin configurarlos; se filtra, se exporta a Excel y se le pregunta en castellano sobre lo que quedó a la vista.</p>
     </div>
   </div>
 </div></section>
@@ -574,9 +574,9 @@ var I18N = {
     mk5:"Campeão",mk6:"Holdout cego",mk7:"quanto foi recebido por filial em 2025?",
     mk8:"Centro $ 3.104.220 · Norte $ 2.788.410 · Costa $ 2.520.130",
     vey:"Vídeo",vh:"Veja o programa funcionando",
-    vl:"Gravações do aplicativo real, sem cortes nem animações: dá para ver o conjunto de dados entrando, o modelo treinando e o painel se montando sozinho.",
-    vc1:"<b>Percurso completo.</b> Um arquivo é carregado, a plataforma faz o perfil, a variável alvo é escrita numa caixa de texto e o treino começa; no fim aparece o relatório com o modelo campeão e suas métricas.",
-    vc2:"<b>Painel e perguntas.</b> Os KPIs, os gráficos e os filtros saem do próprio conjunto de dados, sem configuração; embaixo, uma pergunta em linguagem natural é respondida com os dados reais.",
+    vl:"Gravações do aplicativo real, não animações: dá para ver o conjunto de dados entrando, o modelo treinando e o painel se montando sozinho. A única edição é a espera do treino, que está acelerada.",
+    vc1:"<b>Percurso completo.</b> Um arquivo é carregado, a plataforma faz o perfil, a variável alvo é escrita em linguagem comum e o treino começa; no fim aparece o relatório com o modelo campeão, seu AUC no holdout cego e a análise de variáveis.",
+    vc2:"<b>Painel e perguntas.</b> Os KPIs com sua variação contra o mês anterior, as séries e os filtros saem do próprio conjunto de dados, sem configuração; filtra-se, exporta-se para Excel e pergunta-se em linguagem natural sobre o que ficou à vista.",
     pey:"Produto",ph:"Todo o trabalho de uma equipe de dados, em um programa",
     pl:"Feito para quem conhece o negócio, não apenas para quem programa. Cada passo fica explicado e auditável.",
     f1t:"Dados sem limite de tamanho",
@@ -654,9 +654,9 @@ var I18N = {
     mk5:"Champion",mk6:"Blind holdout",mk7:"how much was collected per branch in 2025?",
     mk8:"Centre $ 3,104,220 · North $ 2,788,410 · Coast $ 2,520,130",
     vey:"Video",vh:"Watch the program running",
-    vl:"Recordings of the real application, uncut and unanimated: you can see the dataset going in, the model training and the dashboard building itself.",
-    vc1:"<b>Full walkthrough.</b> A file is uploaded, the platform profiles it, the target variable is typed into a text box and training starts; at the end you see the report with the champion model and its metrics.",
-    vc2:"<b>Dashboard and questions.</b> The KPIs, charts and filters come from the dataset itself, with no setup; below, a plain-language question is answered from the real data.",
+    vl:"Recordings of the real application, not animations: you can see the dataset going in, the model training and the dashboard building itself. The only edit is the training wait, which is sped up.",
+    vc1:"<b>Full walkthrough.</b> A file is uploaded, the platform profiles it, the target variable is typed in plain language and training starts; at the end you see the report with the champion model, its AUC on the blind holdout and the feature analysis.",
+    vc2:"<b>Dashboard and questions.</b> The KPIs with their change against the previous month, the series and the filters come from the dataset itself, with no setup; you filter, export to Excel and ask a plain-language question about what is on screen.",
     pey:"Product",ph:"A whole data team's work, in one program",
     pl:"Built for the person who knows the business, not only for the one who codes. Every step is explained and auditable.",
     f1t:"Data with no size limit",
