@@ -116,7 +116,10 @@ function askPanel(datasetId) {
     clear(out).appendChild(el('div', { class: 'row' }, el('span', { class: 'spinner' })));
     try {
       const lang = document.documentElement.lang || 'es';
-      const r = await api.post('/api/ai/ask', { dataset_id: datasetId, question: q, lang });
+      // la pregunta viaja con los filtros puestos: si el tablero muestra dos
+      // sucursales, la respuesta tiene que hablar de esas dos
+      const r = await api.post('/api/ai/ask',
+        { dataset_id: datasetId, question: q, lang, filters: activeFilters });
       clear(out);
       out.appendChild(el('div', { class: 'note accent' },
         el('div', { class: 'row row-tight mb-1' },

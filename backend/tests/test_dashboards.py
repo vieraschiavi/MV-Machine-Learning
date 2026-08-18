@@ -198,3 +198,24 @@ def test_el_spec_del_cliente_no_entra_en_el_sql(panel):
     datos = D.run(panel.id, veneno, None)
     assert datos["spec"]["time_column"] == "FechaObs"    # el del servidor, no el enviado
     assert len(datos["table"]["columns"]) > 1                # tampoco la tabla recortada
+
+
+def test_la_pregunta_respeta_los_filtros_del_tablero(panel):
+    """Filtrar dos estados y que la respuesta hable de los seis desconcierta."""
+    spec = D.detect_spec(panel.id)
+    estados = next(f for f in spec["filters"] if f["column"] == "Estado")["options"][:2]
+    pregunta = "promedio de TotalCobrado por Estado"
+
+    completa = ASK.ask(panel.id, pregunta)
+    recortada = ASK.ask(panel.id, pregunta, filters={"Estado": estados})
+
+    assert len(completa["rows"]) > len(recortada["rows"])
+    assert {r["grupo"] for r in recortada["rows"]} == set(estados)
+    assert "filtrado" in (recortada.get("note") or "")
+
+
+def test_filtro_malicioso_en_la_pregunta_no_inyecta(panel):
+    """El recorte se compila contra el spec del servidor, con parámetros."""
+    r = ASK.ask(panel.id, "cuántos registros hay",
+                filters={"Estado": ["'; DROP TABLE x; --"]})
+    assert r["rows"][0]["registros"] == 0          # no matchea nada, no rompe nada

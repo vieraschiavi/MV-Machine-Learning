@@ -257,6 +257,7 @@ class AskBody(BaseModel):
     dataset_id: str
     question: str
     lang: str = "es"
+    filters: dict[str, Any] | None = None    # los del tablero, si hay alguno
 
 
 @router.post("/ask")
@@ -265,7 +266,7 @@ def ask_data(body: AskBody) -> dict[str, Any]:
     from ..core import ask as ASK
 
     try:
-        return ASK.ask(body.dataset_id, body.question, body.lang)
+        return ASK.ask(body.dataset_id, body.question, body.lang, body.filters)
     except ASK.AskError as exc:
         raise HTTPException(422, str(exc)) from exc
     except storage.IngestError as exc:

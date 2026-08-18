@@ -55,14 +55,25 @@ FORBIDDEN = re.compile(r"\b(insert|update|delete|drop|create|alter|attach|copy|e
                        r"install|load|pragma|set)\b", re.I)
 
 
-def _run_sql(ds_id: str, sql: str):
-    """Ejecuta la consulta con el guardián de sólo lectura."""
+def _run_sql(ds_id: str, sql: str, recorte: tuple[str, list] | None = None):
+    """Ejecuta la consulta con el guardián de sólo lectura.
+
+    Si el tablero tiene filtros aplicados, la pregunta se responde sobre ese
+    recorte y no sobre el dataset entero: sería desconcertante filtrar por dos
+    sucursales y que la respuesta hable de las seis.
+    """
     sql = sql.strip().rstrip(";")
     if not GUARD.match(sql) or FORBIDDEN.search(sql):
         raise AskError("La consulta generada no es de sólo lectura: se descartó.")
     if sql.count(";") > 0:
         raise AskError("Una sola sentencia por pregunta.")
-    return S.query(ds_id, f"SELECT * FROM ({sql}) LIMIT {MAX_ROWS}")
+    params: list = []
+    if recorte and recorte[0]:
+        where, wp = recorte
+        veces = sql.count("{t}")
+        sql = sql.replace("{t}", f"(SELECT * FROM {{t}}{where})")
+        params = list(wp) * veces
+    return S.query(ds_id, f"SELECT * FROM ({sql}) LIMIT {MAX_ROWS}", params)
 
 
 # ═══════════════════════════════════════════════════ traductor local ═════════
@@ -87,7 +98,8 @@ def _match_column(texto: str, columnas: list[str]) -> str | None:
     return mejor
 
 
-def heuristic_answer(ds_id: str, question: str, ctx: dict) -> dict[str, Any] | None:
+def heuristic_answer(ds_id: str, question: str, ctx: dict,
+                     recorte: tuple[str, list] | None = None) -> dict[str, Any] | None:
     """Motor sin IA. Devuelve None si la pregunta no encaja en ningún patrón."""
     t = _norm(question)
     columnas = [c["name"] for c in ctx["columns"]]
@@ -120,7 +132,7 @@ def heuristic_answer(ds_id: str, question: str, ctx: dict) -> dict[str, Any] | N
     else:
         return None
 
-    df = _run_sql(ds_id, sql)
+    df = _run_sql(ds_id, sql, recorte)
     return {"sql": sql, "rows": df, "engine": "reglas locales",
             "answer": _narrate_local(agg, metrica, dimension, df)}
 
@@ -149,7 +161,8 @@ def _narrate_local(agg, metrica, dimension, df) -> str:
 
 
 # ═══════════════════════════════════════════════════════ motor con IA ════════
-def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es") -> dict[str, Any]:
+def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es",
+              recorte: tuple[str, list] | None = None) -> dict[str, Any]:
 
     esquema = "\n".join(f"- {c['name']} ({c['type']})" for c in ctx["columns"][:60])
     prompt1 = (
@@ -164,7 +177,7 @@ def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es") -> dict[st
     r1 = AI.chat(None, prompt1, AI.SYSTEM_ES, max_tokens=600)
     plan = AI._json_from(r1["text"])
     sql = str(plan.get("sql", ""))
-    df = _run_sql(ds_id, sql)
+    df = _run_sql(ds_id, sql, recorte)
 
     muestra = df.head(30).to_json(orient="records", date_format="iso")
     idioma = {"es": "español rioplatense", "en": "English", "pt": "português"}.get(lang, "español")
@@ -179,26 +192,44 @@ def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es") -> dict[st
             "answer": r2["text"].strip(), "note": plan.get("nota") or None}
 
 
+def _recorte(ds_id: str, filters: dict[str, Any] | None) -> tuple[str, list] | None:
+    """WHERE de los filtros del tablero, validado contra el spec del servidor."""
+    if not filters:
+        return None
+    from . import dashboards as D
+    where, params = D._where(D.detect_spec(ds_id), filters)
+    return (where, params) if where else None
+
+
+def _con_aviso(out: dict[str, Any], recorte) -> dict[str, Any]:
+    if recorte:
+        aviso = "La respuesta sale del recorte filtrado del tablero, no de todo el dataset."
+        out["note"] = f"{out['note']} {aviso}" if out.get("note") else aviso
+    return out
+
+
 # ═══════════════════════════════════════════════════════════ fachada ═════════
-def ask(ds_id: str, question: str, lang: str = "es") -> dict[str, Any]:
+def ask(ds_id: str, question: str, lang: str = "es",
+        filters: dict[str, Any] | None = None) -> dict[str, Any]:
 
     if not question or not question.strip():
         raise AskError("Escribí una pregunta.")
     ctx = _schema_context(ds_id)
+    recorte = _recorte(ds_id, filters)
 
     intento_ia: str | None = None
     if AI.active_provider():
         try:
-            out = ai_answer(ds_id, question, ctx, lang)
-            return _pack(out)
+            out = ai_answer(ds_id, question, ctx, lang, recorte)
+            return _pack(_con_aviso(out, recorte))
         except (AI.AIError, AskError, ValueError, KeyError) as exc:
             intento_ia = str(exc)[:200]
 
-    out = heuristic_answer(ds_id, question, ctx)
+    out = heuristic_answer(ds_id, question, ctx, recorte)
     if out is not None:
         if intento_ia:
             out["note"] = f"La IA falló ({intento_ia}); respondió el motor local."
-        return _pack(out)
+        return _pack(_con_aviso(out, recorte))
 
     ejemplos = []
     if ctx["metrics"]:
