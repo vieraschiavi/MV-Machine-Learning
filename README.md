@@ -218,10 +218,20 @@ advierte.
 
 ### 13. Web de venta
 
-`web/` es el sitio estático de venta (Vercel): producto, método de validación,
-precios demo/profesional y enlace de pago por MercadoPago. Los campos
-`videoUrl` y `mercadoPagoLink` del bloque `CONFIG` en `web/index.html` se
-completan con el video y el link de pago reales.
+`web/` es el sitio estático de venta que se publica en Vercel, en **castellano,
+portugués e inglés**, con el mismo sistema de diseño que el sitio de MV Kobra
+AI. Tiene la sección de video con grabaciones del programa real (`web/video/`),
+el producto, el método de validación, los planes con interruptor **mensual /
+anual** (Demo US$0 · Profesional US$39/mes · Empresa US$129/mes, con
+equivalencia en pesos uruguayos), la descarga del instalador y las preguntas
+frecuentes.
+
+El despliegue va por git: `vercel.json` en la raíz apunta a `web/` como
+directorio de salida, así que cada push a `main` publica el sitio. Los dos
+valores a completar cuando estén disponibles son `mercadoPagoMensual` y
+`mercadoPagoAnual` del bloque `CONFIG` de `web/index.html`: hasta que tengan el
+link de cobro, el botón de compra abre un correo con el plan y el ciclo
+elegidos en el idioma activo.
 
 ---
 
@@ -252,7 +262,8 @@ desktop/
   backend_entry.py   entrada PyInstaller · mv-backend.spec
   electron-builder.yml  instalador NSIS con elección de carpeta e íconos
 web/
-  index.html         sitio de venta (Vercel) · vercel.json
+  index.html         sitio de venta en tres idiomas (Vercel)
+  video/             grabaciones del programa real
 ```
 
 ---
