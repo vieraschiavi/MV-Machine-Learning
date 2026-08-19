@@ -37,22 +37,113 @@ def _norm(x: str) -> str:
     return "".join(c for c in x if not unicodedata.combining(c))
 
 
-def _schema_context(ds_id: str) -> dict[str, Any]:
+MAX_EJEMPLOS = 8
+
+
+def q(col: str) -> str:
+    """Identificador entrecomillado, con las comillas internas escapadas."""
+    return '"' + str(col).replace('"', '""') + '"'
+
+
+def _valores_de_ejemplo(ds_id: str, columnas: list[dict]) -> dict[str, list[str]]:
+    """Hasta ocho valores reales por columna de texto.
+
+    Es la diferencia entre que «los clientes vencidos» se traduzca a
+    `Estado = 'Vencido'` o a `Estado = 'vencidos'`: el modelo no puede adivinar
+    cómo está escrito un valor si nunca lo vio.
+    """
+    de_texto = [c["name"] for c in columnas
+                if str(c.get("type", "")).lower().startswith(("string", "utf8", "large_string"))]
+    if not de_texto:
+        return {}
+    piezas = ", ".join(
+        f'(SELECT string_agg(DISTINCT v, \'|\') FROM '
+        f'(SELECT CAST({q(c)} AS VARCHAR) v FROM {{t}} WHERE {q(c)} IS NOT NULL '
+        f'LIMIT 400) WHERE v <> \'\') AS {q(c)}'
+        for c in de_texto[:25])
+    try:
+        fila = S.query(ds_id, f"SELECT {piezas}").iloc[0]
+    except Exception:                      # una columna rara no puede tumbar la pregunta
+        return {}
+    out: dict[str, list[str]] = {}
+    for c in de_texto[:25]:
+        crudo = fila.get(c)
+        if crudo:
+            vals = [v for v in str(crudo).split("|") if v][:MAX_EJEMPLOS]
+            # Una columna de texto libre no aporta como ejemplo y llena el
+            # prompt: se recorta el valor y, si igual son párrafos, se omite.
+            vals = [(v[:44] + "…") if len(v) > 45 else v for v in vals]
+            if vals and sum(len(v) for v in vals) <= 260:
+                out[c] = vals
+    return out
+
+
+def _schema_context(ds_id: str, con_ejemplos: bool = True) -> dict[str, Any]:
     """Esquema compacto para el prompt y para el traductor local."""
     spec = D.detect_spec(ds_id)
     meta = S.load_meta(ds_id)
+    columnas = [{"name": c["name"], "type": c["arrow_type"]} for c in meta.columns]
     return {
-        "columns": [{"name": c["name"], "type": c["arrow_type"]} for c in meta.columns],
+        "columns": columnas,
         "rows": meta.rows,
         "time_column": spec.get("time_column"),
         "metrics": [m["name"] for m in spec.get("metrics", [])],
         "dimensions": spec.get("dimensions", []),
+        "samples": _valores_de_ejemplo(ds_id, columnas) if con_ejemplos else {},
     }
 
 
+# ── barrera de sólo lectura ──────────────────────────────────────────────────
+# Un `\b` en vez de un espacio: «DELETE\nFROM» y «DELETE/**/FROM» son la misma
+# operación escrita distinto. En DuckDB además hay que frenar lo que lee y
+# escribe el disco desde un SELECT —`read_csv`, `copy`, `install`— porque eso
+# es acceso al equipo del cliente, no una consulta.
+PROHIBIDAS = re.compile(
+    r"\b(insert|update|delete|drop|alter|truncate|create|"
+    r"exec|execute|merge|grant|revoke|attach|detach|vacuum|reindex|pragma|"
+    r"into|"                                        # SELECT … INTO / REPLACE INTO
+    r"copy|export|import|install|load|"             # DuckDB toca el filesystem
+    r"read_csv|read_csv_auto|read_parquet|read_json|read_json_auto|read_text|"
+    r"read_blob|glob|parquet_scan|csv_scan|"
+    r"load_file|outfile|dumpfile|"                  # MySQL
+    r"pg_read_file|pg_ls_dir|lo_export|lo_import|"  # Postgres
+    r"openrowset|opendatasource|xp_cmdshell)\b"     # SQL Server
+    r"|\bxp_|\bsp_executesql",
+    re.I,
+)
 GUARD = re.compile(r"^\s*(select|with)\b", re.I)
-FORBIDDEN = re.compile(r"\b(insert|update|delete|drop|create|alter|attach|copy|export|"
-                       r"install|load|pragma|set)\b", re.I)
+
+# Los comentarios y los literales se sacan ANTES de mirar el SQL: sin eso,
+# «SELECT ';' AS separador» dispara la alarma sin motivo, y a la vez nada de lo
+# que se esconda dentro de un texto puede evadir la barrera, porque no se mira.
+_COMENTARIOS = (re.compile(r"/\*.*?\*/", re.S), re.compile(r"--[^\n]*"))
+_LITERAL = re.compile(r"'(?:[^']|'')*'")
+
+
+def solo_lectura(sql: str) -> str:
+    """Devuelve el SQL si es una lectura pura; si no, lo rechaza.
+
+    Vive en el punto de ejecución y no en el orquestador a propósito: cualquier
+    camino que llegue a la base —la IA, el traductor local, una consulta
+    reejecutada— pasa por acá sin excepción.
+    """
+    if not sql or not sql.strip():
+        raise AskError("La consulta quedó vacía.")
+    limpio = sql
+    for c in _COMENTARIOS:
+        limpio = c.sub(" ", limpio)
+    limpio = limpio.strip().rstrip(";")
+    sin_texto = _LITERAL.sub("''", limpio)
+
+    if ";" in sin_texto:
+        raise AskError("Una sola sentencia por pregunta.")
+    if not GUARD.match(sin_texto):
+        raise AskError("La consulta debe empezar con SELECT o WITH: se descartó.")
+    prohibida = PROHIBIDAS.search(sin_texto)
+    if prohibida:
+        raise AskError(f"«{prohibida.group(0).strip()}» no está permitido: "
+                       f"la plataforma nunca modifica ni lee archivos de tu equipo.")
+    return limpio
 
 
 def _run_sql(ds_id: str, sql: str, recorte: tuple[str, list] | None = None):
@@ -62,11 +153,7 @@ def _run_sql(ds_id: str, sql: str, recorte: tuple[str, list] | None = None):
     recorte y no sobre el dataset entero: sería desconcertante filtrar por dos
     sucursales y que la respuesta hable de las seis.
     """
-    sql = sql.strip().rstrip(";")
-    if not GUARD.match(sql) or FORBIDDEN.search(sql):
-        raise AskError("La consulta generada no es de sólo lectura: se descartó.")
-    if sql.count(";") > 0:
-        raise AskError("Una sola sentencia por pregunta.")
+    sql = solo_lectura(sql)
     params: list = []
     if recorte and recorte[0]:
         where, wp = recorte
@@ -103,7 +190,6 @@ def heuristic_answer(ds_id: str, question: str, ctx: dict,
     """Motor sin IA. Devuelve None si la pregunta no encaja en ningún patrón."""
     t = _norm(question)
     columnas = [c["name"] for c in ctx["columns"]]
-    q = lambda c: '"' + c.replace('"', '""') + '"'  # noqa: E731
 
     agg = next((a for patron, a in AGGS if re.search(patron, t)), None)
     metrica = _match_column(question, ctx["metrics"] or columnas)
@@ -161,23 +247,77 @@ def _narrate_local(agg, metrica, dimension, df) -> str:
 
 
 # ═══════════════════════════════════════════════════════ motor con IA ════════
+def _ficha_del_esquema(ctx: dict) -> str:
+    """La tabla descrita como se la describiría a una persona.
+
+    Tipo, columna temporal y —lo que más cambia el resultado— los valores que
+    realmente aparecen en cada columna de texto.
+    """
+    lineas = [f"TABLA: {{t}}  ({ctx['rows']:,} filas)".replace(",", "."), "Columnas:"]
+    muestras = ctx.get("samples") or {}
+    for c in ctx["columns"][:60]:
+        linea = f"  - {c['name']} ({c['type']})"
+        if c["name"] in muestras:
+            linea += "  valores: " + ", ".join(f"«{v}»" for v in muestras[c["name"]])
+        if c["name"] == ctx.get("time_column"):
+            linea += "  [columna temporal]"
+        lineas.append(linea)
+    return "\n".join(lineas)
+
+
+def _pedir_sql(question: str, ficha: str, error_previo: str = "", sql_previo: str = "") -> dict:
+    """Le pide el SQL al proveedor. Con `error_previo`, le pide corregirlo."""
+    reglas = (
+        "Reglas: una sola sentencia; sólo SELECT o WITH; sintaxis DuckDB; usá "
+        "EXCLUSIVAMENTE las columnas del esquema, no inventes nombres; si la "
+        "pregunta pide un ranking agregá ORDER BY y LIMIT; alias legibles en "
+        "castellano para las columnas calculadas.")
+    if error_previo:
+        prompt = (
+            f"{ficha}\n\nPregunta: «{question}»\n\n"
+            f"Esta consulta falló:\n{sql_previo}\n\n"
+            f"La base respondió: {error_previo}\n\n"
+            f"Corregila. {reglas}\n"
+            'Devolvé SOLO un JSON: {"sql": "...", "nota": "qué estaba mal", '
+            '"confianza": 0-100}.')
+    else:
+        prompt = (
+            f"{ficha}\n\nPregunta del usuario: «{question}»\n\n"
+            f"{reglas}\n"
+            'Devolvé SOLO un JSON: {"sql": "la consulta", "nota": "supuesto '
+            'tomado, si hubo", "confianza": 0-100}.')
+    r = AI.chat(None, prompt, AI.SYSTEM_ES, max_tokens=700)
+    plan = AI._json_from(r["text"])
+    plan["_provider"] = f"{r['provider']} · {r['model']}"
+    return plan
+
+
 def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es",
               recorte: tuple[str, list] | None = None) -> dict[str, Any]:
+    """Traduce, ejecuta y narra. Si la base rechaza el SQL, lo hace corregir.
 
-    esquema = "\n".join(f"- {c['name']} ({c['type']})" for c in ctx["columns"][:60])
-    prompt1 = (
-        f"Tabla DuckDB expuesta como {{t}} con {ctx['rows']:,} filas.\n"
-        f"Columnas:\n{esquema}\n"
-        f"Columna temporal: {ctx.get('time_column') or 'ninguna'}\n\n"
-        f"Pregunta del usuario: «{question}»\n\n"
-        "Devolvé SOLO un JSON: {\"sql\": \"una consulta SELECT sobre {t} que "
-        "responda la pregunta\", \"nota\": \"supuesto tomado, si hubo\"}. "
-        "Reglas: sólo lectura, una sentencia, sintaxis DuckDB, agregá LIMIT si "
-        "el resultado puede ser largo.")
-    r1 = AI.chat(None, prompt1, AI.SYSTEM_ES, max_tokens=600)
-    plan = AI._json_from(r1["text"])
+    Ese segundo intento es barato y cambia mucho el resultado: los mensajes de
+    DuckDB nombran la columna que no existe y sugieren las parecidas, así que
+    el modelo casi siempre acierta con esa pista.
+    """
+    ficha = _ficha_del_esquema(ctx)
+    plan = _pedir_sql(question, ficha)
     sql = str(plan.get("sql", ""))
-    df = _run_sql(ds_id, sql, recorte)
+    intentos: list[str] = []
+    df = None
+    for _ in range(2):
+        try:
+            df = _run_sql(ds_id, sql, recorte)
+            break
+        except AskError:
+            raise                                   # la barrera no se reintenta
+        except Exception as exc:
+            fallo = str(exc).split("\n")[0][:300]
+            intentos.append(fallo)
+            plan = _pedir_sql(question, ficha, fallo, sql)
+            sql = str(plan.get("sql", ""))
+    if df is None:
+        raise AskError("La consulta no pudo ejecutarse: " + " · ".join(intentos))
 
     muestra = df.head(30).to_json(orient="records", date_format="iso")
     idioma = {"es": "español rioplatense", "en": "English", "pt": "português"}.get(lang, "español")
@@ -188,8 +328,13 @@ def ai_answer(ds_id: str, question: str, ctx: dict, lang: str = "es",
         f"Respondé la pregunta en {idioma}, en 1 a 3 frases, usando ÚNICAMENTE "
         f"estos datos. Formateá los números con separador de miles. Sin emojis.")
     r2 = AI.chat(None, prompt2, AI.SYSTEM_ES, max_tokens=400)
-    return {"sql": sql, "rows": df, "engine": f"{r1['provider']} · {r1['model']}",
-            "answer": r2["text"].strip(), "note": plan.get("nota") or None}
+
+    nota = plan.get("nota") or None
+    if intentos:
+        nota = (f"{nota}. " if nota else "") + f"Se corrigió la consulta: {intentos[0]}"
+    return {"sql": sql, "rows": df, "engine": plan["_provider"],
+            "answer": r2["text"].strip(), "note": nota,
+            "confidence": plan.get("confianza")}
 
 
 def _recorte(ds_id: str, filters: dict[str, Any] | None) -> tuple[str, list] | None:
@@ -217,6 +362,13 @@ def ask(ds_id: str, question: str, lang: str = "es",
     ctx = _schema_context(ds_id)
     recorte = _recorte(ds_id, filters)
 
+    # El traductor local va primero, no como respaldo: si la pregunta es una de
+    # las formas frecuentes, responde al instante, sin costo y sin mandar nada
+    # afuera. La IA queda para lo que las reglas no cubren.
+    out = heuristic_answer(ds_id, question, ctx, recorte)
+    if out is not None:
+        return _pack(_con_aviso(out, recorte))
+
     intento_ia: str | None = None
     if AI.active_provider():
         try:
@@ -224,12 +376,6 @@ def ask(ds_id: str, question: str, lang: str = "es",
             return _pack(_con_aviso(out, recorte))
         except (AI.AIError, AskError, ValueError, KeyError) as exc:
             intento_ia = str(exc)[:200]
-
-    out = heuristic_answer(ds_id, question, ctx, recorte)
-    if out is not None:
-        if intento_ia:
-            out["note"] = f"La IA falló ({intento_ia}); respondió el motor local."
-        return _pack(_con_aviso(out, recorte))
 
     ejemplos = []
     if ctx["metrics"]:
