@@ -40,3 +40,4 @@ desktop/release/
 # ── voz de los videos: modelos y audios intermedios se regeneran ────────────
 web/video/.voces/
 web/video/.audio/
+web/video/*.con-voz.mp4

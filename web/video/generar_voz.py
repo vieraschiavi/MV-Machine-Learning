@@ -168,8 +168,11 @@ def montar(video: Path, tramos: list[tuple[float, Path]], salida: Path) -> None:
         entradas += ["-i", str(mp3)]
         filtros.append(f"[{i + 1}:a]adelay={int(t * 1000)}|{int(t * 1000)}[a{i}]")
         etiquetas.append(f"[a{i}]")
+    # `apad` rellena con silencio hasta que termina el video: sin eso,
+    # `-shortest` corta la imagen en cuanto se acaba la última frase y se
+    # pierde el final del recorrido.
     filtros.append(f"{''.join(etiquetas)}amix=inputs={len(tramos)}:"
-                   f"dropout_transition=0:normalize=0[out]")
+                   f"dropout_transition=0:normalize=0,apad[out]")
     cmd = [ffmpeg(), "-y", "-loglevel", "error", *entradas,
            "-filter_complex", ";".join(filtros), "-map", "0:v", "-map", "[out]",
            "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-shortest", str(salida)]
