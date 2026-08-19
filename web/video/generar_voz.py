@@ -1,14 +1,17 @@
 """Sintetiza la narración de los videos y la monta sobre el video mudo.
 
-Dos motores, en este orden:
+Las voces son **las mismas que ya narran los otros productos de la casa**, para
+que todo suene igual. Tres motores, en este orden:
 
-1. **ElevenLabs** (`eleven_multilingual_v2`), que es la voz que ya usa Kobra en
-   sus demos: misma marca sonora en los dos productos. Necesita
-   `ELEVENLABS_API_KEY` y `ELEVENLABS_VOICE_ID` en el entorno; si el modelo
-   multilingüe habla los tres idiomas, alcanza con una sola voz.
-2. **Piper**, síntesis local, cuando no hay clave configurada. No es la voz
-   premium, pero deja los videos con narración sin depender de un servicio ni
-   de un costo por carácter.
+1. **edge-tts** con `es-UY-MateoNeural`, `en-US-GuyNeural` y `pt-BR-AntonioNeural`
+   — las de los videos y Reels de MV Cliente IA, familia rioplatense. Gratis y
+   sin clave, pero habla por WebSocket: detrás de un proxy que no lo permita
+   falla y se pasa al motor siguiente.
+2. **Piper**, local y offline, con `es_AR-daniela-high` — la voz de los videos
+   de MV Agéndate IA y Project Management MV.
+3. **ElevenLabs** (`eleven_multilingual_v2`), la de las demos de Kobra, cuando
+   estén configuradas `ELEVENLABS_API_KEY` y `ELEVENLABS_VOICE_ID`. Si hay
+   clave se usa primero: es la de mejor calidad.
 
 El guion sale de `guiones.js`, que es también lo que muestra la web: no hay
 forma de que el audio diga una cosa y la página otra.
@@ -31,10 +34,16 @@ AQUI = Path(__file__).resolve().parent
 IDIOMAS = ("es", "en", "pt")
 VIDEOS = ("recorrido", "tablero")
 
-# voces de Piper por idioma; se descargan a `web/video/.voces/`
+# edge-tts: las voces de los videos de MV Cliente IA (es-UY = rioplatense)
+EDGE = {
+    "es": "es-UY-MateoNeural",
+    "en": "en-US-GuyNeural",
+    "pt": "pt-BR-AntonioNeural",
+}
+# Piper local: las voces de MV Agéndate IA y Project Management MV
 PIPER = {
-    "es": "es_ES-sharvard-medium",
-    "en": "en_US-lessac-medium",
+    "es": "es_AR-daniela-high",
+    "en": "en_US-amy-medium",
     "pt": "pt_BR-faber-medium",
 }
 PIPER_URL = ("https://huggingface.co/rhasspy/piper-voices/resolve/main/"
@@ -74,6 +83,31 @@ def voz_elevenlabs(texto: str, destino: Path, api_key: str, voice_id: str) -> bo
         return False
     destino.write_bytes(r.content)
     return True
+
+
+def voz_edge(texto: str, destino: Path, lang: str) -> bool:
+    """La voz de los videos de MV Cliente IA. Habla por WebSocket."""
+    import asyncio
+    import ssl
+
+    try:
+        import aiohttp
+        import edge_tts
+    except ImportError:
+        return False
+
+    async def hablar() -> None:
+        ctx = ssl.create_default_context(cafile=os.getenv("SSL_CERT_FILE") or None)
+        com = edge_tts.Communicate(texto, EDGE[lang],
+                                   connector=aiohttp.TCPConnector(ssl=ctx))
+        await com.save(str(destino))
+
+    try:
+        asyncio.run(hablar())
+        return destino.exists() and destino.stat().st_size > 500
+    except Exception as exc:
+        print(f"  edge-tts no pudo ({type(exc).__name__}), se usa la voz local")
+        return False
 
 
 def modelo_piper(lang: str) -> Path:
@@ -147,8 +181,8 @@ def main(idiomas: tuple[str, ...]) -> None:
     key = os.getenv("ELEVENLABS_API_KEY", "")
     voice = os.getenv("ELEVENLABS_VOICE_ID", "") or os.getenv("ELEVENLABS_VOICE_ID_GESTOR", "")
     premium = len(key) > 10 and bool(voice)
-    print("voz:", "ElevenLabs (la misma de Kobra)" if premium
-          else "Piper local — sin ELEVENLABS_API_KEY/ELEVENLABS_VOICE_ID configurados")
+    print("voz:", "ElevenLabs, la de las demos de Kobra" if premium
+          else "edge-tts (es-UY-MateoNeural), con Piper local de respaldo")
 
     tmp = AQUI / ".audio"
     tmp.mkdir(exist_ok=True)
@@ -163,8 +197,9 @@ def main(idiomas: tuple[str, ...]) -> None:
             for i, tramo in enumerate(guiones[nombre][lang]):
                 mp3 = tmp / f"{nombre}-{lang}-{i:02d}.mp3"
                 if not mp3.exists():
-                    ok = (voz_elevenlabs(tramo["text"], mp3, key, voice) if premium
-                          else False) or voz_piper(tramo["text"], mp3, lang)
+                    ok = ((voz_elevenlabs(tramo["text"], mp3, key, voice) if premium else False)
+                          or voz_edge(tramo["text"], mp3, lang)
+                          or voz_piper(tramo["text"], mp3, lang))
                     if not ok:
                         raise SystemExit("no se pudo sintetizar la narración")
                 tramos.append((tramo["t"], mp3))

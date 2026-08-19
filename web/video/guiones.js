@@ -20,7 +20,7 @@ window.NARRACION = {
       {"t": 38,   "text": "Antes de entrenar audita la fuga de información y descarta lo que memoriza en vez de generalizar, como el identificador de cada fila."},
       {"t": 48,   "text": "Ahora compiten los modelos: ajusta hiperparámetros, prueba familias distintas y combina las mejores."},
       {"t": 58,   "text": "El número que se reporta sale del holdout ciego, la ventana que no se tocó en ninguna decisión. Cero coma ochenta y ocho de AUC, con una degradación mínima contra la ventana de selección: el modelo se sostiene."},
-      {"t": 70,   "text": "Y explica por qué: cada variable con su peso real y hacia dónde empuja. El contacto efectivo sube el pago; los días de atraso lo bajan."}
+      {"t": 71,   "text": "Y explica por qué: cada variable con su peso real y hacia dónde empuja. El contacto efectivo sube el pago; los días de atraso lo bajan."}
     ],
     "en": [
       {"t": 0.5,  "text": "MV AutoML Studio. From any dataset to a validated model, without writing a single line of code."},
@@ -30,7 +30,7 @@ window.NARRACION = {
       {"t": 38,   "text": "Before training it audits for leakage and drops whatever memorises instead of generalising, such as each row's identifier."},
       {"t": 48,   "text": "Then the models compete: it tunes hyperparameters, tries different families and blends the best ones."},
       {"t": 58,   "text": "The number it reports comes from the blind holdout, the window untouched by any decision. Zero point eight eight AUC, with minimal degradation against the selection window: the model holds up."},
-      {"t": 70,   "text": "And it explains why: every variable with its real weight and which way it pushes. Effective contact raises payment; days overdue lower it."}
+      {"t": 71,   "text": "And it explains why: every variable with its real weight and which way it pushes. Effective contact raises payment; days overdue lower it."}
     ],
     "pt": [
       {"t": 0.5,  "text": "MV AutoML Studio. De qualquer conjunto de dados a um modelo validado, sem escrever uma linha de código."},
@@ -40,7 +40,7 @@ window.NARRACION = {
       {"t": 38,   "text": "Antes de treinar, audita o vazamento de informação e descarta o que memoriza em vez de generalizar, como o identificador de cada linha."},
       {"t": 48,   "text": "Então os modelos competem: ajusta hiperparâmetros, testa famílias diferentes e combina as melhores."},
       {"t": 58,   "text": "O número reportado vem do holdout cego, a janela que não foi tocada em nenhuma decisão. Zero vírgula oitenta e oito de AUC, com degradação mínima contra a janela de seleção: o modelo se sustenta."},
-      {"t": 70,   "text": "E explica o porquê: cada variável com seu peso real e para onde empurra. O contato efetivo aumenta o pagamento; os dias de atraso o reduzem."}
+      {"t": 71,   "text": "E explica o porquê: cada variável com seu peso real e para onde empurra. O contato efetivo aumenta o pagamento; os dias de atraso o reduzem."}
     ]
   },
   "tablero": {
@@ -50,8 +50,8 @@ window.NARRACION = {
       {"t": 14,   "text": "Cada indicador compara contra el mes anterior, contra el mismo mes del año pasado y el acumulado del año contra el anterior. En verde lo que crece, en rojo lo que cae."},
       {"t": 26,   "text": "Y respeta la unidad: los montos varían en porcentaje, y lo que ya es un porcentaje varía en puntos porcentuales."},
       {"t": 35,   "text": "Los filtros recalculan todo: indicadores, series, barras y tabla."},
-      {"t": 43,   "text": "El tablero completo se exporta a Excel o CSV con los filtros puestos, una hoja por gráfico."},
-      {"t": 52,   "text": "Y se le puede preguntar en castellano. Traduce la pregunta a SQL, la ejecuta de verdad sobre los datos y responde con el resultado real, no de memoria."}
+      {"t": 40,   "text": "El tablero completo se exporta a Excel o CSV con los filtros puestos, una hoja por gráfico."},
+      {"t": 47,   "text": "Y se le puede preguntar en castellano. Traduce la pregunta a SQL, la ejecuta de verdad sobre los datos y responde con el resultado real, no de memoria."}
     ],
     "en": [
       {"t": 0.5,  "text": "The dashboard builds itself from any dataset or SQL query."},
@@ -59,8 +59,8 @@ window.NARRACION = {
       {"t": 14,   "text": "Every indicator compares against the previous month, against the same month last year, and year to date against the previous one. Green when it grows, red when it falls."},
       {"t": 26,   "text": "And it respects the unit: amounts vary in percent, and what already is a percentage varies in percentage points."},
       {"t": 35,   "text": "Filters recalculate everything: indicators, series, bars and table."},
-      {"t": 43,   "text": "The whole dashboard exports to Excel or CSV with the filters applied, one sheet per chart."},
-      {"t": 52,   "text": "And you can ask it in plain language. It translates the question into SQL, actually runs it against the data and answers from the real result, not from memory."}
+      {"t": 40,   "text": "The whole dashboard exports to Excel or CSV with the filters applied, one sheet per chart."},
+      {"t": 47,   "text": "And you can ask it in plain language. It translates the question into SQL, actually runs it against the data and answers from the real result, not from memory."}
     ],
     "pt": [
       {"t": 0.5,  "text": "O painel se monta sozinho com qualquer conjunto de dados ou consulta SQL."},
@@ -68,8 +68,8 @@ window.NARRACION = {
       {"t": 14,   "text": "Cada indicador compara contra o mês anterior, contra o mesmo mês do ano passado e o acumulado do ano contra o anterior. Em verde o que cresce, em vermelho o que cai."},
       {"t": 26,   "text": "E respeita a unidade: os valores variam em porcentagem, e o que já é uma porcentagem varia em pontos percentuais."},
       {"t": 35,   "text": "Os filtros recalculam tudo: indicadores, séries, barras e tabela."},
-      {"t": 43,   "text": "O painel completo é exportado para Excel ou CSV com os filtros aplicados, uma aba por gráfico."},
-      {"t": 52,   "text": "E dá para perguntar em linguagem comum. Traduz a pergunta para SQL, executa de verdade sobre os dados e responde com o resultado real, não de memória."}
+      {"t": 40,   "text": "O painel completo é exportado para Excel ou CSV com os filtros aplicados, uma aba por gráfico."},
+      {"t": 47,   "text": "E dá para perguntar em linguagem comum. Traduz a pergunta para SQL, executa de verdade sobre os dados e responde com o resultado real, não de memória."}
     ]
   }
 };
