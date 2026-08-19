@@ -188,21 +188,39 @@ export function scatter(points, { title, width = 520, height = 260, fmtX, fmtY, 
 /* ── matriz de correlación ───────────────────────────────────────────────── */
 export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) {
   const n = labels.length;
-  const labelW = 108;
-  const size = Math.min(cell, Math.max(12, (width - labelW - 12) / Math.max(n, 1)));
-  const height = n * size + 108;
-  const { box, svg } = frame(width, height, title);
+  const CHAR = 6.1;                       // ancho aproximado de carácter a 11 px
+  const corto = (s) => (String(s).length > 20 ? `${String(s).slice(0, 19)}…` : String(s));
+  const largoMax = Math.max(...labels.map((l) => corto(l).length), 1);
+
+  // El eje de la izquierda y el de arriba se dimensionan según el texto real.
+  // Las etiquetas de arriba van rotadas y ancladas por el principio: si se
+  // anclan por el final, se meten sobre el eje de la izquierda y sobre la
+  // propia matriz, que es lo que pasaba antes.
+  const labelW = Math.min(190, Math.max(70, largoMax * CHAR + 10));
+  const size = Math.min(cell, Math.max(12, (width - labelW - 24) / Math.max(n, 1)));
+  const topH = Math.round(largoMax * CHAR * 0.72) + 12;   // proyección a 45°
+  const height = topH + n * size + 14;
+  const ancho = Math.max(width, labelW + n * size + topH * 0.72 + 12);
+
+  const { box, svg } = frame(ancho, height, title);
   labels.forEach((lb, i) => {
-    const y = 92 + i * size;
-    const txt = svgEl('text', { x: labelW - 6, y: y + size * 0.68, 'text-anchor': 'end' });
-    txt.textContent = String(lb).slice(0, 18);
-    svg.appendChild(txt);
-    const top = svgEl('text', {
-      x: labelW + i * size + size / 2, y: 86, 'text-anchor': 'end',
-      transform: `rotate(-55 ${labelW + i * size + size / 2} 86)`,
+    const y = topH + i * size;
+    const izq = svgEl('text', {
+      x: labelW - 7, y: y + size * 0.68, 'text-anchor': 'end', 'font-size': 11,
     });
-    top.textContent = String(lb).slice(0, 14);
-    svg.appendChild(top);
+    izq.textContent = corto(lb);
+    izq.appendChild(svgEl('title')).textContent = String(lb);
+    svg.appendChild(izq);
+
+    const cx = labelW + i * size + size * 0.62;
+    const arriba = svgEl('text', {
+      x: cx, y: topH - 5, 'text-anchor': 'start', 'font-size': 11,
+      transform: `rotate(-45 ${cx} ${topH - 5})`,
+    });
+    arriba.textContent = corto(lb);
+    arriba.appendChild(svgEl('title')).textContent = String(lb);
+    svg.appendChild(arriba);
+
     matrix[i].forEach((v, j) => {
       const a = Math.min(Math.abs(v), 1);
       const color = v >= 0 ? 'var(--accent)' : 'var(--bad)';
@@ -212,6 +230,15 @@ export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) 
       });
       rect.appendChild(svgEl('title')).textContent = `${labels[i]} · ${labels[j]}: ${v.toFixed(3)}`;
       svg.appendChild(rect);
+      if (size >= 30 && i !== j) {           // el número entra sólo si hay lugar
+        const num = svgEl('text', {
+          x: labelW + j * size + (size - 1.5) / 2, y: y + size * 0.63,
+          'text-anchor': 'middle', 'font-size': 9.5,
+          fill: a > 0.55 ? '#fff' : 'var(--text-3)',
+        });
+        num.textContent = v.toFixed(2).replace('0.', '.').replace('-.', '−.');
+        svg.appendChild(num);
+      }
     });
   });
   return box;

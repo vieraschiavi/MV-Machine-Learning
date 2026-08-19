@@ -256,3 +256,39 @@ def test_la_comparacion_anual_usa_el_mismo_mes(panel):
 def test_etiquetas_legibles():
     assert D.titulo("PorcentajeTotalCobrado") == "Porcentaje Total Cobrado"
     assert D.titulo("MONTO_VENCIDO") == "Monto vencido"
+
+
+# ── barrera de sólo lectura, endurecida ──────────────────────────────────────
+@pytest.mark.parametrize("sql", [
+    "SELECT 1; DROP TABLE t",                       # encadenar sentencias
+    "DELETE\nFROM t",                               # el salto de línea no salva
+    "DELETE/**/FROM t",                             # ni el comentario
+    "SELECT * FROM read_csv('/etc/passwd')",        # DuckDB lee el disco
+    "SELECT * FROM t INTO OUTFILE '/tmp/x'",
+    "COPY t TO '/tmp/x.csv'",
+    "ATTACH '/tmp/otra.db'",
+])
+def test_la_barrera_frena_lo_que_no_es_lectura(sql):
+    with pytest.raises(ASK.AskError):
+        ASK.solo_lectura(sql)
+
+
+@pytest.mark.parametrize("sql", [
+    "SELECT * FROM t",
+    "WITH x AS (SELECT 1 AS a) SELECT a FROM x",
+    "SELECT ';' AS separador FROM t",               # antes: falso positivo
+    "SELECT 'push into cart' AS accion FROM t",     # antes: falso positivo
+    "SELECT * FROM t -- comentario al final",
+    "SELECT * FROM t; --",              # el punto y coma final es inofensivo
+])
+def test_la_barrera_no_estorba_a_una_lectura_legitima(sql):
+    assert ASK.solo_lectura(sql)
+
+
+def test_el_esquema_lleva_los_valores_reales_de_cada_columna(panel):
+    """Sin los valores, «los vencidos» no se traduce al texto exacto."""
+    ctx = ASK._schema_context(panel.id)
+    tramos = ctx["samples"].get("TramoDeuda") or []
+    assert "0-30" in tramos and "+360" in tramos
+    ficha = ASK._ficha_del_esquema(ctx)
+    assert "«0-30»" in ficha and "[columna temporal]" in ficha

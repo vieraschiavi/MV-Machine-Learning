@@ -414,17 +414,21 @@
     "vs_prev": "vs previous period"
   },
   "license": {
-    "title": "License",
-    "tier": "Tier",
-    "demo_note": "You are in Demo mode: up to 50,000 rows per dataset, 3 model families, no SQL connectors or AI engine.",
     "activate": "Activate license",
-    "token_placeholder": "Paste your license here (MVAS.…)",
     "activated": "License activated",
-    "licensee": "Licensee",
-    "expires": "Expires",
+    "buy": "Buy a licence",
+    "days": "days",
     "days_left": "days left",
-    "no_expiry": "No expiry",
     "deactivate": "Deactivate",
-    "buy": "Buy the Professional edition"
+    "demo_note": "You are in Demo mode: up to 50,000 rows per dataset, 3 model families, no SQL connectors or AI engine.",
+    "expires": "Expires",
+    "licensee": "Licensee",
+    "no_expiry": "No expiry",
+    "of": "of",
+    "tier": "Tier",
+    "title": "License",
+    "token_placeholder": "Paste your license here (MVAS.…)",
+    "trial_left": "Trial",
+    "trial_over": "The trial is over. Activate a licence to keep working: your data and models are still here, nothing was deleted."
   }
 }

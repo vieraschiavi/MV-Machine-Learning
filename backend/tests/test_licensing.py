@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import io
+import json
 import os
+import time
 
 import numpy as np
 import pandas as pd
@@ -168,3 +170,37 @@ def test_token_de_sesion(client, monkeypatch):
     assert client.get("/api/datasets?token=token-de-prueba-123").status_code == 200
     assert client.get("/api/health").status_code == 200      # público para diagnóstico
     assert client.get("/").status_code == 200                # la interfaz carga
+
+
+def test_la_prueba_vence_y_la_licencia_la_destraba(tmp_path, monkeypatch):
+    """El circuito comercial completo: probás, se vence, pagás, seguís."""
+    monkeypatch.delenv("MV_LICENSE", raising=False)   # la suite corre como owner
+    monkeypatch.setattr(L, "DEMO_DIAS", 15)
+    monkeypatch.setattr(L, "_marca_de_inicio", lambda: tmp_path / ".prueba")
+    L.deactivate()
+
+    assert L.dias_de_prueba_restantes() == 15 and not L.prueba_vencida()
+    L.check_rows(1000)                                   # trabaja normal
+
+    (tmp_path / ".prueba").write_text(json.dumps({"desde": time.time() - 16 * 86400}))
+    assert L.prueba_vencida()
+    for llamada in (lambda: L.check_rows(100), lambda: L.cap_budget(60),
+                    lambda: L.require("export_excel")):
+        with pytest.raises(PermissionError, match="prueba"):
+            llamada()
+
+    L.activate(L.issue("paid", "Cliente", days=365, private_key_b64=PRIV))
+    L.check_rows(5_000_000)                              # la licencia destraba
+    assert not L.prueba_vencida()
+
+    L.deactivate()
+    assert L.prueba_vencida(), "borrar la licencia no puede reiniciar el reloj"
+    L.load()                       # deja el estado como lo encontró
+
+
+def test_el_estado_informa_los_dias_que_quedan(tmp_path, monkeypatch):
+    monkeypatch.delenv("MV_LICENSE", raising=False)
+    monkeypatch.setattr(L, "_marca_de_inicio", lambda: tmp_path / ".prueba")
+    L.deactivate()
+    st = L.status()
+    assert st["trial_days_left"] == L.DEMO_DIAS and st["trial_expired"] is False
