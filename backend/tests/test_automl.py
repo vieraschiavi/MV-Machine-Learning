@@ -138,3 +138,28 @@ def test_progreso_llega_al_final(frame_binary):
             progress=lambda p, m: vistos.append((p, m)))
     assert vistos[-1][0] == 100
     assert max(p for p, _ in vistos) == 100
+
+
+def test_shap_nombra_la_categoria_no_el_codigo_interno():
+    """«ContactoEfectivo baja el resultado» le dice al usuario lo contrario.
+
+    Una categórica entra al modelo como código numérico. Si el 1 es «no», el
+    signo del SHAP es negativo y la explicación resultante afirma justo lo
+    opuesto de lo que hace la variable: hay que nombrar la categoría.
+    """
+    r = np.random.default_rng(7)
+    n = 900
+    contacto = r.choice(["si", "no"], n, p=[0.6, 0.4])
+    ruido = r.normal(0, 1, n)
+    df = pd.DataFrame({
+        "ContactoEfectivo": contacto,
+        "ruido": ruido,
+        "paga": ((contacto == "si") * 2.5 + ruido * 0.3 > 1.0).astype(int),
+    })
+    rep = A.train(df, A.TrainConfig(target="paga", budget_seconds=10, max_models=2,
+                                    shap=True, permutation_importance=False))["report"]
+    fila = next(v for v in rep["features"]["ranking"] if v["column"] == "ContactoEfectivo")
+    direccion = fila.get("shap_direction") or ""
+    assert "«si»" in direccion and "«no»" in direccion, direccion
+    assert direccion.index("«si»") < direccion.index("«no»"), (
+        f"contactar sube el pago, pero la explicación dice: {direccion}")
