@@ -273,6 +273,51 @@ def load() -> License | None:
     return _ACTIVE
 
 
+# ────────────────────────────────────────────── prueba con vencimiento ────────
+DEMO_DIAS = int(os.environ.get("MV_DEMO_DIAS", "15"))
+
+
+def _marca_de_inicio() -> Path:
+    from ..config import settings
+
+    return settings.data_dir / ".prueba"
+
+
+def inicio_prueba() -> float:
+    """Cuándo arrancó la prueba en este equipo. Se sella la primera vez.
+
+    Se guarda aparte de la licencia: borrar la licencia no reinicia el reloj.
+    """
+    p = _marca_de_inicio()
+    if p.exists():
+        try:
+            return float(json.loads(p.read_text(encoding="utf-8"))["desde"])
+        except (ValueError, KeyError, OSError):
+            pass
+    ahora = time.time()
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps({"desde": ahora}), encoding="utf-8")
+    return ahora
+
+
+def dias_de_prueba_restantes() -> int:
+    gastados = (time.time() - inicio_prueba()) / 86400
+    return max(0, int(DEMO_DIAS - gastados + 0.999))
+
+
+def prueba_vencida() -> bool:
+    """La prueba se venció y no hay licencia que la reemplace."""
+    return load() is None and dias_de_prueba_restantes() <= 0
+
+
+def _cortar_si_vencio() -> None:
+    if prueba_vencida():
+        raise PermissionError(
+            f"La prueba de {DEMO_DIAS} días terminó. Activá una licencia para "
+            f"seguir usando la plataforma: los datos y los modelos siguen "
+            f"acá, no se borró nada.")
+
+
 def current_tier() -> Tier:
     lic = load()
     return TIERS[lic.tier] if lic else TIERS[DEFAULT_TIER]
@@ -292,6 +337,9 @@ def status() -> dict[str, Any]:
         "license_id": lic.id if lic else None,
         "expires_at": lic.expires_at if lic else None,
         "days_left": lic.days_left if lic else None,
+        "trial_days": DEMO_DIAS if lic is None else None,
+        "trial_days_left": dias_de_prueba_restantes() if lic is None else None,
+        "trial_expired": prueba_vencida(),
     }
 
 
@@ -302,6 +350,7 @@ def require(feature: str) -> None:
     Se llama en el borde de la API, nunca en el medio de un cálculo: que la
     negativa llegue antes de que el usuario espere tres minutos.
     """
+    _cortar_si_vencio()
     tier = current_tier()
     permitido = getattr(tier, feature, False)
     if not permitido:
@@ -333,6 +382,7 @@ def _miles(n: int) -> str:
 
 
 def check_rows(rows: int) -> None:
+    _cortar_si_vencio()
     tier = current_tier()
     if tier.max_rows is not None and rows > tier.max_rows:
         raise PermissionError(
@@ -342,6 +392,7 @@ def check_rows(rows: int) -> None:
 
 def check_count(actual: int, feature: str) -> None:
     """Tope de cantidad (datasets, workspaces)."""
+    _cortar_si_vencio()
     tier = current_tier()
     limite = getattr(tier, feature, None)
     if limite is not None and actual >= limite:
@@ -352,6 +403,7 @@ def check_count(actual: int, feature: str) -> None:
 
 
 def cap_budget(seconds: int) -> int:
+    _cortar_si_vencio()
     return min(int(seconds), current_tier().max_budget_seconds)
 
 

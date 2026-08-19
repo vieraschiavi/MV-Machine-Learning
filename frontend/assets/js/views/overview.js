@@ -98,9 +98,19 @@ export default {
           badge(st.label, esDemo ? 'warn' : 'ok')),
         esDemo
           ? el('div', {},
+              // los días que quedan van arriba de todo: es el dato que decide
+              // si el visitante compra hoy o lo deja para nunca
+              st.trial_expired
+                ? note(t('license.trial_over'), 'bad')
+                : note(`${t('license.trial_left')}: ${st.trial_days_left} ${t('license.days')} `
+                       + `(${t('license.of')} ${st.trial_days})`,
+                       st.trial_days_left <= 3 ? 'warn' : 'accent'),
               note(t('license.demo_note'), 'warn'),
               el('div', { class: 'row mt-2' },
-                el('div', { style: 'flex:1;min-width:280px' }, input), activar))
+                el('div', { style: 'flex:1;min-width:280px' }, input), activar),
+              el('div', { class: 'mt-1' },
+                el('a', { class: 'btn', href: 'https://mv-automl-studio.vercel.app/#precios',
+                          target: '_blank', rel: 'noopener' }, t('license.buy'))))
           : el('dl', { class: 'kv' },
               el('dt', { text: t('license.licensee') }), el('dd', { text: st.licensee || '—' }),
               el('dt', { text: t('license.expires') }),

@@ -414,17 +414,21 @@
     "vs_prev": "vs período anterior"
   },
   "license": {
-    "title": "Licença",
-    "tier": "Nível",
-    "demo_note": "Você está no modo Demo: até 50.000 linhas por dataset, 3 famílias de modelos, sem conectores SQL nem motor de IA.",
     "activate": "Ativar licença",
-    "token_placeholder": "Cole sua licença aqui (MVAS.…)",
     "activated": "Licença ativada",
-    "licensee": "Titular",
-    "expires": "Vence",
+    "buy": "Comprar uma licença",
+    "days": "dias",
     "days_left": "dias restantes",
-    "no_expiry": "Sem vencimento",
     "deactivate": "Desativar",
-    "buy": "Comprar a versão Profissional"
+    "demo_note": "Você está no modo Demo: até 50.000 linhas por dataset, 3 famílias de modelos, sem conectores SQL nem motor de IA.",
+    "expires": "Vence",
+    "licensee": "Titular",
+    "no_expiry": "Sem vencimento",
+    "of": "de",
+    "tier": "Nível",
+    "title": "Licença",
+    "token_placeholder": "Cole sua licença aqui (MVAS.…)",
+    "trial_left": "Teste",
+    "trial_over": "O teste terminou. Ative uma licença para continuar: seus dados e modelos continuam aqui, nada foi apagado."
   }
 }
