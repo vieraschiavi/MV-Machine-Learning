@@ -4,308 +4,800 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MV AutoML Studio — de cualquier dataset a un modelo validado</title>
-<meta name="description" content="ETL automático, AutoML con validación honesta y dashboards con IA sobre cualquier dataset o servidor SQL. Instalable en Windows, datos siempre en tu equipo.">
+<meta name="description" content="ETL automático, AutoML con validación honesta, tableros con KPIs detectados solos y preguntas en lenguaje natural sobre cualquier dataset o servidor SQL. Se instala en Windows y los datos no salen de tu equipo.">
 <meta property="og:title" content="MV AutoML Studio">
 <meta property="og:description" content="De cualquier dataset a un modelo validado, sin escribir código.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EMV%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23081527'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='14' font-weight='700' fill='%23f2b441' text-anchor='middle'%3EMV%3C/text%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#0a0c12;--bg2:#0f1219;--panel:#141926;--line:#232b3f;
-  --text:#e9ecf4;--dim:#98a2b8;--faint:#5b6478;
-  --accent:#4f7cf7;--accent2:#8bc3f4;--glow:rgba(79,124,247,.35);
-  --ok:#38c780;
+  --navy:#081527; --navy2:#0c2137; --hero-a:#0d2440; --hero-b:#081324;
+  --amber:#f2b441; --amber2:#e39a2e; --amber-ink:#1c1305;
+  --ink:#eaf1fb; --muted:#9db0c8; --faint:#7a8da7;
+  --line:#1d3149; --line2:#2a4160;
+  --paper:#ffffff; --ink-d:#122238; --muted-d:#586a80; --line-d:#e6ebf2; --tint:#f4f7fb;
+  --blue:#215ea3; --green:#00c896;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);
-  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
-  -webkit-font-smoothing:antialiased}
-a{color:var(--accent2);text-decoration:none}
-img,video{max-width:100%}
-.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
-h1,h2,h3{letter-spacing:-.02em;line-height:1.15}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--navy);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  -webkit-font-smoothing:antialiased;padding:14px}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:0 26px}
+h1,h2,h3{margin:0;line-height:1.08;text-wrap:balance;letter-spacing:-.02em}
+.am{color:var(--amber)}
+.tnum{font-variant-numeric:tabular-nums}
 
-/* nav */
-nav{position:sticky;top:0;z-index:50;background:rgba(10,12,18,.82);
-  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-.nav-in{display:flex;align-items:center;gap:28px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--text)}
-.logo-mark{width:30px;height:30px;border-radius:8px;background:#1e3a8a;display:grid;
-  place-items:center;font-size:12px;font-weight:800;color:#fff}
-.nav-links{display:flex;gap:22px;margin-left:auto}
-.nav-links a{color:var(--dim);font-size:14.5px}
-.nav-links a:hover{color:var(--text)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;
-  font-weight:600;font-size:15px;border:1px solid var(--line);color:var(--text);
-  transition:transform .15s,box-shadow .15s,background .15s;cursor:pointer;background:var(--panel)}
+/* NAV */
+nav{position:sticky;top:0;z-index:30;background:rgba(8,19,36,.82);backdrop-filter:blur(10px)}
+nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}
+.mk{width:30px;height:30px;border-radius:8px;display:block;background:var(--navy2);
+  border:1px solid var(--line2);color:var(--amber);font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex:none}
+.brand b{font-size:15px}
+.nlinks{display:flex;gap:4px;margin-left:14px}
+.nlinks a{color:var(--muted);font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:8px}
+.nlinks a:hover{color:#fff;background:rgba(255,255,255,.06)}
+@media(max-width:980px){.nlinks{display:none}}
+.right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.lang{display:flex;gap:2px;background:rgba(255,255,255,.06);border:1px solid var(--line2);border-radius:8px;padding:3px}
+.lang button{background:none;border:0;color:var(--faint);font-size:11.5px;font-weight:800;padding:5px 8px;
+  border-radius:6px;cursor:pointer;font-family:inherit;letter-spacing:.03em}
+.lang button.on{background:var(--amber);color:var(--amber-ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:750;font-size:14px;
+  border-radius:9px;padding:10px 17px;cursor:pointer;border:1px solid transparent;font-family:inherit;transition:transform .12s}
 .btn:hover{transform:translateY(-1px)}
-.btn-primary{background:linear-gradient(135deg,#2a52c9,#4f7cf7);border-color:transparent;color:#fff;
-  box-shadow:0 8px 28px var(--glow)}
-.btn-primary:hover{box-shadow:0 12px 36px var(--glow)}
-.btn-sm{padding:9px 16px;font-size:13.5px}
+.btn-a{background:var(--amber);color:var(--amber-ink);box-shadow:0 6px 18px rgba(242,180,65,.28)}
+.btn-a:hover{background:var(--amber2)}
+.btn-o{background:transparent;color:#fff;border-color:var(--line2)}
+.btn-o:hover{border-color:var(--amber);color:var(--amber)}
+.btn-buy{padding:8px 15px}
+@media(max-width:620px){.btn-buy{display:none}}
+.ico{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
 
-/* hero */
-.hero{padding:110px 0 70px;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:-40% -20% auto;height:120%;
-  background:radial-gradient(600px 380px at 70% 20%,rgba(79,124,247,.16),transparent 65%),
-             radial-gradient(500px 320px at 20% 10%,rgba(30,58,138,.25),transparent 60%);
-  pointer-events:none}
-.hero .wrap{position:relative}
-.kicker{display:inline-block;padding:6px 14px;border:1px solid var(--line);border-radius:999px;
-  color:var(--accent2);font-size:13px;font-weight:600;margin-bottom:22px;background:var(--bg2)}
-.hero h1{font-size:clamp(34px,5.2vw,58px);font-weight:800;max-width:820px}
-.hero h1 em{font-style:normal;background:linear-gradient(90deg,#7ea4ff,#8bc3f4);
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--dim);font-size:19px;max-width:640px;margin:22px 0 34px}
-.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.hero-note{color:var(--faint);font-size:13px;margin-top:14px}
+/* HERO */
+.hero{position:relative;background:
+   radial-gradient(760px 420px at 80% -10%,rgba(242,180,65,.13),transparent 60%),
+   radial-gradient(680px 460px at 6% 8%,rgba(47,116,192,.22),transparent 60%),
+   linear-gradient(160deg,var(--hero-a),var(--hero-b));
+  border:1px solid var(--line);border-radius:26px;margin-top:14px;overflow:hidden}
+.hero .hgrid{position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:56px}
+.hero .hgrid>*{min-width:0}
+@media(max-width:980px){.hero .hgrid{grid-template-columns:1fr;padding:38px 30px;gap:30px}}
+.kick{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.05em;
+  color:var(--amber);background:rgba(242,180,65,.1);border:1px solid rgba(242,180,65,.28);
+  padding:6px 13px;border-radius:30px;margin-bottom:20px;text-transform:uppercase}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green);animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+.hero h1{font-size:clamp(33px,5.2vw,52px);font-weight:850;color:#fff}
+.hero .lead{font-size:clamp(15.5px,1.8vw,18px);color:var(--muted);max-width:48ch;margin:20px 0 26px}
+.hcta{display:flex;flex-wrap:wrap;gap:12px}
+.hnote{color:var(--faint);font-size:12.5px;margin-top:12px}
+.metrics{display:flex;flex-wrap:wrap;gap:14px 28px;margin-top:34px}
+.metric{min-width:96px}
+.metric .v{font-size:26px;font-weight:850;color:#fff;letter-spacing:-.01em}
+.metric .v .am{color:var(--amber)}
+.metric .l{color:var(--faint);font-size:11.5px;margin-top:4px;max-width:17ch;line-height:1.3}
 
-/* video */
-.video-frame{margin:64px auto 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;
-  background:var(--bg2);box-shadow:0 30px 80px rgba(0,0,0,.5)}
-.video-bar{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--line)}
-.video-bar span{width:10px;height:10px;border-radius:50%;background:var(--line)}
-.video-slot{aspect-ratio:16/9;display:grid;place-items:center;color:var(--faint);position:relative}
-.video-slot video,.video-slot iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* mock de informe (claro) */
+.mock{background:#fbfdff;border:1px solid #dfe7f1;border-radius:20px;padding:18px;
+  box-shadow:0 30px 70px rgba(0,0,0,.45);color:#0f1e30}
+.mock .mh{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid #eef2f7;margin-bottom:12px}
+.mock .mh .av{width:34px;height:34px;border-radius:9px;background:#0f2135;color:var(--amber);display:flex;
+  align-items:center;justify-content:center;font-weight:800;font-size:11px;flex:none}
+.mock .mh b{font-size:13.5px;display:block}
+.mock .mh span{font-size:11.5px;color:#0f8259;display:flex;align-items:center;gap:5px}
+.mock .mh span::before{content:"";width:6px;height:6px;border-radius:50%;background:#22c55e}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.kpi{background:#f4f7fb;border:1px solid #e6ebf2;border-radius:11px;padding:10px}
+.kpi .k{font-size:10px;color:#586a80;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.kpi .n{font-size:17px;font-weight:850;color:#122238;letter-spacing:-.03em;margin-top:3px;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.kpi .d{font-size:10.5px;font-weight:700;margin-top:2px}
+.kpi .d.up{color:#0b6b46}.kpi .d.dn{color:#b4441f}
+.spark{display:flex;align-items:flex-end;gap:4px;height:64px;padding:6px 2px 0;border-top:1px solid #eef2f7}
+.spark i{flex:1;background:linear-gradient(180deg,#215ea3,#8ab4e8);border-radius:3px 3px 0 0;display:block}
+.mrow{display:flex;justify-content:space-between;font-size:11.5px;color:#586a80;padding:7px 0;border-bottom:1px solid #eef2f7}
+.mrow b{color:#122238}
+.mrow:last-child{border-bottom:0}
+.mq{background:#e8f4ff;color:#0f3355;border-radius:12px;border-top-right-radius:5px;padding:9px 12px;
+  font-size:12.5px;margin:12px 0 6px;margin-left:auto;display:table;max-width:88%}
+.ma{background:#eafaf1;color:#0b6b46;border-radius:12px;border-top-left-radius:5px;padding:9px 12px;
+  font-size:12.5px;font-weight:600;display:table;max-width:92%}
 
-/* secciones */
-section{padding:88px 0}
-.sec-head{max-width:660px;margin-bottom:52px}
-.sec-head .kicker{margin-bottom:14px}
-.sec-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:750}
-.sec-head p{color:var(--dim);margin-top:14px;font-size:17px}
-.grid{display:grid;gap:18px}
-.g3{grid-template-columns:repeat(3,1fr)}
-.g2{grid-template-columns:repeat(2,1fr)}
-@media(max-width:900px){.g3,.g2{grid-template-columns:1fr}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;
-  transition:border-color .2s}
-.card:hover{border-color:#31405f}
-.card h3{font-size:17px;margin-bottom:10px}
-.card p{color:var(--dim);font-size:14.5px}
-.card .num{font-family:ui-monospace,monospace;color:var(--accent2);font-size:12px;
-  letter-spacing:.14em;margin-bottom:14px;display:block}
+/* PANELES CLAROS */
+.panel{background:var(--paper);color:var(--ink-d);border-radius:26px;margin-top:14px;padding:60px 0}
+.panel .wrap{padding:0 44px}
+@media(max-width:600px){.panel .wrap{padding:0 26px}}
+@media(max-width:560px){.kpi .n{font-size:14px;white-space:normal}.kpi{padding:8px}}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+.h2{font-size:clamp(24px,3.6vw,38px);font-weight:850;color:var(--ink-d);margin:12px 0 12px}
+.lead-d{color:var(--muted-d);max-width:64ch;font-size:16.5px;margin-bottom:34px}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:900px){.fgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.fgrid{grid-template-columns:1fr}}
+.feat{background:var(--tint);border:1px solid var(--line-d);border-radius:16px;padding:24px}
+.feat .ic{width:44px;height:44px;border-radius:11px;background:#fff;border:1px solid var(--line-d);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:var(--blue);
+  box-shadow:0 2px 8px rgba(18,34,56,.05)}
+.feat .ic svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.feat h3{font-size:17.5px;color:var(--ink-d);margin-bottom:7px}
+.feat p{color:var(--muted-d);font-size:14.5px;margin:0}
+.feat ul{list-style:none;padding:0;margin:12px 0 0}
+.feat li{color:var(--muted-d);font-size:13px;padding:5px 0 5px 20px;position:relative}
+.feat li::before{content:"";position:absolute;left:2px;top:12px;width:9px;height:5px;border-left:2px solid var(--green);
+  border-bottom:2px solid var(--green);transform:rotate(-45deg)}
 
-/* método */
-.method{background:var(--bg2);border-block:1px solid var(--line)}
-.method-box{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-  padding:28px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;
-  color:var(--dim);overflow-x:auto;white-space:pre;line-height:1.9}
-.method-box b{color:var(--accent2);font-weight:600}
+/* VIDEO */
+.vframe{border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);background:#0E1117;
+  border:1px solid var(--line-d)}
+.vframe video{width:100%;display:block;background:#0E1117}
+.vcap{color:var(--muted-d);font-size:13.5px;margin:12px 0 0}
+.vgrid{display:grid;gap:34px}
 
-/* precios */
-.price-card{position:relative;display:flex;flex-direction:column}
-.price-card.featured{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 20px 60px var(--glow)}
-.price-tag{position:absolute;top:-13px;right:22px;background:linear-gradient(135deg,#2a52c9,#4f7cf7);
-  color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:999px}
-.price{font-size:44px;font-weight:800;margin:14px 0 2px}
-.price small{font-size:15px;color:var(--dim);font-weight:500}
-.price-per{color:var(--faint);font-size:13px;margin-bottom:20px}
-.feat{list-style:none;margin:0 0 26px;flex:1}
-.feat li{padding:7px 0;color:var(--dim);font-size:14.5px;display:flex;gap:10px;align-items:baseline}
-.feat li::before{content:"—";color:var(--accent);font-weight:700}
-.feat li.si::before{content:"✓";color:var(--ok)}
+/* MÉTODO */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:840px){.steps{grid-template-columns:1fr}}
+.step{background:var(--tint);border:1px solid var(--line-d);border-radius:16px;padding:24px;position:relative}
+.step .n{font-size:12px;font-weight:850;color:var(--amber2);letter-spacing:.1em}
+.step h3{font-size:17px;margin:8px 0 7px;color:var(--ink-d)}
+.step p{color:var(--muted-d);font-size:14px;margin:0}
 
-/* faq / footer */
-details{border:1px solid var(--line);border-radius:12px;background:var(--panel);
-  padding:18px 22px;margin-bottom:12px}
-summary{cursor:pointer;font-weight:600;font-size:15.5px}
-details p{color:var(--dim);margin-top:12px;font-size:14.5px}
-footer{border-top:1px solid var(--line);padding:44px 0;color:var(--faint);font-size:13.5px}
-.foot{display:flex;gap:24px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+/* PRECIOS */
+.ptoggle{display:inline-flex;background:var(--tint);border:1px solid var(--line-d);border-radius:10px;padding:4px;margin-bottom:26px}
+.ptoggle button{background:none;border:0;font-family:inherit;font-size:13px;font-weight:750;color:var(--muted-d);
+  padding:8px 16px;border-radius:7px;cursor:pointer}
+.ptoggle button.on{background:var(--ink-d);color:#fff}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:stretch}
+@media(max-width:900px){.pgrid{grid-template-columns:1fr}}
+.plan{background:var(--paper);border:1px solid var(--line-d);border-radius:18px;padding:26px;display:flex;flex-direction:column}
+.plan.pop{border-color:var(--amber);box-shadow:0 20px 46px rgba(242,180,65,.16);position:relative}
+.plan.pop .tag{position:absolute;top:-11px;left:24px;background:var(--amber);color:var(--amber-ink);font-size:11px;
+  font-weight:800;padding:4px 12px;border-radius:20px}
+.plan h3{font-size:19px;color:var(--ink-d)}
+.plan .who{color:var(--muted-d);font-size:13px;margin:5px 0 16px;min-height:38px}
+.plan .amt{font-size:38px;font-weight:850;color:var(--ink-d);line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.plan .amt small{font-size:15px;color:var(--muted-d);font-weight:600}
+.plan .per{color:var(--muted-d);font-size:12.5px;margin-top:5px}
+.plan .uyu{color:var(--muted-d);font-size:11.5px;margin-top:3px}
+.plan ul{list-style:none;padding:0;margin:18px 0 22px;flex:1}
+.plan li{font-size:13px;color:var(--muted-d);padding:7px 0 7px 20px;position:relative;border-bottom:1px solid var(--line-d)}
+.plan li:last-child{border-bottom:0}
+.plan li::before{content:"›";position:absolute;left:2px;color:var(--amber2);font-weight:800}
+.plan .btn{width:100%}
+.btn-d{background:var(--ink-d);color:#fff}.btn-d:hover{background:#0a1626}
+.btn-od{background:#fff;color:var(--ink-d);border-color:var(--line-d)}.btn-od:hover{border-color:var(--amber);color:var(--amber2)}
+.paynote{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:24px;color:var(--muted-d);font-size:13px}
+.paybadge{background:var(--tint);border:1px solid var(--line-d);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:600;color:var(--ink-d)}
+
+/* DESCARGA */
+.dlbox{background:var(--tint);border:1px solid var(--line-d);border-radius:18px;padding:28px;
+  display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between}
+.dlbox .txt{max-width:52ch}
+.dlbox h3{font-size:20px;color:var(--ink-d);margin-bottom:8px}
+.dlbox p{color:var(--muted-d);font-size:14.5px;margin:0}
+.dlacts{display:flex;flex-direction:column;gap:8px;align-items:stretch;min-width:250px}
+.dlmini{color:var(--muted-d);font-size:12px;text-align:center}
+.reqs{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.req{background:#fff;border:1px solid var(--line-d);border-radius:8px;padding:6px 11px;font-size:12px;color:var(--muted-d)}
+
+/* FAQ */
+.faq{max-width:840px}
+.faq details{border-bottom:1px solid var(--line-d);padding:16px 0}
+.faq summary{cursor:pointer;font-weight:750;font-size:15.5px;color:var(--ink-d);list-style:none;
+  display:flex;justify-content:space-between;gap:16px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--amber2);font-weight:800;font-size:20px;flex:none}
+.faq details[open] summary::after{content:"–"}
+.faq p{color:var(--muted-d);font-size:14.5px;margin:12px 0 0;max-width:72ch}
+
+/* BANDA + FOOTER */
+.band{background:
+   radial-gradient(560px 280px at 50% 0,rgba(242,180,65,.16),transparent 60%),
+   linear-gradient(160deg,var(--hero-a),var(--hero-b));
+  border:1px solid var(--line);border-radius:26px;margin-top:14px;padding:52px 40px;text-align:center}
+.band h2{font-size:clamp(24px,4vw,38px);font-weight:850;color:#fff}
+.band p{color:var(--muted);max-width:56ch;margin:14px auto 24px;font-size:16.5px}
+.bandcta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+footer{padding:34px 0 14px;color:var(--faint);font-size:13px}
+.foot-top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+footer .legal{max-width:78ch;line-height:1.6}
+footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
 </style>
 </head>
 <body>
 
-<nav><div class="wrap nav-in">
-  <div class="logo"><div class="logo-mark">MV</div>MV AutoML Studio</div>
-  <div class="nav-links">
-    <a href="#producto">Producto</a>
-    <a href="#metodo">Método</a>
-    <a href="#precios">Precios</a>
-    <a href="#faq">Preguntas</a>
+<nav><div class="wrap">
+  <div class="brand"><span class="mk">MV</span><b>MV AUTOML <span class="am">STUDIO</span></b></div>
+  <div class="nlinks">
+    <a href="#producto" data-i="nav1">Producto</a>
+    <a href="#videos" data-i="nav2">Videos</a>
+    <a href="#metodo" data-i="nav3">Método</a>
+    <a href="#precios" data-i="nav4">Planes</a>
+    <a href="#descarga" data-i="nav5">Descarga</a>
+    <a href="#faq" data-i="nav6">Preguntas</a>
   </div>
-  <a class="btn btn-primary btn-sm" href="#precios">Descargar</a>
+  <div class="right">
+    <div class="lang" role="group" aria-label="Idioma">
+      <button data-lang="es" class="on">ES</button><button data-lang="pt">PT</button><button data-lang="en">EN</button>
+    </div>
+    <a href="#precios" class="btn btn-a btn-buy" data-i="navbuy">Comprar</a>
+  </div>
 </div></nav>
 
-<header class="hero"><div class="wrap">
-  <span class="kicker">Machine learning honesto, en tu escritorio</span>
-  <h1>De cualquier dataset a un <em>modelo validado</em>, sin escribir código.</h1>
-  <p>Conectás un Excel, un CSV o tu servidor SQL. MV AutoML Studio hace el ETL,
-     compite 15 familias de modelos, valida contra un holdout ciego y te devuelve
-     dashboards, informes y respuestas en lenguaje natural. Todo corre en tu
-     equipo: <strong>tus datos nunca salen de tu máquina</strong>.</p>
-  <div class="hero-ctas">
-    <a class="btn btn-primary" id="cta-demo"
-       href="https://github.com/vieraschiavi/MV-Machine-Learning/releases">Descargar Demo gratis</a>
-    <a class="btn" href="#video">Ver la demo de 3 minutos</a>
+<header><div class="wrap"><div class="hero">
+<div class="hgrid">
+  <div>
+    <span class="kick"><span class="dot"></span><span data-i="kick">AutoML de escritorio · sin código</span></span>
+    <h1 data-i="h1">De cualquier dataset a un modelo <span class="am">validado</span>, sin escribir código</h1>
+    <p class="lead" data-i="lead">Traés un Excel, un CSV o una consulta a tu servidor SQL. El programa hace el ETL solo, entrena y compara modelos para el objetivo que le escribís en tus palabras, arma el tablero con los KPIs que detecta, y te contesta preguntas sobre los datos. Se instala en tu Windows: los datos nunca salen de tu equipo.</p>
+    <div class="hcta">
+      <a href="#videos" class="btn btn-a" data-i="hb1">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M5 4l14 8-14 8V4z"/></svg>Ver el programa funcionando</a>
+      <a href="#precios" class="btn btn-o" data-i="hb2">Planes desde US$ 39/mes</a>
+    </div>
+    <p class="hnote" data-i="hnote">Versión demo gratis, sin tarjeta. Hasta 50.000 filas por dataset.</p>
+    <div class="metrics">
+      <div class="metric"><div class="v tnum">15</div><div class="l" data-i="m1">familias de modelos comparadas</div></div>
+      <div class="metric"><div class="v tnum">3</div><div class="l" data-i="m2">ventanas de validación: nada de autoengaño</div></div>
+      <div class="metric"><div class="v tnum">0</div><div class="l" data-i="m3">líneas de código para usarlo</div></div>
+    </div>
   </div>
-  <div class="hero-note">Windows 10/11 · instalador con directorio a elección · sin nube, sin cuenta</div>
 
-  <div class="video-frame" id="video">
-    <div class="video-bar"><span></span><span></span><span></span></div>
-    <div class="video-slot" id="video-slot">
-      <!-- data-video: URL de YouTube embed o .mp4 propio; se configura abajo -->
-      <div id="video-placeholder" style="text-align:center;padding:30px">
-        <div style="font-size:15px;color:var(--dim)">Demo del producto</div>
-        <div style="font-size:13px;margin-top:8px">Subida → ETL → objetivo en tus palabras → entrenamiento → dashboard</div>
+  <div class="mock" aria-hidden="true">
+    <div class="mh">
+      <div class="av">MV</div>
+      <div><b data-i="mk0">Tablero · Cobranzas 2025</b><span data-i="mk1">detectado automáticamente</span></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="k" data-i="mk2">Cobrado</div><div class="n">$ 8.412.760</div><div class="d up">+12,4%</div></div>
+      <div class="kpi"><div class="k" data-i="mk3">Gestiones</div><div class="n">31.905</div><div class="d up">+4,1%</div></div>
+      <div class="kpi"><div class="k" data-i="mk4">Prob. pago</div><div class="n">62,8%</div><div class="d dn">-1,3%</div></div>
+    </div>
+    <div class="spark">
+      <i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:63%"></i>
+      <i style="height:57%"></i><i style="height:75%"></i><i style="height:68%"></i><i style="height:88%"></i>
+      <i style="height:79%"></i><i style="height:96%"></i>
+    </div>
+    <div class="mrow"><span data-i="mk5">Campeón</span><b>LightGBM · AUC 0,871</b></div>
+    <div class="mrow"><span data-i="mk6">Holdout ciego</span><b>0,864</b></div>
+    <div class="mq" data-i="mk7">¿cuánto se cobró por sucursal en 2025?</div>
+    <div class="ma" data-i="mk8">Centro $ 3.104.220 · Norte $ 2.788.410 · Costa $ 2.520.130</div>
+  </div>
+</div>
+</div></div></header>
+
+<!-- ── VIDEOS ─────────────────────────────────────────────────────────── -->
+<section class="panel" id="videos"><div class="wrap">
+  <div class="eyebrow" data-i="vey">Video</div>
+  <h2 class="h2" data-i="vh">Mirá el programa funcionando</h2>
+  <p class="lead-d" data-i="vl">Grabaciones de la aplicación real, no animaciones: se ve el dataset entrando, el modelo entrenándose y el tablero armándose solo. La única edición es la espera del entrenamiento, que va acelerada.</p>
+
+  <div class="vgrid">
+    <div>
+      <div class="vframe">
+        <video controls preload="metadata" playsinline poster="">
+          <source src="video/recorrido.mp4" type="video/mp4">
+          <source src="video/recorrido.webm" type="video/webm">
+        </video>
+      </div>
+      <p class="vcap" data-i="vc1"><b>Recorrido completo.</b> Se sube un archivo, la plataforma lo perfila, se escribe la variable objetivo en castellano y entrena; al final se ve el informe con el modelo campeón, su AUC sobre el holdout ciego y el análisis de variables.</p>
+    </div>
+    <div>
+      <div class="vframe">
+        <video controls preload="metadata" playsinline poster="">
+          <source src="video/tablero.mp4" type="video/mp4">
+          <source src="video/tablero.webm" type="video/webm">
+        </video>
+      </div>
+      <p class="vcap" data-i="vc2"><b>Tablero y preguntas.</b> Los KPIs con su variación contra el mes anterior, las series y los filtros salen del propio dataset, sin configurarlos; se filtra, se exporta a Excel y se le pregunta en castellano sobre lo que quedó a la vista.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ── PRODUCTO ───────────────────────────────────────────────────────── -->
+<section class="panel" id="producto"><div class="wrap">
+  <div class="eyebrow" data-i="pey">Producto</div>
+  <h2 class="h2" data-i="ph">Todo el trabajo de un equipo de datos, en un programa</h2>
+  <p class="lead-d" data-i="pl">Pensado para que lo use quien conoce el negocio, no sólo quien programa. Cada paso queda explicado y auditable.</p>
+
+  <div class="fgrid">
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
+      <h3 data-i="f1t">Datos sin tope de tamaño</h3>
+      <p data-i="f1p">CSV, Excel, Parquet o cualquier servidor SQL. El archivo entra por streaming y se consulta fuera de memoria: el límite es el disco, no la RAM.</p>
+      <ul>
+        <li data-i="f1a">SQL Server, PostgreSQL, MySQL, Oracle, Snowflake</li>
+        <li data-i="f1b">Conector de sólo lectura</li>
+        <li data-i="f1c">Detecta separador, encoding y decimal solo</li>
+      </ul>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg></div>
+      <h3 data-i="f2t">ETL automático y explicado</h3>
+      <p data-i="f2p">Propone el plan paso por paso con el motivo de cada uno: identificadores, columnas casi vacías, texto que en realidad es número, fechas, atípicos.</p>
+      <ul>
+        <li data-i="f2a">Auditoría de fuga antes de entrenar</li>
+        <li data-i="f2b">Podés aceptar o rechazar cada paso</li>
+        <li data-i="f2c">Queda registrado en el informe</li>
+      </ul>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></div>
+      <h3 data-i="f3t">El mejor modelo, elegido solo</h3>
+      <p data-i="f3p">Escribís el objetivo en un cuadro de texto y compara quince familias de modelos, optimizando variables e hiperparámetros por ti.</p>
+      <ul>
+        <li data-i="f3a">Clasificación, regresión y multiclase</li>
+        <li data-i="f3b">Calibración y corrección del sesgo del monto</li>
+        <li data-i="f3c">Importancia de variables y explicabilidad</li>
+      </ul>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+      <h3 data-i="f4t">Tableros que se arman solos</h3>
+      <p data-i="f4p">Detecta métricas, dimensiones y la columna de tiempo, y arma KPIs con variación contra el período anterior, gráficos y tabla, todo filtrable.</p>
+      <ul>
+        <li data-i="f4a">Filtros por fecha y por categoría</li>
+        <li data-i="f4b">Se adapta a cualquier dataset o consulta SQL</li>
+        <li data-i="f4c">Exportás el tablero filtrado a Excel o CSV</li>
+      </ul>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <h3 data-i="f5t">Preguntas en tu idioma</h3>
+      <p data-i="f5p">«¿Cuánto se cobró por sucursal en 2025?». La pregunta se traduce a una consulta de sólo lectura, se ejecuta de verdad y la respuesta sale del resultado.</p>
+      <ul>
+        <li data-i="f5a">Elegís el proveedor de IA y el modelo</li>
+        <li data-i="f5b">Sin IA también responde, con traductor local</li>
+        <li data-i="f5c">Te muestra la consulta que usó</li>
+      </ul>
+    </div>
+    <div class="feat">
+      <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 4v6c0 4.4-3.4 7.6-8 8-4.6-.4-8-3.6-8-8V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <h3 data-i="f6t">Tus datos no se van a ningún lado</h3>
+      <p data-i="f6p">Se instala en tu equipo y trabaja local. Ni el dataset ni el modelo suben a la nube. Interfaz en castellano, inglés y portugués, con lectura en voz alta.</p>
+      <ul>
+        <li data-i="f6a">Instalador que te deja elegir la carpeta</li>
+        <li data-i="f6b">Espacios de trabajo aislados</li>
+        <li data-i="f6c">Exportación a Excel de ocho hojas</li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- ── MÉTODO ─────────────────────────────────────────────────────────── -->
+<section class="panel" id="metodo"><div class="wrap">
+  <div class="eyebrow" data-i="mey">Método</div>
+  <h2 class="h2" data-i="mh">Tres ventanas, para que el número que ves sea el que vas a tener</h2>
+  <p class="lead-d" data-i="ml">La trampa más común del machine learning es elegir el modelo mirando el mismo tramo con el que después se reporta el resultado. Acá eso no puede pasar: el tramo con el que se reporta nunca se usó para decidir nada.</p>
+  <div class="steps">
+    <div class="step"><div class="n">01</div><h3 data-i="s1t">Entrenamiento</h3><p data-i="s1p">Los modelos aprenden acá, y sólo acá. Ninguna decisión posterior toca este tramo.</p></div>
+    <div class="step"><div class="n">02</div><h3 data-i="s2t">Selección</h3><p data-i="s2p">Con esta ventana se compara y se elige el campeón, se ajustan hiperparámetros y se calibra.</p></div>
+    <div class="step"><div class="n">03</div><h3 data-i="s3t">Holdout ciego</h3><p data-i="s3p">Este tramo se abre una sola vez, al final, para reportar. Es el número honesto.</p></div>
+  </div>
+</div></section>
+
+<!-- ── PRECIOS ────────────────────────────────────────────────────────── -->
+<section class="panel" id="precios"><div class="wrap">
+  <div class="eyebrow" data-i="prey">Planes</div>
+  <h2 class="h2" data-i="prh">Elegí tu plan y empezá hoy</h2>
+  <p class="lead-d" data-i="prl">Precio de referencia en dólares; se cobra en pesos uruguayos por MercadoPago (tarjeta, débito o transferencia) al tipo de cambio del día. La licencia se emite en el momento del pago y queda asociada a tu equipo; si cerrás la pestaña o te quedás sin señal, no se pierde: te la hacemos llegar igual.</p>
+
+  <div class="ptoggle" role="group" aria-label="Ciclo de cobro">
+    <button data-ciclo="mes" class="on" data-i="pcm">Mensual</button>
+    <button data-ciclo="anio" data-i="pca">Anual · 2 meses gratis</button>
+  </div>
+
+  <div class="pgrid">
+    <div class="plan">
+      <h3 data-i="p1n">Demo</h3>
+      <p class="who" data-i="p1w">Para probarlo con tus propios datos, sin poner tarjeta.</p>
+      <div class="amt">US$ 0</div>
+      <div class="per" data-i="p1p">para siempre</div>
+      <ul>
+        <li data-i="p1a">Hasta 50.000 filas por dataset</li>
+        <li data-i="p1b">3 datasets · 1 espacio de trabajo</li>
+        <li data-i="p1c">3 familias de modelos</li>
+        <li data-i="p1d">Resultados reales, con marca de agua en el Excel</li>
+        <li data-i="p1e">Sin conectores SQL ni IA</li>
+      </ul>
+      <a href="#descarga" class="btn btn-od" data-i="p1b2">Descargar la demo</a>
+    </div>
+
+    <div class="plan pop">
+      <span class="tag" data-i="ptag">Recomendado</span>
+      <h3 data-i="p2n">Profesional</h3>
+      <p class="who" data-i="p2w">Para trabajar en serio: sin límites de tamaño y con todo el motor abierto.</p>
+      <div class="amt" data-precio="pro"><small>US$ </small>39<small> /mes</small></div>
+      <div class="per" data-per="pro">por equipo · sin permanencia</div>
+      <div class="uyu" data-uyu="pro">≈ $U 1.560/mes · se cobra en pesos uruguayos</div>
+      <ul>
+        <li data-i="p2a">Filas y datasets sin límite</li>
+        <li data-i="p2b">Las 15 familias de modelos y la optimización completa</li>
+        <li data-i="p2c">Conectores SQL y proveedores de IA</li>
+        <li data-i="p2d">Texto libre (TF-IDF), tableros y exportación sin marca</li>
+        <li data-i="p2e">Espacios de trabajo ilimitados · actualizaciones incluidas</li>
+      </ul>
+      <a href="#" class="btn btn-a js-pago" data-plan="Profesional" data-i="p2b2">Comprar Profesional</a>
+    </div>
+
+    <div class="plan">
+      <h3 data-i="p3n">Empresa</h3>
+      <p class="who" data-i="p3w">Varios puestos, datos de producción y alguien que atienda el teléfono.</p>
+      <div class="amt" data-precio="emp"><small>US$ </small>129<small> /mes</small></div>
+      <div class="per" data-per="emp">hasta 5 equipos</div>
+      <div class="uyu" data-uyu="emp">≈ $U 5.160/mes · se cobra en pesos uruguayos</div>
+      <ul>
+        <li data-i="p3a">Todo lo del plan Profesional</li>
+        <li data-i="p3b">Licencias para 5 equipos</li>
+        <li data-i="p3c">Puesta en marcha sobre tu servidor SQL</li>
+        <li data-i="p3d">Soporte prioritario por correo</li>
+        <li data-i="p3e">Ajustes a medida a convenir</li>
+      </ul>
+      <a href="#" class="btn btn-d js-pago" data-plan="Empresa" data-i="p3b2">Hablar de Empresa</a>
+    </div>
+  </div>
+
+  <div class="paynote">
+    <span class="paybadge">MercadoPago</span>
+    <span class="paybadge" data-i="pb1">Tarjeta · débito · transferencia</span>
+    <span class="paybadge" data-i="pb2">Factura uruguaya</span>
+    <span data-i="pnote">La demo y la versión paga son el mismo programa: al activar la licencia se desbloquea, no hay que reinstalar nada.</span>
+  </div>
+</div></section>
+
+<!-- ── DESCARGA ───────────────────────────────────────────────────────── -->
+<section class="panel" id="descarga"><div class="wrap">
+  <div class="eyebrow" data-i="dey">Descarga</div>
+  <h2 class="h2" data-i="dh">Instalalo en tu Windows</h2>
+  <p class="lead-d" data-i="dl">Un instalador común y corriente: te deja elegir la carpeta —no se clava en C:—, crea el acceso directo en el escritorio y en el menú de inicio, y no pide permisos de administrador. Arranca en modo demo; si ya compraste, pegás la licencia y queda en Profesional.</p>
+
+  <div class="dlbox">
+    <div class="txt">
+      <h3 data-i="dbt">MV AutoML Studio para Windows</h3>
+      <p data-i="dbp">Instalador de 64 bits. Incluye el motor completo: no hace falta instalar Python ni nada técnico.</p>
+      <div class="reqs">
+        <span class="req" data-i="dr1">Windows 10 u 11 · 64 bits</span>
+        <span class="req" data-i="dr2">8 GB de RAM recomendados</span>
+        <span class="req" data-i="dr3">~1,2 GB de disco</span>
       </div>
     </div>
-  </div>
-</div></header>
-
-<section id="producto"><div class="wrap">
-  <div class="sec-head">
-    <span class="kicker">Qué hace</span>
-    <h2>El equipo de datos completo, en una aplicación</h2>
-    <p>Cada pieza corre de punta a punta y se audita: los pasos del ETL se explican
-       uno por uno, cada consulta SQL que responde una pregunta se muestra, y el
-       número que se reporta sale de datos que el modelo nunca vio.</p>
-  </div>
-  <div class="grid g3">
-    <div class="card"><span class="num">01 · DATOS</span><h3>Sin límite de tamaño</h3>
-      <p>Excel, CSV, Parquet, JSON o una consulta directa a SQL Server, PostgreSQL,
-      MySQL y más. Procesamiento por bloques: el límite es tu disco, no la memoria.</p></div>
-    <div class="card"><span class="num">02 · ETL</span><h3>Limpieza automática y auditable</h3>
-      <p>Tipos, nulos, fechas, categorías raras y fuga de información, con el motivo
-      de cada paso. Nada corre hasta que lo aprobás, y ves el SQL exacto.</p></div>
-    <div class="card"><span class="num">03 · OBJETIVO</span><h3>Escribí qué querés predecir</h3>
-      <p>«Si el cliente va a pagar en 30 días.» La plataforma identifica la columna,
-      detecta el tipo de problema y arma la competencia de modelos.</p></div>
-    <div class="card"><span class="num">04 · AUTOML</span><h3>15 familias compitiendo</h3>
-      <p>LightGBM, XGBoost, CatBoost y doce más, con optimización de hiperparámetros
-      y presupuesto de tiempo que definís vos. El texto libre también entra al modelo.</p></div>
-    <div class="card"><span class="num">05 · DASHBOARD</span><h3>KPIs detectados solos</h3>
-      <p>Indicadores, filtros, series y comparación contra el período anterior,
-      deducidos del dataset. Exportá el estado filtrado a Excel o CSV.</p></div>
-    <div class="card"><span class="num">06 · PREGUNTAS</span><h3>Preguntale a tus datos</h3>
-      <p>«¿Total cobrado por estado en 2025?» Con tu proveedor de IA la pregunta se
-      traduce a SQL, se ejecuta de verdad y la respuesta cita la consulta.</p></div>
-  </div>
-</div></section>
-
-<section class="method" id="metodo"><div class="wrap">
-  <div class="sec-head">
-    <span class="kicker">Por qué es distinto</span>
-    <h2>El número que ves es el número honesto</h2>
-    <p>La mayoría de las herramientas reporta la métrica de la ventana con la que
-       eligió el modelo — y esa siempre se ve mejor de lo que el modelo es.
-       Acá el protocolo es de tres ventanas:</p>
-  </div>
-  <div class="method-box">
-<b>ENTRENAMIENTO</b>  ajusta los modelos
-<b>SELECCIÓN</b>      elige hiperparámetros, features, calibración y campeón
-<b>HOLDOUT CIEGO</b>  no participa de ninguna decisión.
-               Es el único número que se reporta,
-               junto con la degradación selección → holdout.
-
-Además: auditoría de fuga de información ANTES de entrenar,
-walk-forward temporal si declarás una fecha, corrección de sesgo
-del monto (smearing de Duan) y calibración de probabilidades.</div>
-</div></section>
-
-<section id="precios"><div class="wrap">
-  <div class="sec-head">
-    <span class="kicker">Precios</span>
-    <h2>Empezá gratis, activá cuando lo necesites</h2>
-    <p>La versión Demo es funcional de verdad: mismo motor, topes de tamaño.
-       La Profesional se activa con una licencia firmada, sin suscripción a la nube.</p>
-  </div>
-  <div class="grid g2" style="max-width:860px">
-    <div class="card price-card">
-      <h3>Demo</h3>
-      <div class="price">US$ 0</div>
-      <div class="price-per">para evaluar con tus propios datos</div>
-      <ul class="feat">
-        <li class="si">Hasta 50.000 filas por dataset</li>
-        <li class="si">ETL completo con auditoría de fuga</li>
-        <li class="si">3 familias de modelos con holdout ciego</li>
-        <li class="si">Dashboard con KPIs automáticos</li>
-        <li class="si">Exportación a Excel y CSV</li>
-        <li>Conectores SQL</li>
-        <li>Motor de IA y preguntas en lenguaje natural</li>
-        <li>Texto libre como variable</li>
-      </ul>
-      <a class="btn" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases">Descargar Demo</a>
-    </div>
-    <div class="card price-card featured">
-      <span class="price-tag">Licencia perpetua del año</span>
-      <h3>Profesional</h3>
-      <div class="price">US$ 390<small> /año</small></div>
-      <div class="price-per">por equipo, con actualizaciones del año incluidas</div>
-      <ul class="feat">
-        <li class="si">Sin tope de filas ni de datasets</li>
-        <li class="si">Las 15 familias de modelos y ensambles</li>
-        <li class="si">Conectores SQL Server, PostgreSQL, MySQL y más</li>
-        <li class="si">Preguntas en lenguaje natural con tu proveedor de IA</li>
-        <li class="si">Texto libre como variable (TF-IDF)</li>
-        <li class="si">Scoring de carteras completas</li>
-        <li class="si">Workspaces ilimitados</li>
-        <li class="si">Informes sin marca de agua</li>
-      </ul>
-      <a class="btn btn-primary" id="cta-comprar" href="#comprar"
-         data-mp-link="">Comprar con Mercado Pago</a>
+    <div class="dlacts">
+      <a class="btn btn-a" id="dlBtn" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases/latest/download/MV-AutoML-Studio-Demo-Setup.exe">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg><span data-i="dbtn">Descargar la demo</span></a>
+      <a class="btn btn-od" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases" data-i="dall">Ver todas las versiones</a>
+      <p class="dlmini" data-i="dmini">Gratis, sin tarjeta y sin registro.</p>
     </div>
   </div>
-  <p class="hero-note" style="margin-top:26px">El pago se procesa por Mercado Pago.
-     Recibís la licencia por correo en el día, emitida a tu nombre. Factura disponible.</p>
 </div></section>
 
-<section id="faq" style="padding-top:0"><div class="wrap">
-  <div class="sec-head"><span class="kicker">Preguntas frecuentes</span>
-  <h2>Lo que siempre preguntan</h2></div>
-  <details><summary>¿Mis datos suben a algún servidor?</summary>
-    <p>No. La aplicación corre completa en tu equipo: la ingesta, el entrenamiento y
-    los informes son locales. La única salida de red opcional es hacia el proveedor
-    de IA que vos configures con tu propia clave (para las respuestas en lenguaje
-    natural), y podés no configurar ninguno.</p></details>
-  <details><summary>¿Qué necesito para instalarlo?</summary>
-    <p>Windows 10 u 11 de 64 bits. El instalador te deja elegir el directorio,
-    crea los accesos directos y no requiere permisos de administrador.</p></details>
-  <details><summary>¿La Demo es el producto real?</summary>
-    <p>Sí: mismo motor, misma validación. Los topes son de tamaño (50.000 filas por
-    dataset) y de funciones (sin SQL ni IA). Los números que produce no se degradan.</p></details>
-  <details><summary>¿Cómo recibo la licencia?</summary>
-    <p>Después del pago te llega un archivo de licencia firmado, emitido a tu nombre.
-    Lo pegás en la pantalla principal de la aplicación y el nivel Profesional queda
-    activo. Sin cuentas ni conexión permanente.</p></details>
-  <details><summary>¿Funciona con mi base de datos?</summary>
-    <p>SQL Server, PostgreSQL, MySQL/MariaDB, SQLite y DuckDB de fábrica, y cualquier
-    otro motor con URL de SQLAlchemy (Oracle, Snowflake, BigQuery, Redshift…).
-    El conector es de sólo lectura por diseño.</p></details>
+<!-- ── FAQ ────────────────────────────────────────────────────────────── -->
+<section class="panel" id="faq"><div class="wrap">
+  <div class="eyebrow" data-i="qey">Preguntas</div>
+  <h2 class="h2" data-i="qh">Lo que más nos preguntan</h2>
+  <div class="faq">
+    <details open>
+      <summary data-i="q1">¿Mis datos suben a algún servidor?</summary>
+      <p data-i="a1">No. El programa corre entero en tu equipo: el dataset, el entrenamiento y los informes quedan en tu disco. Lo único que sale a internet es la consulta a la IA, y sólo si vos configurás un proveedor y hacés una pregunta.</p>
+    </details>
+    <details>
+      <summary data-i="q2">¿Hay un tope de tamaño de archivo?</summary>
+      <p data-i="a2">En los planes pagos no. El archivo se convierte a Parquet por bloques y se consulta fuera de memoria, así que el límite práctico es el disco. En la demo el tope es de 50.000 filas por dataset.</p>
+    </details>
+    <details>
+      <summary data-i="q3">¿Necesito saber programar o instalar Python?</summary>
+      <p data-i="a3">No hace falta ninguna de las dos cosas. El instalador trae el motor adentro y la variable objetivo se escribe en castellano en un cuadro de texto.</p>
+    </details>
+    <details>
+      <summary data-i="q4">¿Qué pasa con la licencia si cambio de computadora?</summary>
+      <p data-i="a4">La licencia es un token firmado que podés volver a pegar en el equipo nuevo. Si la perdiste, escribinos y la reemitimos.</p>
+    </details>
+    <details>
+      <summary data-i="q5">¿Se puede conectar a mi base de producción?</summary>
+      <p data-i="a5">Sí, con un usuario de sólo lectura. El conector rechaza cualquier sentencia que escriba antes de mandarla al servidor.</p>
+    </details>
+    <details>
+      <summary data-i="q6">¿Puedo probarlo antes de pagar?</summary>
+      <p data-i="a6">Sí: la demo es el mismo programa, con límite de filas y sin conectores. Los números que muestra son reales, no están degradados.</p>
+    </details>
+  </div>
 </div></section>
 
-<footer><div class="wrap foot">
-  <div class="logo"><div class="logo-mark">MV</div>MV AutoML Studio</div>
-  <div>Hecho por Martín Viera · <a href="https://github.com/vieraschiavi/MV-Machine-Learning">GitHub</a>
-    · <a href="mailto:vieraschiavi@gmail.com">Contacto</a></div>
+<div class="wrap"><div class="band">
+  <h2 data-i="bh">Probalo con tus propios datos</h2>
+  <p data-i="bp">Bajás el instalador, arrastrás tu Excel y en unos minutos tenés el modelo entrenado y el tablero armado.</p>
+  <div class="bandcta">
+    <a href="#descarga" class="btn btn-a" data-i="bb1">Descargar la demo</a>
+    <a href="#precios" class="btn btn-o" data-i="bb2">Ver planes</a>
+  </div>
+</div></div>
+
+<footer><div class="wrap">
+  <div class="foot-top">
+    <div class="brand"><span class="mk">MV</span><b>MV AUTOML <span class="am">STUDIO</span></b></div>
+    <div class="lang" role="group" aria-label="Idioma">
+      <button data-lang="es" class="on">ES</button><button data-lang="pt">PT</button><button data-lang="en">EN</button>
+    </div>
+  </div>
+  <p class="legal" data-i="legal">MV AutoML Studio · Plataforma de análisis de datos y machine learning que corre en tu equipo. Las cifras que aparecen en las capturas de esta página son datos de demostración sintéticos, ilustrativos del funcionamiento del producto.</p>
+  <p class="legal" data-i="mvsw">MV AutoML Studio es un producto de <b>MV Software</b>, desde Uruguay para LATAM y el mundo. Consultas: <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a></p>
 </div></footer>
 
 <script>
-/* Configuración editable sin tocar el resto de la página */
-const CONFIG = {
-  // URL de embed de YouTube (https://www.youtube.com/embed/XXXX) o .mp4 propio
-  videoUrl: "",
-  // Link de pago de Mercado Pago (Botón de pago / Link de pago del panel MP)
-  mercadoPagoLink: "",
+/* ── Configuración editable ────────────────────────────────────────────
+   Al tener el link de cobro de MercadoPago, pegalo acá y el botón deja de
+   abrir el correo y pasa a cobrar directo. */
+var CONFIG = {
+  mercadoPagoMensual: "",   // ej: "https://mpago.la/xxxxxxx"
+  mercadoPagoAnual:   "",
+  contacto: "vieraschiavi@gmail.com"
 };
-(function () {
-  const slot = document.getElementById("video-slot");
-  if (CONFIG.videoUrl) {
-    slot.innerHTML = CONFIG.videoUrl.endsWith(".mp4")
-      ? `<video controls preload="metadata" src="${CONFIG.videoUrl}"></video>`
-      : `<iframe src="${CONFIG.videoUrl}" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+
+/* ── Precios ───────────────────────────────────────────────────────────
+   Un solo lugar donde viven los números: el interruptor mensual/anual y las
+   tres traducciones leen de acá, así no se desincronizan. */
+var PRECIOS = {
+  mes:  { pro:{usd:39,  uyu:"1.560"},  emp:{usd:129, uyu:"5.160"} },
+  anio: { pro:{usd:390, uyu:"15.600"}, emp:{usd:1290,uyu:"51.600"} }
+};
+var PER = {
+  mes:  { pro:{es:"por equipo · sin permanencia", pt:"por computador · sem fidelidade",
+               en:"per machine · no lock-in"},
+          emp:{es:"hasta 5 equipos", pt:"até 5 computadores", en:"up to 5 machines"} },
+  anio: { pro:{es:"por equipo · un pago al año", pt:"por computador · um pagamento por ano",
+               en:"per machine · one payment a year"},
+          emp:{es:"hasta 5 equipos · un pago al año", pt:"até 5 computadores · um pagamento por ano",
+               en:"up to 5 machines · one payment a year"} }
+};
+var CICLO = "mes";
+
+var ORIG = {};
+document.querySelectorAll('[data-i]').forEach(function(el){ ORIG[el.getAttribute('data-i')] = el.innerHTML; });
+
+var I18N = {
+  pt:{
+    nav1:"Produto",nav2:"Vídeos",nav3:"Método",nav4:"Planos",nav5:"Download",nav6:"Perguntas",navbuy:"Comprar",
+    kick:"AutoML de desktop · sem código",
+    h1:'De qualquer conjunto de dados a um modelo <span class="am">validado</span>, sem escrever código',
+    lead:"Você traz um Excel, um CSV ou uma consulta ao seu servidor SQL. O programa faz o ETL sozinho, treina e compara modelos para o objetivo que você escreve com suas palavras, monta o painel com os KPIs que detecta e responde perguntas sobre os dados. Instala no seu Windows: os dados nunca saem do seu computador.",
+    hb1:"Ver o programa funcionando",hb2:"Planos a partir de US$ 39/mês",
+    hnote:"Versão demo gratuita, sem cartão. Até 50.000 linhas por conjunto de dados.",
+    m1:"famílias de modelos comparadas",m2:"janelas de validação: sem autoengano",m3:"linhas de código para usar",
+    mk0:"Painel · Cobranças 2025",mk1:"detectado automaticamente",mk2:"Recebido",mk3:"Ações",mk4:"Prob. pagamento",
+    mk5:"Campeão",mk6:"Holdout cego",mk7:"quanto foi recebido por filial em 2025?",
+    mk8:"Centro $ 3.104.220 · Norte $ 2.788.410 · Costa $ 2.520.130",
+    vey:"Vídeo",vh:"Veja o programa funcionando",
+    vl:"Gravações do aplicativo real, não animações: dá para ver o conjunto de dados entrando, o modelo treinando e o painel se montando sozinho. A única edição é a espera do treino, que está acelerada.",
+    vc1:"<b>Percurso completo.</b> Um arquivo é carregado, a plataforma faz o perfil, a variável alvo é escrita em linguagem comum e o treino começa; no fim aparece o relatório com o modelo campeão, seu AUC no holdout cego e a análise de variáveis.",
+    vc2:"<b>Painel e perguntas.</b> Os KPIs com sua variação contra o mês anterior, as séries e os filtros saem do próprio conjunto de dados, sem configuração; filtra-se, exporta-se para Excel e pergunta-se em linguagem natural sobre o que ficou à vista.",
+    pey:"Produto",ph:"Todo o trabalho de uma equipe de dados, em um programa",
+    pl:"Feito para quem conhece o negócio, não apenas para quem programa. Cada passo fica explicado e auditável.",
+    f1t:"Dados sem limite de tamanho",
+    f1p:"CSV, Excel, Parquet ou qualquer servidor SQL. O arquivo entra por streaming e é consultado fora da memória: o limite é o disco, não a RAM.",
+    f1a:"SQL Server, PostgreSQL, MySQL, Oracle, Snowflake",f1b:"Conector somente leitura",f1c:"Detecta separador, encoding e decimal sozinho",
+    f2t:"ETL automático e explicado",
+    f2p:"Propõe o plano passo a passo com o motivo de cada um: identificadores, colunas quase vazias, texto que na verdade é número, datas, atípicos.",
+    f2a:"Auditoria de vazamento antes de treinar",f2b:"Você aceita ou rejeita cada passo",f2c:"Fica registrado no relatório",
+    f3t:"O melhor modelo, escolhido sozinho",
+    f3p:"Você escreve o objetivo numa caixa de texto e ele compara quinze famílias de modelos, otimizando variáveis e hiperparâmetros por você.",
+    f3a:"Classificação, regressão e multiclasse",f3b:"Calibração e correção do viés do valor",f3c:"Importância de variáveis e explicabilidade",
+    f4t:"Painéis que se montam sozinhos",
+    f4p:"Detecta métricas, dimensões e a coluna de tempo, e monta KPIs com variação contra o período anterior, gráficos e tabela, tudo filtrável.",
+    f4a:"Filtros por data e por categoria",f4b:"Adapta-se a qualquer conjunto de dados ou consulta SQL",f4c:"Exporta o painel filtrado para Excel ou CSV",
+    f5t:"Perguntas no seu idioma",
+    f5p:"«Quanto foi recebido por filial em 2025?». A pergunta vira uma consulta somente leitura, é executada de verdade e a resposta sai do resultado.",
+    f5a:"Você escolhe o provedor de IA e o modelo",f5b:"Sem IA também responde, com tradutor local",f5c:"Mostra a consulta que usou",
+    f6t:"Seus dados não vão a lugar nenhum",
+    f6p:"Instala no seu computador e trabalha local. Nem o conjunto de dados nem o modelo sobem para a nuvem. Interface em espanhol, inglês e português, com leitura em voz alta.",
+    f6a:"Instalador que deixa escolher a pasta",f6b:"Espaços de trabalho isolados",f6c:"Exportação para Excel de oito abas",
+    mey:"Método",mh:"Três janelas, para que o número que você vê seja o que vai ter",
+    ml:"A armadilha mais comum do machine learning é escolher o modelo olhando o mesmo trecho com que depois se reporta o resultado. Aqui isso não acontece: o trecho do relatório nunca foi usado para decidir nada.",
+    s1t:"Treino",s1p:"Os modelos aprendem aqui, e só aqui. Nenhuma decisão posterior toca este trecho.",
+    s2t:"Seleção",s2p:"Com esta janela se compara e escolhe o campeão, ajustam-se hiperparâmetros e faz-se a calibração.",
+    s3t:"Holdout cego",s3p:"Este trecho se abre uma única vez, no fim, para reportar. É o número honesto.",
+    prey:"Planos",prh:"Escolha seu plano e comece hoje",
+    prl:"Preço de referência em dólares; a cobrança é em pesos uruguaios pelo MercadoPago (cartão, débito ou transferência) ao câmbio do dia. A licença é emitida no momento do pagamento e fica associada ao seu computador; se você fechar a aba ou ficar sem sinal, ela não se perde: enviamos assim mesmo.",
+    pcm:"Mensal",pca:"Anual · 2 meses grátis",
+    p1n:"Demo",p1w:"Para testar com os seus próprios dados, sem cartão.",p1p:"para sempre",
+    p1a:"Até 50.000 linhas por conjunto de dados",p1b:"3 conjuntos · 1 espaço de trabalho",p1c:"3 famílias de modelos",
+    p1d:"Resultados reais, com marca d'água no Excel",p1e:"Sem conectores SQL nem IA",p1b2:"Baixar a demo",
+    ptag:"Recomendado",p2n:"Profissional",p2w:"Para trabalhar a sério: sem limites de tamanho e com todo o motor aberto.",
+    p2a:"Linhas e conjuntos de dados sem limite",p2b:"As 15 famílias de modelos e a otimização completa",
+    p2c:"Conectores SQL e provedores de IA",p2d:"Texto livre (TF-IDF), painéis e exportação sem marca",
+    p2e:"Espaços de trabalho ilimitados · atualizações incluídas",p2b2:"Comprar Profissional",
+    p3n:"Empresa",p3w:"Vários postos, dados de produção e alguém que atenda o telefone.",
+    p3a:"Tudo do plano Profissional",p3b:"Licenças para 5 computadores",p3c:"Implantação sobre o seu servidor SQL",
+    p3d:"Suporte prioritário por e-mail",p3e:"Ajustes sob medida a combinar",p3b2:"Falar sobre Empresa",
+    pb1:"Cartão · débito · transferência",pb2:"Nota fiscal uruguaia",
+    pnote:"A demo e a versão paga são o mesmo programa: ao ativar a licença ele se desbloqueia, sem reinstalar nada.",
+    dey:"Download",dh:"Instale no seu Windows",
+    dl:"Um instalador comum: deixa você escolher a pasta —não se prende ao C:—, cria o atalho na área de trabalho e no menu iniciar, e não pede permissões de administrador. Abre em modo demo; se você já comprou, cola a licença e passa a Profissional.",
+    dbt:"MV AutoML Studio para Windows",
+    dbp:"Instalador de 64 bits. Inclui o motor completo: não é preciso instalar Python nem nada técnico.",
+    dr1:"Windows 10 ou 11 · 64 bits",dr2:"8 GB de RAM recomendados",dr3:"~1,2 GB de disco",
+    dbtn:"Baixar a demo",dall:"Ver todas as versões",dmini:"Grátis, sem cartão e sem cadastro.",
+    qey:"Perguntas",qh:"O que mais nos perguntam",
+    q1:"Meus dados sobem para algum servidor?",
+    a1:"Não. O programa roda inteiro no seu computador: o conjunto de dados, o treino e os relatórios ficam no seu disco. A única coisa que sai para a internet é a consulta à IA, e só se você configurar um provedor e fizer uma pergunta.",
+    q2:"Existe um limite de tamanho de arquivo?",
+    a2:"Nos planos pagos não. O arquivo é convertido em Parquet por blocos e consultado fora da memória, então o limite prático é o disco. Na demo o teto é de 50.000 linhas por conjunto de dados.",
+    q3:"Preciso saber programar ou instalar Python?",
+    a3:"Nenhuma das duas coisas. O instalador traz o motor dentro e a variável alvo se escreve numa caixa de texto.",
+    q4:"O que acontece com a licença se eu trocar de computador?",
+    a4:"A licença é um token assinado que você pode colar no computador novo. Se perdeu, escreva para nós e reemitimos.",
+    q5:"Dá para conectar na minha base de produção?",
+    a5:"Sim, com um usuário somente leitura. O conector rejeita qualquer comando de escrita antes de mandar ao servidor.",
+    q6:"Posso testar antes de pagar?",
+    a6:"Sim: a demo é o mesmo programa, com limite de linhas e sem conectores. Os números que mostra são reais, não estão degradados.",
+    bh:"Teste com os seus próprios dados",
+    bp:"Você baixa o instalador, arrasta o seu Excel e em poucos minutos tem o modelo treinado e o painel montado.",
+    bb1:"Baixar a demo",bb2:"Ver planos",
+    legal:"MV AutoML Studio · Plataforma de análise de dados e machine learning que roda no seu computador. Os números que aparecem nas capturas desta página são dados de demonstração sintéticos, ilustrativos do funcionamento do produto.",
+    mvsw:'MV AutoML Studio é um produto da <b>MV Software</b>, do Uruguai para a LATAM e o mundo. Contato: <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a>'
+  },
+  en:{
+    nav1:"Product",nav2:"Videos",nav3:"Method",nav4:"Plans",nav5:"Download",nav6:"FAQ",navbuy:"Buy",
+    kick:"Desktop AutoML · no code",
+    h1:'From any dataset to a <span class="am">validated</span> model, without writing code',
+    lead:"Bring an Excel file, a CSV or a query against your SQL server. The program runs the ETL on its own, trains and compares models for the target you type in your own words, builds the dashboard from the KPIs it detects, and answers questions about your data. It installs on your Windows machine: the data never leaves your computer.",
+    hb1:"Watch it running",hb2:"Plans from US$ 39/month",
+    hnote:"Free demo, no card required. Up to 50,000 rows per dataset.",
+    m1:"model families compared",m2:"validation windows: no self-deception",m3:"lines of code to use it",
+    mk0:"Dashboard · Collections 2025",mk1:"detected automatically",mk2:"Collected",mk3:"Actions",mk4:"Pay prob.",
+    mk5:"Champion",mk6:"Blind holdout",mk7:"how much was collected per branch in 2025?",
+    mk8:"Centre $ 3,104,220 · North $ 2,788,410 · Coast $ 2,520,130",
+    vey:"Video",vh:"Watch the program running",
+    vl:"Recordings of the real application, not animations: you can see the dataset going in, the model training and the dashboard building itself. The only edit is the training wait, which is sped up.",
+    vc1:"<b>Full walkthrough.</b> A file is uploaded, the platform profiles it, the target variable is typed in plain language and training starts; at the end you see the report with the champion model, its AUC on the blind holdout and the feature analysis.",
+    vc2:"<b>Dashboard and questions.</b> The KPIs with their change against the previous month, the series and the filters come from the dataset itself, with no setup; you filter, export to Excel and ask a plain-language question about what is on screen.",
+    pey:"Product",ph:"A whole data team's work, in one program",
+    pl:"Built for the person who knows the business, not only for the one who codes. Every step is explained and auditable.",
+    f1t:"Data with no size limit",
+    f1p:"CSV, Excel, Parquet or any SQL server. The file streams in and is queried out of core: the limit is your disk, not your RAM.",
+    f1a:"SQL Server, PostgreSQL, MySQL, Oracle, Snowflake",f1b:"Read-only connector",f1c:"Detects separator, encoding and decimal on its own",
+    f2t:"Automatic, explained ETL",
+    f2p:"It proposes the plan step by step with the reason for each: identifiers, nearly empty columns, text that is really a number, dates, outliers.",
+    f2a:"Leakage audit before training",f2b:"You accept or reject each step",f2c:"It is recorded in the report",
+    f3t:"The best model, chosen for you",
+    f3p:"Type the target into a text box and it compares fifteen model families, optimising features and hyperparameters for you.",
+    f3a:"Classification, regression and multiclass",f3b:"Calibration and amount-bias correction",f3c:"Feature importance and explainability",
+    f4t:"Dashboards that build themselves",
+    f4p:"It detects metrics, dimensions and the time column, then builds KPIs with change against the previous period, charts and a table, all filterable.",
+    f4a:"Filters by date and by category",f4b:"Adapts to any dataset or SQL query",f4c:"Export the filtered dashboard to Excel or CSV",
+    f5t:"Questions in your own words",
+    f5p:"\"How much was collected per branch in 2025?\" The question becomes a read-only query, it actually runs, and the answer comes from the result.",
+    f5a:"You choose the AI provider and model",f5b:"It answers without AI too, using a local translator",f5c:"It shows you the query it used",
+    f6t:"Your data goes nowhere",
+    f6p:"It installs on your machine and works locally. Neither the dataset nor the model is uploaded anywhere. Interface in Spanish, English and Portuguese, with read-aloud.",
+    f6a:"Installer that lets you pick the folder",f6b:"Isolated workspaces",f6c:"Eight-sheet Excel export",
+    mey:"Method",mh:"Three windows, so the number you see is the number you get",
+    ml:"The most common trap in machine learning is picking the model by looking at the same slice you later report on. That cannot happen here: the slice used for reporting was never used to decide anything.",
+    s1t:"Training",s1p:"Models learn here, and only here. No later decision touches this slice.",
+    s2t:"Selection",s2p:"This window is where models are compared, the champion is picked, hyperparameters tuned and calibration done.",
+    s3t:"Blind holdout",s3p:"This slice is opened once, at the end, to report. That is the honest number.",
+    prey:"Plans",prh:"Pick your plan and start today",
+    prl:"Reference price in US dollars; billing is in Uruguayan pesos through MercadoPago (card, debit or transfer) at the day's rate. The licence is issued at the moment of payment and tied to your machine; if you close the tab or lose signal it is not lost, we send it to you anyway.",
+    pcm:"Monthly",pca:"Yearly · 2 months free",
+    p1n:"Demo",p1w:"To try it on your own data, without a card.",p1p:"forever",
+    p1a:"Up to 50,000 rows per dataset",p1b:"3 datasets · 1 workspace",p1c:"3 model families",
+    p1d:"Real results, watermarked Excel",p1e:"No SQL connectors or AI",p1b2:"Download the demo",
+    ptag:"Recommended",p2n:"Professional",p2w:"For real work: no size limits and the whole engine open.",
+    p2a:"Unlimited rows and datasets",p2b:"All 15 model families and full optimisation",
+    p2c:"SQL connectors and AI providers",p2d:"Free text (TF-IDF), dashboards and export without watermark",
+    p2e:"Unlimited workspaces · updates included",p2b2:"Buy Professional",
+    p3n:"Enterprise",p3w:"Several seats, production data, and someone who picks up the phone.",
+    p3a:"Everything in Professional",p3b:"Licences for 5 machines",p3c:"Setup against your SQL server",
+    p3d:"Priority email support",p3e:"Custom work to be agreed",p3b2:"Talk about Enterprise",
+    pb1:"Card · debit · transfer",pb2:"Uruguayan invoice",
+    pnote:"The demo and the paid version are the same program: activating a licence unlocks it, with nothing to reinstall.",
+    dey:"Download",dh:"Install it on your Windows",
+    dl:"An ordinary installer: it lets you choose the folder —it does not force C:—, creates the desktop and start-menu shortcuts, and asks for no administrator rights. It starts in demo mode; if you already bought, paste the licence and it turns Professional.",
+    dbt:"MV AutoML Studio for Windows",
+    dbp:"64-bit installer. The full engine is included: no need to install Python or anything technical.",
+    dr1:"Windows 10 or 11 · 64-bit",dr2:"8 GB RAM recommended",dr3:"~1.2 GB disk",
+    dbtn:"Download the demo",dall:"See all releases",dmini:"Free, no card and no sign-up.",
+    qey:"FAQ",qh:"What people ask us most",
+    q1:"Does my data go up to a server?",
+    a1:"No. The program runs entirely on your machine: the dataset, the training and the reports stay on your disk. The only thing that leaves for the internet is the AI query, and only if you configure a provider and ask a question.",
+    q2:"Is there a file size limit?",
+    a2:"Not on the paid plans. The file is converted to Parquet in chunks and queried out of core, so the practical limit is your disk. The demo caps at 50,000 rows per dataset.",
+    q3:"Do I need to code or install Python?",
+    a3:"Neither. The installer carries the engine inside, and the target variable is typed into a text box.",
+    q4:"What happens to my licence if I change computers?",
+    a4:"The licence is a signed token you can paste on the new machine. If you lost it, write to us and we reissue it.",
+    q5:"Can it connect to my production database?",
+    a5:"Yes, with a read-only user. The connector rejects any write statement before it reaches the server.",
+    q6:"Can I try it before paying?",
+    a6:"Yes: the demo is the same program, with a row limit and no connectors. The numbers it shows are real, not degraded.",
+    bh:"Try it on your own data",
+    bp:"Download the installer, drop in your Excel file, and in a few minutes you have the model trained and the dashboard built.",
+    bb1:"Download the demo",bb2:"See plans",
+    legal:"MV AutoML Studio · A data analysis and machine learning platform that runs on your own machine. The figures shown in the screenshots on this page are synthetic demonstration data, illustrative of how the product works.",
+    mvsw:'MV AutoML Studio is a product of <b>MV Software</b>, from Uruguay for LATAM and the world. Enquiries: <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a>'
   }
-  const buy = document.getElementById("cta-comprar");
-  if (CONFIG.mercadoPagoLink) {
-    buy.href = CONFIG.mercadoPagoLink;
-  } else {
-    buy.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("El link de pago de Mercado Pago se configura en CONFIG.mercadoPagoLink " +
-            "(web/index.html). Mientras tanto, escribinos: vieraschiavi@gmail.com");
-    });
-  }
+};
+
+var CUR = 'es';
+
+function pintarPrecios(){
+  var p = PRECIOS[CICLO];
+  var uni = CICLO === 'mes'
+    ? {es:' /mes', pt:' /mês', en:' /month'}
+    : {es:' /año', pt:' /ano', en:' /year'};
+  var mesuyu = CICLO === 'mes'
+    ? {es:'/mes · se cobra en pesos uruguayos', pt:'/mês · cobrado em pesos uruguaios', en:'/month · billed in Uruguayan pesos'}
+    : {es:'/año · se cobra en pesos uruguayos', pt:'/ano · cobrado em pesos uruguaios', en:'/year · billed in Uruguayan pesos'};
+  ['pro','emp'].forEach(function(k){
+    var el = document.querySelector('[data-precio="' + k + '"]');
+    if (el) el.innerHTML = '<small>US$ </small>' + p[k].usd + '<small>' + uni[CUR] + '</small>';
+    var u = document.querySelector('[data-uyu="' + k + '"]');
+    if (u) u.textContent = '≈ $U ' + p[k].uyu + mesuyu[CUR];
+    var pe = document.querySelector('[data-per="' + k + '"]');
+    if (pe) pe.textContent = PER[CICLO][k][CUR];
+  });
+  document.querySelectorAll('.ptoggle button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-ciclo') === CICLO);
+  });
+}
+
+function setLang(lang){
+  CUR = lang;
+  var dict = lang === 'es' ? null : I18N[lang];
+  document.querySelectorAll('[data-i]').forEach(function(el){
+    var k = el.getAttribute('data-i');
+    el.innerHTML = (dict && dict[k] != null) ? dict[k] : ORIG[k];
+  });
+  document.documentElement.lang = lang;
+  document.querySelectorAll('.lang button').forEach(function(b){
+    b.classList.toggle('on', b.getAttribute('data-lang') === lang);
+  });
+  try { localStorage.setItem('mvstudio_lang', lang); } catch(e){}
+  pintarPrecios();
+}
+
+document.querySelectorAll('.lang button').forEach(function(b){
+  b.addEventListener('click', function(){ setLang(b.getAttribute('data-lang')); });
+});
+document.querySelectorAll('.ptoggle button').forEach(function(b){
+  b.addEventListener('click', function(){ CICLO = b.getAttribute('data-ciclo'); pintarPrecios(); });
+});
+
+/* Botón de compra: si hay link de MercadoPago cobra directo; si todavía no
+   está cargado, abre un correo con el plan elegido en vez de dejar al
+   visitante sin salida. */
+document.querySelectorAll('.js-pago').forEach(function(a){
+  a.addEventListener('click', function(ev){
+    var link = CICLO === 'mes' ? CONFIG.mercadoPagoMensual : CONFIG.mercadoPagoAnual;
+    var plan = a.getAttribute('data-plan');
+    if (link) { a.setAttribute('href', link); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); return; }
+    ev.preventDefault();
+    var asunto = {es:'Quiero contratar MV AutoML Studio', pt:'Quero contratar o MV AutoML Studio',
+                  en:'I want to buy MV AutoML Studio'}[CUR];
+    var ciclo = {es:{mes:'mensual',anio:'anual'}, pt:{mes:'mensal',anio:'anual'},
+                 en:{mes:'monthly',anio:'yearly'}}[CUR][CICLO];
+    var cuerpo = {es:'Hola, quiero contratar el plan ' + plan + ' (' + ciclo + ').',
+                  pt:'Olá, quero contratar o plano ' + plan + ' (' + ciclo + ').',
+                  en:'Hello, I would like the ' + plan + ' plan (' + ciclo + ').'}[CUR];
+    window.location.href = 'mailto:' + CONFIG.contacto +
+      '?subject=' + encodeURIComponent(asunto + ' — ' + plan) +
+      '&body=' + encodeURIComponent(cuerpo);
+  });
+});
+
+/* Idioma guardado, o el del navegador la primera vez. */
+(function(){
+  var guardado = null;
+  try { guardado = localStorage.getItem('mvstudio_lang'); } catch(e){}
+  var nav = (navigator.language || 'es').slice(0,2).toLowerCase();
+  var inicial = guardado || (['es','pt','en'].indexOf(nav) >= 0 ? nav : 'es');
+  setLang(inicial);
 })();
 </script>
 </body>

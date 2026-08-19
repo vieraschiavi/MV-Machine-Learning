@@ -180,7 +180,12 @@ select { appearance: none; padding-right: 30px;
   background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; }
 input[type="range"] { width: 100%; accent-color: var(--accent); }
 
-.switch { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13.5px; }
+/* el interruptor es una etiqueta, y «.field label» le ganaba por especificidad:
+   quedaba en bloque y la pastilla se dibujaba encima de su propio texto */
+.switch, .field label.switch {
+  display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+  font-size: 13.5px; font-weight: 400; color: var(--text); margin-bottom: 0;
+}
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .switch-track {
   width: 34px; height: 19px; border-radius: 999px; background: var(--surface-3);

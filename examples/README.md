@@ -9,6 +9,16 @@ sin ninguna cifra verdadera. Sirven para recorrer la plataforma completa.
 | `cobranzas_panel.xlsx` | Panel por estado y mes con 23 columnas; varias son componentes contables del total, así que la **auditoría de fuga** tiene trabajo de verdad | `TotalCobrado` (regresión, objetivo sesgado → smearing) |
 | `gestiones_con_texto.csv` | Columna `NotaGestor` de texto libre: se vectoriza con TF-IDF y compite junto a las variables numéricas | `Pago30d` (clasificación binaria) |
 
+`gestiones_con_texto.csv` lo produce [`generar_gestiones.py`](generar_gestiones.py),
+que está acá para que se pueda auditar cómo se armó. La señal vive donde
+viviría en la realidad: entrenando con el motor real, el AUC del holdout ciego
+ronda **0,88** y las variables que más pesan son el contacto efectivo (≈18 %
+de caída al permutar), los días de atraso (≈14 %) y las promesas cumplidas
+(≈7 %). La nota del gestor entra al modelo como texto vectorizado y **aporta
+poco** (≈1 %), que es justamente lo que se quiere mostrar: un texto que dijera
+«confirma la transferencia» daría AUC 1,0 y no enseñaría nada, porque sería la
+respuesta disfrazada de variable.
+
 Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
 la auditoría antes de entrenar.

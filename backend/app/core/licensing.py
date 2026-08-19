@@ -324,12 +324,17 @@ def cap_rows(rows: int) -> int:
     return rows if tier.max_rows is None else min(rows, tier.max_rows)
 
 
+def _miles(n: int) -> str:
+    """1234567 → «1.234.567», que es como se escribe acá."""
+    return f"{int(n):,}".replace(",", ".")
+
+
 def check_rows(rows: int) -> None:
     tier = current_tier()
     if tier.max_rows is not None and rows > tier.max_rows:
         raise PermissionError(
-            f"El nivel {tier.label} admite hasta {tier.max_rows:,} filas por dataset "
-            f"y este trae {rows:,}. Actualizá la licencia para levantar el tope.")
+            f"El nivel {tier.label} admite hasta {_miles(tier.max_rows)} filas por dataset "
+            f"y este trae {_miles(rows)}. Actualizá la licencia para levantar el tope.")
 
 
 def check_count(actual: int, feature: str) -> None:

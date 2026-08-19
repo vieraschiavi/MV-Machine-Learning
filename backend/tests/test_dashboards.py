@@ -137,3 +137,85 @@ def test_endpoint_dashboard(client, panel):
     datos = client.post(f"/api/dashboards/{panel.id}/run",
                         json={"spec": sp, "filters": {"Estado": ["Comercial/Normal"]}}).json()
     assert datos["table"]["total"] == 108
+
+
+# ── columnas que llegan como texto y en realidad no lo son ───────────────────
+
+@pytest.fixture(scope="module")
+def colocaciones():
+    return storage.ingest_file(EJEMPLOS / "colocaciones_y_tasas.xlsx", "colocaciones dash")
+
+
+def test_periodo_de_texto_sirve_como_eje_temporal(colocaciones):
+    """«2023-01» guardado como texto es una serie de tiempo, no una categoría."""
+    spec = D.detect_spec(colocaciones.id)
+    assert spec["time_column"] == "Periodo"
+    assert "Periodo" in spec["expressions"]
+    datos = D.run(colocaciones.id, None, None)
+    serie = next(c for c in datos["charts"] if c["type"] == "line")
+    assert len(serie["data"]) == spec["rows"]           # un punto por período
+    assert serie["data"][0]["x"] == "2023-01-01"
+
+
+def test_monto_con_separador_de_miles_es_metrica(colocaciones):
+    """«401.593.821» es el monto del negocio, no un texto sin sentido."""
+    spec = D.detect_spec(colocaciones.id)
+    assert "Colocacion" in [m["name"] for m in spec["metrics"]]
+    datos = D.run(colocaciones.id, None, None)
+    kpi = next(k for k in datos["kpis"] if k.get("column") == "Colocacion")
+    assert kpi["value"] > 1e9                            # se sumó como número
+
+
+def test_filtro_temporal_no_cuela_el_periodo_siguiente(colocaciones):
+    """El día 'hasta' entra entero; la medianoche del siguiente no."""
+    datos = D.run(colocaciones.id, None,
+                  {"Periodo": {"from": "2025-01-01", "to": "2025-12-31"}})
+    assert datos["kpis"][0]["value"] == 12               # los doce meses de 2025
+
+
+def test_dias_se_promedian_en_vez_de_sumarse(tmp_root):
+    df = pd.DataFrame({"DiasAtraso": [10, 20, 30, 40] * 25,
+                       "Monto": [100.5, 200.25, 300.75, 400.0] * 25})
+    f = tmp_root / "atrasos.csv"
+    df.to_csv(f, index=False)
+    meta = storage.ingest_file(f, "atrasos")
+    spec = D.detect_spec(meta.id)
+    dias = next(m for m in spec["metrics"] if m["name"] == "DiasAtraso")
+    assert dias["agg"] == "avg"
+    datos = D.run(meta.id, None, None)
+    kpi = next(k for k in datos["kpis"] if k.get("column") == "DiasAtraso")
+    assert kpi["value"] == pytest.approx(25.0)           # promedio, no 2.500
+
+
+def test_el_spec_del_cliente_no_entra_en_el_sql(panel):
+    """Aunque manden un spec armado a mano, el servidor usa el suyo."""
+    veneno = {"time_column": None, "expressions": {}, "metrics": [], "dimensions": [],
+              "kpis": [{"id": "x", "kind": "metric", "column": "TotalCobrado",
+                        "agg": "sum", "format": "money"}],
+              "charts": [{"id": "c", "type": "line", "x": "FechaObs", "y": "TotalCobrado",
+                          "agg": "sum", "grain": "month') , (SELECT 1"}],
+              "filters": [], "table": {"columns": ["Estado"], "page_size": 5}}
+    datos = D.run(panel.id, veneno, None)
+    assert datos["spec"]["time_column"] == "FechaObs"    # el del servidor, no el enviado
+    assert len(datos["table"]["columns"]) > 1                # tampoco la tabla recortada
+
+
+def test_la_pregunta_respeta_los_filtros_del_tablero(panel):
+    """Filtrar dos estados y que la respuesta hable de los seis desconcierta."""
+    spec = D.detect_spec(panel.id)
+    estados = next(f for f in spec["filters"] if f["column"] == "Estado")["options"][:2]
+    pregunta = "promedio de TotalCobrado por Estado"
+
+    completa = ASK.ask(panel.id, pregunta)
+    recortada = ASK.ask(panel.id, pregunta, filters={"Estado": estados})
+
+    assert len(completa["rows"]) > len(recortada["rows"])
+    assert {r["grupo"] for r in recortada["rows"]} == set(estados)
+    assert "filtrado" in (recortada.get("note") or "")
+
+
+def test_filtro_malicioso_en_la_pregunta_no_inyecta(panel):
+    """El recorte se compila contra el spec del servidor, con parámetros."""
+    r = ASK.ask(panel.id, "cuántos registros hay",
+                filters={"Estado": ["'; DROP TABLE x; --"]})
+    assert r["rows"][0]["registros"] == 0          # no matchea nada, no rompe nada

@@ -31,19 +31,19 @@ jobs:
           cache: pip
           cache-dependency-path: requirements.txt
 
-      - name: Node 20
+      - name: Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       - name: Dependencias del backend
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pyinstaller
+          pip install pyinstaller pytest
 
       - name: Suite de pruebas (gate antes de empaquetar)
-        run: pytest backend/tests -q
+        run: python -m pytest backend/tests -q
 
       - name: Compilar el backend (PyInstaller)
         working-directory: desktop
@@ -92,30 +92,33 @@ jobs:
           ./pybuild/mv-backend/mv-backend.exe &
           BACK=$!
           python - <<'PY'
-          import os, time, requests
+          import time, httpx
           B = "http://127.0.0.1:8475"; H = {"X-MV-Token": "tok-ci"}
+          C = httpx.Client(timeout=60)
           for _ in range(60):
               try:
-                  requests.get(f"{B}/api/health", timeout=2); break
+                  C.get(f"{B}/api/health", timeout=2); break
               except Exception: time.sleep(2)
-          assert requests.get(f"{B}/api/datasets").status_code == 401, "la auth no corta"
-          assert requests.get(f"{B}/api/datasets", headers=H).status_code == 200
+          assert C.get(f"{B}/api/datasets").status_code == 401, "la auth no corta"
+          assert C.get(f"{B}/api/datasets", headers=H).status_code == 200
           data = open("examples/gestiones_con_texto.csv", "rb").read()
-          r = requests.post(f"{B}/api/datasets/upload-stream",
-                            params={"filename": "g.csv", "name": "ci"},
-                            data=data, headers=H).json()
-          job = requests.post(f"{B}/api/automl/train", headers=H, json={
+          r = C.post(f"{B}/api/datasets/upload-stream",
+                     params={"filename": "g.csv", "name": "ci"},
+                     content=data, headers=H).json()
+          job = C.post(f"{B}/api/automl/train", headers=H, json={
               "dataset_id": r["dataset"]["id"], "target": "Pago30d",
-              "budget_seconds": 8, "max_models": 2, "shap": False,
+              "budget_seconds": 20, "max_models": 3, "shap": False,
               "permutation_importance": False, "exclude": ["IdGestion"]}).json()
           for _ in range(120):
-              st = requests.get(f"{B}/api/jobs/{job['id']}", headers=H).json()
+              st = C.get(f"{B}/api/jobs/{job['id']}", headers=H).json()
               if st["status"] in ("terminado", "error"): break
               time.sleep(2)
           assert st["status"] == "terminado", st.get("error")
           auc = st["result"]["report"]["champion"]["holdout"]["auc"]
           print(f"ENTRENAMIENTO EN EL .EXE: AUC holdout = {auc:.4f}")
-          assert auc > 0.9
+          # el ejemplo tiene señal realista, no fuga: un AUC perfecto sería
+          # la señal de que algo se rompió, no de que anda bien
+          assert 0.78 < auc < 0.99, f"AUC fuera de lo esperable: {auc}"
           PY
           kill $BACK || true
 
@@ -133,6 +136,7 @@ jobs:
         shell: bash
         run: |
           rm -f owner/license.key         # el demo NO lleva la licencia
+          echo 'Compilacion demo: sin licencia embebida.' > owner/LEEME.txt
           npx electron-builder --win -c electron-builder.yml \
             -c.extraMetadata.channel=demo \
             -c.artifactName="MV-AutoML-Studio-Demo-Setup.exe"

@@ -15,6 +15,7 @@ import math
 import re
 from typing import Any
 
+from . import etl as E
 from . import profiling as P
 from . import storage as S
 
@@ -35,23 +36,110 @@ def _q(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
+def _ex(exprs: dict[str, str] | None, col: str) -> str:
+    """SQL de una columna: el nombre, o el casteo si el dato viene como texto.
+
+    Un panel exportado a mano suele traer «401.593.821» y «2023-01» guardados
+    como texto: sin castearlos, la métrica más importante del dataset y su eje
+    temporal quedan afuera del tablero.
+    """
+    return (exprs or {}).get(col) or _q(col)
+
+
+# columnas de período escritas como texto: 2023-01, 2023/01, 202301, 01/2023
+PERIODO = re.compile(r"^\s*(\d{4}[-/](0[1-9]|1[0-2])|\d{6}|(0[1-9]|1[0-2])[-/]\d{4})\s*$")
+# magnitudes que se promedian: sumar días de atraso o una edad no significa nada
+AVG_HINT = re.compile(r"(dias|days|edad|age|antiguedad|promedio|average|mean|"
+                      r"score|puntaje|indice|index)", re.I)
+
+
+def _derived(ds_id: str, cols: list[dict]) -> tuple[dict[str, str], dict[str, str], dict[str, dict]]:
+    """Columnas de texto que en realidad son número o período.
+
+    Devuelve la expresión SQL de cada una y qué tipo pasa a tener, reusando el
+    mismo detector que usa el ETL para no tener dos criterios distintos.
+    """
+    exprs: dict[str, str] = {}
+    tipos: dict[str, str] = {}
+    stats: dict[str, dict] = {}
+    for c in cols:
+        if c["kind"] not in ("categorical", "text") or c["constant"]:
+            continue
+        name = c["name"]
+        try:
+            muestra = S.query(ds_id, f"SELECT CAST({_q(name)} AS VARCHAR) v FROM {{t}} "
+                                     f"WHERE {_q(name)} IS NOT NULL LIMIT 200")["v"].astype(str)
+        except Exception:
+            continue
+        if muestra.empty:
+            continue
+        if float(muestra.str.match(PERIODO).mean()) >= 0.95:
+            v = f"replace(replace(TRIM(CAST({_q(name)} AS VARCHAR)), '/', '-'), ' ', '')"
+            # 202301 y 01-2023 se llevan a 2023-01 antes de fechar
+            v = (f"CASE WHEN length({v}) = 6 AND {v} NOT LIKE '%-%' "
+                 f"THEN substr({v}, 1, 4) || '-' || substr({v}, 5, 2) "
+                 f"WHEN substr({v}, 3, 1) = '-' "
+                 f"THEN substr({v}, 4, 4) || '-' || substr({v}, 1, 2) ELSE {v} END")
+            exprs[name] = f"TRY_CAST({v} || '-01' AS TIMESTAMP)"
+            tipos[name] = "datetime"
+            continue
+        try:
+            det = E._detect_cast(ds_id, name, c)
+        except Exception:
+            det = None
+        if det and det.get("as") == "numeric" and det.get("ratio", 0) >= 0.95:
+            limpio = (f"regexp_replace(TRIM(CAST({_q(name)} AS VARCHAR)), "
+                      f"'[\\$€£¥%\\s]', '', 'g')")
+            limpio = (f"replace(replace({limpio}, '.', ''), ',', '.')"
+                      if det.get("decimal_comma")
+                      else f"replace({limpio}, ',', '')")
+            exprs[name] = f"TRY_CAST({limpio} AS DOUBLE)"
+            tipos[name] = "numeric"
+            st = _stats_of(ds_id, exprs[name])
+            if st is None:               # todo nulo o constante: no es métrica
+                del exprs[name], tipos[name]
+                continue
+            stats[name] = st
+    return exprs, tipos, stats
+
+
+def _stats_of(ds_id: str, expr: str) -> dict[str, float] | None:
+    """Dispersión de una columna derivada, que el perfil no pudo calcular."""
+    try:
+        r = S.query(ds_id, f"SELECT avg({expr}) m, stddev_samp({expr}) s, "
+                           f"min({expr}) lo, max({expr}) hi FROM {{t}}")
+    except Exception:
+        return None
+    m, s = r["m"].iloc[0], r["s"].iloc[0]
+    if m is None or s is None or not math.isfinite(float(s)) or float(s) == 0:
+        return None
+    return {"mean": float(m), "std": float(s), "cv": abs(float(s) / float(m)) if m else 0.0,
+            "min": float(r["lo"].iloc[0]), "max": float(r["hi"].iloc[0])}
+
+
 # ═══════════════════════════════════════════════════════ especificación ══════
 def detect_spec(ds_id: str) -> dict[str, Any]:
     """Analiza el dataset y propone el tablero: KPIs, gráficos, filtros, tabla."""
     prof = P.profile(ds_id)
     cols = prof["columns"]
+    exprs, tipos, stats = _derived(ds_id, cols)
+    # una columna de texto que resultó ser número o período se trata como tal
+    cols = [dict(c, kind=tipos.get(c["name"], c["kind"]),
+                 stats=stats.get(c["name"], c.get("stats")))
+            for c in cols]
 
-    tiempo = _pick_time(cols)
+    tiempo = _pick_time(cols, ds_id, exprs)
     metricas = _pick_metrics(cols)
     dimensiones = _pick_dimensions(cols, prof["rows"])
     ml = _pick_ml(cols)
 
     kpis = _build_kpis(metricas, ml, tiempo, prof["rows"])
     charts = _build_charts(metricas, dimensiones, tiempo, ml)
-    filtros = _build_filters(ds_id, dimensiones, tiempo)
+    filtros = _build_filters(ds_id, dimensiones, tiempo, exprs)
 
     return {
         "dataset_id": ds_id,
+        "expressions": exprs,
         "title": prof["name"],
         "rows": prof["rows"],
         "time_column": tiempo,
@@ -66,7 +154,7 @@ def detect_spec(ds_id: str) -> dict[str, Any]:
     }
 
 
-def _pick_time(cols: list[dict]) -> str | None:
+def _pick_time(cols: list[dict], ds_id: str, exprs: dict[str, str]) -> str | None:
     fechas = [c for c in cols if c["kind"] == "datetime"]
     if not fechas:
         return None
@@ -95,9 +183,11 @@ def _pick_metrics(cols: list[dict]) -> list[dict[str, Any]]:
         # el monto manda; el conteo acompaña; el porcentaje se promedia
         puntaje = (3.0 if es_monto else (2.0 if es_pct else (1.2 if es_conteo else 0.5)))
         puntaje += min((st.get("cv") or 0), 1.0)          # variar informa
+        # sumar días de atraso, edades o puntajes no significa nada: se promedian
+        promedia = es_pct or bool(AVG_HINT.search(c["name"]))
         candidatas.append({"name": c["name"], "score": round(puntaje, 2),
                            "format": "percent" if es_pct else ("money" if es_monto else "number"),
-                           "agg": "avg" if es_pct else "sum"})
+                           "agg": "avg" if promedia else "sum"})
     candidatas.sort(key=lambda m: -m["score"])
     return candidatas[:MAX_METRICS]
 
@@ -168,10 +258,11 @@ def _build_charts(metricas, dimensiones, tiempo, ml) -> list[dict[str, Any]]:
     return charts[:6]
 
 
-def _build_filters(ds_id, dimensiones, tiempo) -> list[dict[str, Any]]:
+def _build_filters(ds_id, dimensiones, tiempo, exprs=None) -> list[dict[str, Any]]:
     filtros = []
     if tiempo:
-        r = S.query(ds_id, f"SELECT min({_q(tiempo)}) a, max({_q(tiempo)}) b FROM {{t}}")
+        qt = _ex(exprs, tiempo)
+        r = S.query(ds_id, f"SELECT min({qt}) a, max({qt}) b FROM {{t}}")
         filtros.append({"id": tiempo, "type": "daterange", "column": tiempo,
                         "min": str(r["a"].iloc[0]), "max": str(r["b"].iloc[0])})
     for d in dimensiones:
@@ -208,14 +299,16 @@ def _where(spec: dict, filters: dict[str, Any] | None) -> tuple[str, list]:
         f = validos.get(col)
         if f is None or valor in (None, "", []):
             continue
-        q = _q(col)
+        q = _ex(spec.get("expressions"), col)
         if f["type"] == "daterange":
             desde, hasta = (valor.get("from"), valor.get("to")) if isinstance(valor, dict) else (None, None)
             if desde:
                 conds.append(f"{q} >= CAST(? AS TIMESTAMP)")
                 params.append(str(desde))
             if hasta:
-                conds.append(f"{q} <= CAST(? AS TIMESTAMP) + INTERVAL 1 DAY")
+                # el día 'hasta' entra entero, pero la medianoche del siguiente no:
+                # con datos mensuales, <= sumando un día colaba el mes de más
+                conds.append(f"{q} < CAST(? AS TIMESTAMP) + INTERVAL 1 DAY")
                 params.append(str(hasta))
         else:
             valores = valor if isinstance(valor, list) else [valor]
@@ -232,14 +325,19 @@ def _and(where: str, cond: str) -> str:
 
 def run(ds_id: str, spec: dict[str, Any] | None = None,
         filters: dict[str, Any] | None = None) -> dict[str, Any]:
-    """Ejecuta el tablero con los filtros activos y devuelve todos los datos."""
-    spec = spec or detect_spec(ds_id)
+    """Ejecuta el tablero con los filtros activos y devuelve todos los datos.
+
+    El spec se deduce siempre acá, del dataset: nada de lo que llega del
+    navegador entra en el SQL salvo los filtros, y esos van parametrizados.
+    """
+    spec = detect_spec(ds_id)
+    exprs = spec.get("expressions") or {}
     where, params = _where(spec, filters)
     tiempo = spec.get("time_column")
 
     out: dict[str, Any] = {"spec": spec, "filters": filters or {}}
-    out["kpis"] = [_run_kpi(ds_id, k, where, params, tiempo) for k in spec["kpis"]]
-    out["charts"] = [_run_chart(ds_id, c, where, params) for c in spec["charts"]]
+    out["kpis"] = [_run_kpi(ds_id, k, where, params, tiempo, exprs) for k in spec["kpis"]]
+    out["charts"] = [_run_chart(ds_id, c, where, params, exprs) for c in spec["charts"]]
 
     tabla_cols = ", ".join(_q(c) for c in spec["table"]["columns"])
     df = S.query(ds_id, f"SELECT {tabla_cols} FROM {{t}}{where} "
@@ -254,11 +352,11 @@ def run(ds_id: str, spec: dict[str, Any] | None = None,
     return out
 
 
-def _run_kpi(ds_id, kpi, where, params, tiempo) -> dict[str, Any]:
+def _run_kpi(ds_id, kpi, where, params, tiempo, exprs=None) -> dict[str, Any]:
     if kpi["kind"] == "rows":
         df = S.query(ds_id, f"SELECT count(*) v FROM {{t}}{where}", params)
         return {**kpi, "value": float(df["v"].iloc[0])}
-    q = _q(kpi["column"])
+    q = _ex(exprs, kpi["column"])
     agg = {"sum": f"sum({q})", "avg": f"avg({q})", "min": f"min({q})",
            "max": f"max({q})"}[kpi["agg"]]
     df = S.query(ds_id, f"SELECT {agg} v FROM {{t}}{where}", params)
@@ -269,7 +367,7 @@ def _run_kpi(ds_id, kpi, where, params, tiempo) -> dict[str, Any]:
     # variación contra el período anterior: último mes completo vs el previo,
     # dentro del recorte filtrado
     if kpi.get("delta_vs_prev") and tiempo:
-        qt = _q(tiempo)
+        qt = _ex(exprs, tiempo)
         serie = S.query(ds_id, f"""
             SELECT date_trunc('month', {qt}) p, {agg} v FROM {{t}}{where}
             GROUP BY 1 ORDER BY 1 DESC LIMIT 2""", params)
@@ -281,20 +379,25 @@ def _run_kpi(ds_id, kpi, where, params, tiempo) -> dict[str, Any]:
     return resultado
 
 
-def _run_chart(ds_id, chart, where, params) -> dict[str, Any]:
+def _run_chart(ds_id, chart, where, params, exprs=None) -> dict[str, Any]:
     t = dict(chart)
     if chart["type"] == "line":
-        qx, qy = _q(chart["x"]), _q(chart["y"])
+        qx, qy = _ex(exprs, chart["x"]), _ex(exprs, chart["y"])
         agg = f"sum({qy})" if chart["agg"] == "sum" else f"avg({qy})"
+        # el grano se valida contra la lista, nunca se interpola lo que llegue
+        grano = chart.get("grain", "month")
+        if grano not in ("day", "week", "month", "quarter", "year"):
+            grano = "month"
         df = S.query(ds_id, f"""
-            SELECT date_trunc('{chart.get('grain', 'month')}', {qx}) x, {agg} y
+            SELECT date_trunc('{grano}', {qx}) x, {agg} y
             FROM {{t}}{where} GROUP BY 1 ORDER BY 1""", params)
         t["data"] = [{"x": str(a)[:10], "y": None if b is None else float(b)}
                      for a, b in zip(df["x"], df["y"], strict=False)]
     elif chart["type"] == "bars":
-        qx = _q(chart["x"])
+        qx = _ex(exprs, chart["x"])
+        qy = _ex(exprs, chart["y"]) if chart["y"] else None
         agg = ("count(*)" if chart["y"] is None else
-               (f"sum({_q(chart['y'])})" if chart["agg"] == "sum" else f"avg({_q(chart['y'])})"))
+               (f"sum({qy})" if chart["agg"] == "sum" else f"avg({qy})"))
         df = S.query(ds_id, f"""
             SELECT CAST({qx} AS VARCHAR) x, {agg} y
             FROM {{t}}{_and(where, f"{qx} IS NOT NULL")}
@@ -302,7 +405,7 @@ def _run_chart(ds_id, chart, where, params) -> dict[str, Any]:
         t["data"] = [{"x": str(a), "y": None if b is None else float(b)}
                      for a, b in zip(df["x"], df["y"], strict=False)]
     elif chart["type"] == "histogram":
-        q = _q(chart["column"])
+        q = _ex(exprs, chart["column"])
         r = S.query(ds_id, f"""
             SELECT quantile_cont({q}, 0.01) lo, quantile_cont({q}, 0.99) hi
             FROM {{t}}{where}""", params)
