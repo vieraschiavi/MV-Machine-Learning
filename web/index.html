@@ -283,18 +283,18 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
   <div class="vgrid">
     <div>
       <div class="vframe">
-        <video controls preload="metadata" playsinline poster="">
-          <source src="video/recorrido.mp4" type="video/mp4">
-          <source src="video/recorrido.webm" type="video/webm">
+        <video controls preload="metadata" playsinline poster="" data-video="recorrido">
+          <source src="video/recorrido-es.mp4" type="video/mp4">
+          <source src="video/recorrido-es.webm" type="video/webm">
         </video>
       </div>
       <p class="vcap" data-i="vc1"><b>Recorrido completo.</b> Se sube un archivo, la plataforma lo perfila, se escribe la variable objetivo en castellano y entrena; al final se ve el informe con el modelo campeón, su AUC sobre el holdout ciego y el análisis de variables.</p>
     </div>
     <div>
       <div class="vframe">
-        <video controls preload="metadata" playsinline poster="">
-          <source src="video/tablero.mp4" type="video/mp4">
-          <source src="video/tablero.webm" type="video/webm">
+        <video controls preload="metadata" playsinline poster="" data-video="tablero">
+          <source src="video/tablero-es.mp4" type="video/mp4">
+          <source src="video/tablero-es.webm" type="video/webm">
         </video>
       </div>
       <p class="vcap" data-i="vc2"><b>Tablero y preguntas.</b> Los KPIs con su variación contra el mes anterior, las series y los filtros salen del propio dataset, sin configurarlos; se filtra, se exporta a Excel y se le pregunta en castellano sobre lo que quedó a la vista.</p>
@@ -760,6 +760,7 @@ function setLang(lang){
   });
   try { localStorage.setItem('mvstudio_lang', lang); } catch(e){}
   pintarPrecios();
+  cambiarVideos(lang);
 }
 
 document.querySelectorAll('.lang button').forEach(function(b){
@@ -790,6 +791,30 @@ document.querySelectorAll('.js-pago').forEach(function(a){
       '&body=' + encodeURIComponent(cuerpo);
   });
 });
+
+/* Los videos están narrados y con la interfaz en cada idioma: al cambiar de
+   idioma se cambia la fuente. Si el video estaba reproduciéndose se lo deja
+   quieto —cambiar el archivo debajo de los pies del visitante molesta más de
+   lo que ayuda—, y se recuerda el segundo en el que iba. */
+function cambiarVideos(lang){
+  document.querySelectorAll('video[data-video]').forEach(function(v){
+    var nombre = v.getAttribute('data-video');
+    var esperado = 'video/' + nombre + '-' + lang + '.mp4';
+    var fuentes = v.querySelectorAll('source');
+    if (!fuentes.length || fuentes[0].getAttribute('src') === esperado) return;
+    var t = v.currentTime, sonando = !v.paused && !v.ended;
+    fuentes[0].setAttribute('src', esperado);
+    if (fuentes[1]) fuentes[1].setAttribute('src', 'video/' + nombre + '-' + lang + '.webm');
+    v.load();
+    if (t > 0.2) {
+      v.addEventListener('loadedmetadata', function reanudar(){
+        v.removeEventListener('loadedmetadata', reanudar);
+        try { v.currentTime = Math.min(t, (v.duration || t) - 0.1); } catch(e){}
+        if (sonando) v.play().catch(function(){});
+      });
+    }
+  });
+}
 
 /* Idioma guardado, o el del navegador la primera vez. */
 (function(){
