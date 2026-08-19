@@ -106,7 +106,10 @@ class License:
 
     @property
     def expired(self) -> bool:
-        return self.expires_at is not None and time.time() > self.expires_at
+        # «>=» y no «>»: una licencia cuyo vencimiento es este instante está
+        # vencida. Con «>» dependía de la resolución del reloj —en Windows es
+        # de unos 16 ms— y una licencia recién vencida podía seguir valiendo.
+        return self.expires_at is not None and time.time() >= self.expires_at
 
     @property
     def days_left(self) -> int | None:
