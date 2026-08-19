@@ -36,3 +36,8 @@ desktop/keys/
 desktop/owner/
 desktop/release/
 !desktop/build/
+
+# ── voz de los videos: modelos y audios intermedios se regeneran ────────────
+web/video/.voces/
+web/video/.audio/
+web/video/*.con-voz.mp4

@@ -20,15 +20,43 @@ function fmtKpi(k) {
   return num(v, Math.abs(v) < 100 && v % 1 !== 0 ? 2 : 0);
 }
 
+/* Una comparación: flecha, color y unidad. Un porcentaje no varía «un 8 %
+   más», varía 8 puntos porcentuales; el backend dice en qué unidad viene. */
+function comparisonRow(c) {
+  const valor = c.unit === 'pp' ? c.delta_pp : c.delta_pct;
+  if (valor == null) return null;
+  const sube = c.direction > 0;
+  const plano = c.direction === 0;
+  const clase = plano ? 'text-dim' : (sube ? 'text-ok' : 'text-bad');
+  const flecha = plano ? '—' : (sube ? '▲' : '▼');
+  const unidad = c.unit === 'pp' ? ' pp' : '%';
+  return el('div', { class: 'kpi-comp' },
+    el('span', { class: 'kpi-comp-label', text: t(`dash.cmp_${c.id}`) }),
+    el('span', { class: `kpi-comp-value ${clase}`,
+      text: `${flecha} ${valor > 0 ? '+' : ''}${dec(valor, 1)}${unidad}` }));
+}
+
+/* «2023-06-01T00:00:00.000» en una celda no lo lee nadie: si el valor es una
+   fecha ISO se muestra la fecha, y la hora sólo cuando aporta algo. */
+function celda(v) {
+  if (typeof v !== 'string') return v;
+  const m = v.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+  if (!m) return v;
+  return m[2] === '00:00' ? m[1] : `${m[1]} ${m[2]}`;
+}
+
 function kpiTiles(kpis) {
   return el('div', { class: 'grid grid-4 mb-2' }, ...kpis.map((k) => {
-    const delta = k.delta_pct;
-    const kind = delta == null ? '' : (delta >= 0 ? 'ok' : 'bad');
+    const comps = (k.comparisons || []).map(comparisonRow).filter(Boolean);
+    const principal = (k.comparisons || [])[0];
+    const kind = !principal ? '' : (principal.direction > 0 ? 'ok'
+      : (principal.direction < 0 ? 'bad' : ''));
     return el('div', { class: `stat ${kind}` },
       el('div', { class: 'stat-label', text: k.kind === 'rows' ? t('dash.records') : k.label }),
       el('div', { class: 'stat-value', text: fmtKpi(k) }),
-      delta != null ? el('div', { class: `stat-sub ${delta >= 0 ? 'text-ok' : 'text-bad'}`,
-        text: `${delta >= 0 ? '+' : ''}${dec(delta, 1)}% ${t('dash.vs_prev')} (${k.delta_period || ''})` }) : null);
+      comps.length ? el('div', { class: 'kpi-comps' }, ...comps) : null,
+      principal ? el('div', { class: 'kpi-period',
+        text: `${t('dash.period')}: ${principal.period}` }) : null);
   }));
 }
 
@@ -221,7 +249,8 @@ export default {
             el('div', {}, el('h3', { text: t('dash.table') }),
               el('div', { class: 'card-sub',
                 text: `${t('dash.showing')} ${num(datos.table.rows.length)} ${t('common.of')} ${num(datos.table.total)}` }))),
-          table(datos.table.columns.map((c) => ({ key: c, label: c })), datos.table.rows,
+          table(datos.table.columns.map((c) => ({ key: c, label: c, format: celda })),
+                datos.table.rows,
             { compact: true, maxHeight: '420px' })));
 
         if (spec.notes?.length) {

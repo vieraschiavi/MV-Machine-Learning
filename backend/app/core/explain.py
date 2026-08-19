@@ -142,6 +142,16 @@ def _permutation(task, champion, fitted, ens_members, pre, data, tt, metric,
     return out
 
 
+def _niveles(pre, name: str, col: str) -> dict[float, str] | None:
+    """Código numérico → etiqueta, para las columnas que salen de categóricas."""
+    cats = getattr(pre, "categories", {}) or {}
+    if "=" in name:                               # indicadora «col=valor»
+        return {1.0: name.split("=", 1)[1]}
+    if col in cats and name == col:               # código ordinal
+        return {float(i): str(v) for i, v in enumerate(cats[col])}
+    return None
+
+
 def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) -> dict[str, Any]:
     import shap  # import perezoso: sólo si se pide
 
@@ -169,22 +179,46 @@ def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) 
     by_col: dict[str, dict[str, Any]] = {}
     for j, name in enumerate(X.columns):
         col = base_column(name)
-        e = by_col.setdefault(col, {"mean_abs": 0.0, "corr": []})
+        e = by_col.setdefault(col, {"mean_abs": 0.0, "corr": [], "cats": []})
         e["mean_abs"] += float(np.mean(vals[:, j]))
-        if signed is not None:
-            x = pd.to_numeric(X.iloc[:, j], errors="coerce").to_numpy(dtype=float)
-            ok = np.isfinite(x)
-            if ok.sum() > 30 and np.std(x[ok]) > 0:
-                c = float(np.corrcoef(x[ok], signed[ok, j])[0, 1])
-                if np.isfinite(c):
-                    e["corr"].append(c)
+        if signed is None:
+            continue
+        x = pd.to_numeric(X.iloc[:, j], errors="coerce").to_numpy(dtype=float)
+        ok = np.isfinite(x)
+        if ok.sum() <= 30 or np.std(x[ok]) == 0:
+            continue
+        # Una categórica llega como código ordinal (o como indicadora por
+        # valor). Decir «sube» o «baja» sobre ese código es engañoso: el
+        # usuario no sabe que el 1 es «no», y lee lo contrario de la realidad.
+        # Para esas columnas se nombra la categoría que empuja a cada lado.
+        niveles = _niveles(pre, name, col)
+        if niveles is not None:
+            for code, etiqueta in niveles.items():
+                marcadas = ok & (x == code)
+                if marcadas.sum() > 30:
+                    e["cats"].append((etiqueta, float(np.mean(signed[marcadas, j]))))
+        else:
+            c = float(np.corrcoef(x[ok], signed[ok, j])[0, 1])
+            if np.isfinite(c):
+                e["corr"].append(c)
     for e in by_col.values():
-        cs = e.pop("corr")
-        mean_c = float(np.mean(cs)) if cs else None
+        cs, cats = e.pop("corr"), e.pop("cats")
         e["mean_abs"] = round(e["mean_abs"], 6)
-        e["direction"] = (None if mean_c is None else
-                          ("sube el resultado" if mean_c > 0.05 else
-                           ("baja el resultado" if mean_c < -0.05 else "efecto no monótono")))
+        if cats and len(cats) > 1:
+            cats.sort(key=lambda c: c[1])
+            baja, sube = cats[0], cats[-1]
+            e["direction"] = (f"sube con «{sube[0]}» y baja con «{baja[0]}»"
+                              if sube[1] > 0 > baja[1] else
+                              f"pesa sobre todo en «{max(cats, key=lambda c: abs(c[1]))[0]}»")
+        elif cats:
+            valor, efecto = cats[0]
+            e["direction"] = (f"sube el resultado en «{valor}»" if efecto > 0
+                              else f"baja el resultado en «{valor}»")
+        else:
+            mean_c = float(np.mean(cs)) if cs else None
+            e["direction"] = (None if mean_c is None else
+                              ("sube el resultado" if mean_c > 0.05 else
+                               ("baja el resultado" if mean_c < -0.05 else "efecto no monótono")))
     return {"available": True, "model": fam, "n_rows": int(len(X)), "by_column": by_col}
 
 

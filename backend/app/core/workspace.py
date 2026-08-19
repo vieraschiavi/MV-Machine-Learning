@@ -23,6 +23,7 @@ import re
 import shutil
 import sqlite3
 import time
+from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 from typing import Any
@@ -168,10 +169,27 @@ def _connect(name: str | None = None) -> sqlite3.Connection:
     return con
 
 
+@contextmanager
+def _catalogo(name: str | None = None):
+    """Abre el catálogo, confirma y lo **cierra**.
+
+    `with sqlite3.connect(...)` confirma la transacción pero deja la conexión
+    viva hasta que pase el recolector. En Windows eso mantiene tomado el
+    archivo: el usuario no puede borrar ni mover su propio workspace, y en un
+    proceso largo se acumulan conexiones abiertas.
+    """
+    con = _connect(name)
+    try:
+        yield con
+        con.commit()
+    finally:
+        con.close()
+
+
 def record_dataset(meta: dict[str, Any]) -> None:
     """Alta o actualización de un dataset en el catálogo. Nunca rompe el flujo."""
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             con.execute(
                 "INSERT OR REPLACE INTO datasets VALUES (?,?,?,?,?,?,?,?,?)",
                 (meta["id"], meta["name"], meta.get("source"), meta.get("rows"),
@@ -185,7 +203,7 @@ def record_dataset(meta: dict[str, Any]) -> None:
 
 def forget_dataset(ds_id: str) -> None:
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             con.execute("DELETE FROM datasets WHERE id = ?", (ds_id,))
     except sqlite3.Error:
         pass
@@ -193,7 +211,7 @@ def forget_dataset(ds_id: str) -> None:
 
 def record_model(card: dict[str, Any]) -> None:
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             con.execute(
                 "INSERT OR REPLACE INTO models VALUES (?,?,?,?,?,?,?,?,?)",
                 (card["id"], card["name"], card.get("dataset_id"), card.get("target"),
@@ -206,7 +224,7 @@ def record_model(card: dict[str, Any]) -> None:
 
 def forget_model(model_id: str) -> None:
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             con.execute("DELETE FROM models WHERE id = ?", (model_id,))
     except sqlite3.Error:
         pass
@@ -230,7 +248,7 @@ def record_job(job: dict[str, Any]) -> None:
 
 def job_history(limit: int = 100) -> list[dict[str, Any]]:
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             con.row_factory = sqlite3.Row
             rows = con.execute(
                 "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?", (int(limit),)
@@ -243,7 +261,7 @@ def job_history(limit: int = 100) -> list[dict[str, Any]]:
 def catalog_datasets() -> list[dict[str, Any]] | None:
     """Listado desde SQLite; None si el catálogo no está disponible."""
     try:
-        with _connect() as con:
+        with _catalogo() as con:
             rows = con.execute(
                 "SELECT meta_json FROM datasets ORDER BY created_at DESC").fetchall()
             return [json.loads(r[0]) for r in rows]

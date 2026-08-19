@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import io
 import time
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -157,3 +158,24 @@ def test_catalogo_de_familias_en_la_api(client):
     fams = client.get("/api/automl/catalog").json()["families"]
     assert len(fams) >= 15
     assert {"knn", "mlp", "naive_bayes"} <= {f["name"] for f in fams}
+
+
+def test_el_catalogo_no_queda_tomado(tmp_root):
+    """Windows no deja borrar un SQLite abierto: hay que cerrarlo siempre."""
+    W.create("ws-fd")
+    try:
+        tok = W.activate("ws-fd")
+        try:
+            path = tmp_root / "fd.csv"
+            path.write_bytes(_csv())
+            storage.ingest_file(path, "con-catalogo")
+            W.job_history()
+            abiertos = [
+                p for p in Path("/proc/self/fd").iterdir()
+                if p.is_symlink() and "catalog.db" in str(p.resolve())
+            ] if Path("/proc/self/fd").exists() else []
+            assert not abiertos, f"quedaron conexiones abiertas: {abiertos}"
+        finally:
+            W.deactivate(tok)
+    finally:
+        W.delete("ws-fd")

@@ -27,17 +27,17 @@ def test_detecta_tiempo_metricas_y_dimensiones(spec):
     nombres = [m["name"] for m in spec["metrics"]]
     assert "TotalCobrado" in nombres
     assert spec["metrics"][0]["format"] == "money"      # el monto manda
-    assert "Estado" in spec["dimensions"]
+    assert "TramoDeuda" in spec["dimensions"]
     assert any(k["kind"] == "rows" for k in spec["kpis"])
     assert any(c["type"] == "line" for c in spec["charts"])
     assert any(f["type"] == "daterange" for f in spec["filters"])
 
 
 def test_kpi_filtrado_cuadra_contra_sql_manual(panel, spec):
-    datos = D.run(panel.id, spec, {"Estado": ["Cobranza/Mora Temprana"]})
+    datos = D.run(panel.id, spec, {"TramoDeuda": ["31-60"]})
     kpi = next(k for k in datos["kpis"] if k.get("column") == "TotalCobrado")
     chk = storage.query(panel.id,
-        "SELECT sum(TotalCobrado) v FROM {t} WHERE Estado = 'Cobranza/Mora Temprana'")
+        "SELECT sum(TotalCobrado) v FROM {t} WHERE TramoDeuda = '31-60'")
     assert abs(kpi["value"] - float(chk["v"].iloc[0])) < 1
 
 
@@ -55,13 +55,13 @@ def test_delta_contra_periodo_anterior(panel, spec):
 
 
 def test_filtro_desconocido_se_ignora_sin_romper(panel, spec):
-    datos = D.run(panel.id, spec, {"ColumnaInventada": ["x"], "Estado": []})
+    datos = D.run(panel.id, spec, {"ColumnaInventada": ["x"], "TramoDeuda": []})
     assert datos["table"]["total"] == panel.rows
 
 
 def test_sin_inyeccion_por_valores_de_filtro(panel, spec):
     """Un valor malicioso viaja como parámetro, nunca concatenado."""
-    datos = D.run(panel.id, spec, {"Estado": ["'; DROP TABLE x; --"]})
+    datos = D.run(panel.id, spec, {"TramoDeuda": ["'; DROP TABLE x; --"]})
     assert datos["table"]["total"] == 0                 # no matchea nada, no rompe nada
 
 
@@ -77,19 +77,19 @@ def test_dataset_sin_fechas_ni_categorias(tmp_root):
 
 
 def test_export_xlsx_y_csv_cuadran(panel, spec):
-    x = D.export(panel.id, spec, {"Estado": ["Comercial/Normal"]}, "xlsx")
+    x = D.export(panel.id, spec, {"TramoDeuda": ["0-30"]}, "xlsx")
     assert x["rows"] == 108     # 36 meses x 3 tipos
     import openpyxl
     wb = openpyxl.load_workbook(x["path"], read_only=True)
     assert "KPIs" in wb.sheetnames and "Datos" in wb.sheetnames
     wb.close()
-    c = D.export(panel.id, spec, {"Estado": ["Comercial/Normal"]}, "csv")
+    c = D.export(panel.id, spec, {"TramoDeuda": ["0-30"]}, "csv")
     assert len(pd.read_csv(c["path"], sep=";")) == c["rows"] == 108
 
 
 # ── preguntas en lenguaje natural (motor local, sin IA) ──────────────────────
 @pytest.mark.parametrize("pregunta,fragmento_sql", [
-    ("total de TotalCobrado por Estado", 'sum("TotalCobrado")'),
+    ("total de TotalCobrado por TramoDeuda", 'sum("TotalCobrado")'),
     ("cuántos registros hay", "count(*)"),
     ("promedio de MontoACobrarVencido", 'avg("MontoACobrarVencido")'),
     ("total cobrado por estado en 2025", "year"),
@@ -103,10 +103,10 @@ def test_traductor_local(panel, pregunta, fragmento_sql):
 
 
 def test_respuesta_cuadra_contra_sql_manual(panel):
-    r = ASK.ask(panel.id, "total de TotalCobrado por Estado")
+    r = ASK.ask(panel.id, "total de TotalCobrado por TramoDeuda")
     chk = storage.query(panel.id,
-        "SELECT Estado, sum(TotalCobrado) v FROM {t} GROUP BY 1 ORDER BY v DESC")
-    assert r["rows"][0]["grupo"] == chk["Estado"].iloc[0]
+        "SELECT TramoDeuda, sum(TotalCobrado) v FROM {t} GROUP BY 1 ORDER BY v DESC")
+    assert r["rows"][0]["grupo"] == chk["TramoDeuda"].iloc[0]
     assert abs(r["rows"][0]["valor"] - float(chk["v"].iloc[0])) < 1
 
 
@@ -135,7 +135,7 @@ def test_endpoint_dashboard(client, panel):
     sp = client.get(f"/api/dashboards/{panel.id}/spec").json()
     assert sp["time_column"] == "FechaObs"
     datos = client.post(f"/api/dashboards/{panel.id}/run",
-                        json={"spec": sp, "filters": {"Estado": ["Comercial/Normal"]}}).json()
+                        json={"spec": sp, "filters": {"TramoDeuda": ["0-30"]}}).json()
     assert datos["table"]["total"] == 108
 
 
@@ -194,28 +194,65 @@ def test_el_spec_del_cliente_no_entra_en_el_sql(panel):
                         "agg": "sum", "format": "money"}],
               "charts": [{"id": "c", "type": "line", "x": "FechaObs", "y": "TotalCobrado",
                           "agg": "sum", "grain": "month') , (SELECT 1"}],
-              "filters": [], "table": {"columns": ["Estado"], "page_size": 5}}
+              "filters": [], "table": {"columns": ["TramoDeuda"], "page_size": 5}}
     datos = D.run(panel.id, veneno, None)
     assert datos["spec"]["time_column"] == "FechaObs"    # el del servidor, no el enviado
     assert len(datos["table"]["columns"]) > 1                # tampoco la tabla recortada
 
 
 def test_la_pregunta_respeta_los_filtros_del_tablero(panel):
-    """Filtrar dos estados y que la respuesta hable de los seis desconcierta."""
+    """Filtrar dos tramos y que la respuesta hable de los seis desconcierta."""
     spec = D.detect_spec(panel.id)
-    estados = next(f for f in spec["filters"] if f["column"] == "Estado")["options"][:2]
-    pregunta = "promedio de TotalCobrado por Estado"
+    tramos = next(f for f in spec["filters"] if f["column"] == "TramoDeuda")["options"][:2]
+    pregunta = "promedio de TotalCobrado por TramoDeuda"
 
     completa = ASK.ask(panel.id, pregunta)
-    recortada = ASK.ask(panel.id, pregunta, filters={"Estado": estados})
+    recortada = ASK.ask(panel.id, pregunta, filters={"TramoDeuda": tramos})
 
     assert len(completa["rows"]) > len(recortada["rows"])
-    assert {r["grupo"] for r in recortada["rows"]} == set(estados)
+    assert {r["grupo"] for r in recortada["rows"]} == set(tramos)
     assert "filtrado" in (recortada.get("note") or "")
 
 
 def test_filtro_malicioso_en_la_pregunta_no_inyecta(panel):
     """El recorte se compila contra el spec del servidor, con parámetros."""
     r = ASK.ask(panel.id, "cuántos registros hay",
-                filters={"Estado": ["'; DROP TABLE x; --"]})
+                filters={"TramoDeuda": ["'; DROP TABLE x; --"]})
     assert r["rows"][0]["registros"] == 0          # no matchea nada, no rompe nada
+
+
+def test_kpis_comparan_mes_anio_y_acumulado(panel):
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "money")
+    assert [c["id"] for c in kpi["comparisons"]] == ["mom", "yoy", "ytd"]
+    for c in kpi["comparisons"]:
+        assert c["unit"] == "pct" and c["delta_pct"] is not None
+        assert (c["delta_pct"] > 0) == (c["direction"] > 0)   # el color sigue al signo
+
+
+def test_un_porcentaje_varia_en_puntos_no_en_porcentaje(panel):
+    """Un 36 % que pasa a 37 % subió 1 punto, no «un 1 %»."""
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "percent")
+    for c in kpi["comparisons"]:
+        assert c["unit"] == "pp" and "delta_pct" not in c
+        assert abs(c["delta_pp"] - (c["value"] - c["previous"])) < 0.011
+
+
+def test_la_comparacion_anual_usa_el_mismo_mes(panel):
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "money")
+    yoy = next(c for c in kpi["comparisons"] if c["id"] == "yoy")
+    serie = storage.query(panel.id,
+        f'SELECT strftime(date_trunc(\'month\', "FechaObs"), \'%Y-%m\') p, '
+        f'sum("{kpi["column"]}") v FROM {{t}} GROUP BY 1')
+    previo = f'{int(yoy["period"][:4]) - 1}{yoy["period"][4:]}'
+    assert abs(yoy["previous"] - float(serie[serie["p"] == previo]["v"].iloc[0])) < 1
+
+
+def test_etiquetas_legibles():
+    assert D.titulo("PorcentajeTotalCobrado") == "Porcentaje Total Cobrado"
+    assert D.titulo("MONTO_VENCIDO") == "Monto vencido"
