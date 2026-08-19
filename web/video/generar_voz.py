@@ -157,7 +157,8 @@ def duracion(archivo: Path) -> float:
 
 
 # ── montaje ──────────────────────────────────────────────────────────────────
-def montar(video: Path, tramos: list[tuple[float, Path]], salida: Path) -> None:
+def montar(video: Path, tramos: list[tuple[float, Path]], salida: Path,
+           largo: float) -> None:
     """Pone cada tramo en su segundo y mezcla la pista sobre el video.
 
     El video no se recodifica (`-c:v copy`): sólo se le agrega la pista de
@@ -168,14 +169,17 @@ def montar(video: Path, tramos: list[tuple[float, Path]], salida: Path) -> None:
         entradas += ["-i", str(mp3)]
         filtros.append(f"[{i + 1}:a]adelay={int(t * 1000)}|{int(t * 1000)}[a{i}]")
         etiquetas.append(f"[a{i}]")
-    # `apad` rellena con silencio hasta que termina el video: sin eso,
-    # `-shortest` corta la imagen en cuanto se acaba la última frase y se
-    # pierde el final del recorrido.
+    # El silencio de relleno lleva duración exacta. Sin relleno, la imagen se
+    # corta en cuanto se acaba la última frase y se pierde el final del
+    # recorrido; con `apad` a secas el silencio es infinito y, como el video no
+    # se recodifica, ni «-shortest» lo detiene: ffmpeg se queda dando vueltas.
     filtros.append(f"{''.join(etiquetas)}amix=inputs={len(tramos)}:"
-                   f"dropout_transition=0:normalize=0,apad[out]")
+                   f"dropout_transition=0:normalize=0,"
+                   f"apad=whole_dur={largo:.3f}[out]")
     cmd = [ffmpeg(), "-y", "-loglevel", "error", *entradas,
            "-filter_complex", ";".join(filtros), "-map", "0:v", "-map", "[out]",
-           "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-shortest", str(salida)]
+           "-c:v", "copy", "-c:a", "aac", "-b:a", "128k", "-t", f"{largo:.3f}",
+           str(salida)]
     subprocess.run(cmd, check=True)
 
 
@@ -211,7 +215,7 @@ def main(idiomas: tuple[str, ...]) -> None:
             if ultimo > largo + 1.5:
                 print(f"  aviso: la narración termina en {ultimo:.1f} s y el video "
                       f"dura {largo:.1f} s — se corta al final del video")
-            montar(mudo, tramos, AQUI / f"{nombre}-{lang}.con-voz.mp4")
+            montar(mudo, tramos, AQUI / f"{nombre}-{lang}.con-voz.mp4", largo)
             (AQUI / f"{nombre}-{lang}.con-voz.mp4").replace(mudo)
             # el webm se rearma desde el mp4 ya narrado
             subprocess.run([ffmpeg(), "-y", "-loglevel", "error", "-i", str(mudo),
