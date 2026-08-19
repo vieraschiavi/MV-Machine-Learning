@@ -219,3 +219,40 @@ def test_filtro_malicioso_en_la_pregunta_no_inyecta(panel):
     r = ASK.ask(panel.id, "cuántos registros hay",
                 filters={"TramoDeuda": ["'; DROP TABLE x; --"]})
     assert r["rows"][0]["registros"] == 0          # no matchea nada, no rompe nada
+
+
+def test_kpis_comparan_mes_anio_y_acumulado(panel):
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "money")
+    assert [c["id"] for c in kpi["comparisons"]] == ["mom", "yoy", "ytd"]
+    for c in kpi["comparisons"]:
+        assert c["unit"] == "pct" and c["delta_pct"] is not None
+        assert (c["delta_pct"] > 0) == (c["direction"] > 0)   # el color sigue al signo
+
+
+def test_un_porcentaje_varia_en_puntos_no_en_porcentaje(panel):
+    """Un 36 % que pasa a 37 % subió 1 punto, no «un 1 %»."""
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "percent")
+    for c in kpi["comparisons"]:
+        assert c["unit"] == "pp" and "delta_pct" not in c
+        assert abs(c["delta_pp"] - (c["value"] - c["previous"])) < 0.011
+
+
+def test_la_comparacion_anual_usa_el_mismo_mes(panel):
+    spec = D.detect_spec(panel.id)
+    kpi = next(k for k in D.run(panel.id, spec, None)["kpis"]
+               if k.get("format") == "money")
+    yoy = next(c for c in kpi["comparisons"] if c["id"] == "yoy")
+    serie = storage.query(panel.id,
+        f'SELECT strftime(date_trunc(\'month\', "FechaObs"), \'%Y-%m\') p, '
+        f'sum("{kpi["column"]}") v FROM {{t}} GROUP BY 1')
+    previo = f'{int(yoy["period"][:4]) - 1}{yoy["period"][4:]}'
+    assert abs(yoy["previous"] - float(serie[serie["p"] == previo]["v"].iloc[0])) < 1
+
+
+def test_etiquetas_legibles():
+    assert D.titulo("PorcentajeTotalCobrado") == "Porcentaje Total Cobrado"
+    assert D.titulo("MONTO_VENCIDO") == "Monto vencido"

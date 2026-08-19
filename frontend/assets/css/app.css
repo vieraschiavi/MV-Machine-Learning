@@ -230,6 +230,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .stat-value { font-size: 24px; font-weight: 640; letter-spacing: -.02em; margin-top: 5px;
   font-variant-numeric: tabular-nums; }
 .stat-sub { font-size: 11.5px; color: var(--text-3); margin-top: 4px; line-height: 1.45; }
+
+/* Comparaciones del KPI: mes contra mes, año contra año y acumulado. Van
+   alineadas en dos columnas para poder leerlas de un vistazo, en vez de como
+   una frase larga por línea. */
+.kpi-comps { margin-top: 7px; display: grid; gap: 2px; }
+.kpi-comp { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.kpi-comp-label { font-size: 11px; color: var(--text-3); }
+.kpi-comp-value { font-size: 11.5px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi-period { margin-top: 5px; font-size: 10.5px; color: var(--text-3); }
+.text-dim { color: var(--text-3); }
 .stat.ok   { border-left: 3px solid var(--ok); }
 .stat.warn { border-left: 3px solid var(--warn); }
 .stat.bad  { border-left: 3px solid var(--bad); }

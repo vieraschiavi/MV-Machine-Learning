@@ -217,12 +217,12 @@ def _build_kpis(metricas, ml, tiempo, rows) -> list[dict[str, Any]]:
     }]
     for m in metricas[:4]:
         kpis.append({
-            "id": f"{m['agg']}_{m['name']}", "label": m["name"], "kind": "metric",
+            "id": f"{m['agg']}_{m['name']}", "label": titulo(m["name"]), "kind": "metric",
             "column": m["name"], "agg": m["agg"], "format": m["format"],
             "delta_vs_prev": bool(tiempo),      # variación contra el período anterior
         })
     if ml["probabilities"]:
-        kpis.append({"id": "prob_media", "label": ml["probabilities"][0],
+        kpis.append({"id": "prob_media", "label": titulo(ml["probabilities"][0]),
                      "kind": "metric", "column": ml["probabilities"][0],
                      "agg": "avg", "format": "percent_unit"})
     return kpis
@@ -275,11 +275,25 @@ def _build_filters(ds_id, dimensiones, tiempo, exprs=None) -> list[dict[str, Any
     return filtros
 
 
+def titulo(col: str) -> str:
+    """«PorcentajeTotalCobrado» → «Porcentaje total cobrado».
+
+    Los nombres de columna vienen pegados o en mayúsculas y el tablero los
+    mostraba tal cual: ilegibles de un vistazo.
+    """
+    s = re.sub(r"[_\-]+", " ", col)
+    s = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", s)
+    s = re.sub(r"(?<=[A-Z])(?=[A-Z][a-z])", " ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s[:1].upper() + s[1:].lower() if s.isupper() else s[:1].upper() + s[1:]
+
+
 def _notes(tiempo, metricas, dimensiones, ml) -> list[str]:
     notas = []
     if tiempo:
-        notas.append(f"Serie temporal detectada en «{tiempo}»: los KPIs comparan "
-                     f"contra el período anterior.")
+        notas.append(f"Serie temporal detectada en «{titulo(tiempo)}»: los KPIs "
+                     f"comparan contra el mes anterior, contra el mismo mes del "
+                     f"año pasado y el acumulado del año contra el anterior.")
     if not metricas:
         notas.append("No se detectaron métricas numéricas de negocio: el tablero "
                      "muestra conteos por categoría.")
@@ -364,19 +378,85 @@ def _run_kpi(ds_id, kpi, where, params, tiempo, exprs=None) -> dict[str, Any]:
     ok = valor is not None and math.isfinite(float(valor))
     resultado = {**kpi, "value": float(valor) if ok else None}
 
-    # variación contra el período anterior: último mes completo vs el previo,
-    # dentro del recorte filtrado
     if kpi.get("delta_vs_prev") and tiempo:
-        qt = _ex(exprs, tiempo)
-        serie = S.query(ds_id, f"""
-            SELECT date_trunc('month', {qt}) p, {agg} v FROM {{t}}{where}
-            GROUP BY 1 ORDER BY 1 DESC LIMIT 2""", params)
-        if (len(serie) == 2 and serie["v"].iloc[1] is not None
-                and math.isfinite(float(serie["v"].iloc[1])) and float(serie["v"].iloc[1]) != 0):
-            resultado["delta_pct"] = round(
-                (float(serie["v"].iloc[0]) / float(serie["v"].iloc[1]) - 1) * 100, 2)
-            resultado["delta_period"] = str(serie["p"].iloc[0])[:7]
+        resultado["comparisons"] = _comparaciones(ds_id, kpi, agg, where, params,
+                                                  _ex(exprs, tiempo))
+        # se conserva la variación mensual suelta: la usa la exportación
+        mes = next((c for c in resultado["comparisons"] if c["id"] == "mom"), None)
+        if mes:
+            resultado["delta_pct"] = mes.get("delta_pct")
+            resultado["delta_period"] = resultado["comparisons"][0].get("period")
     return resultado
+
+
+def _num(v) -> float | None:
+    """El valor como número, o None si vino nulo o no finito."""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return None
+    return f if math.isfinite(f) else None
+
+
+def _comparaciones(ds_id, kpi, agg, where, params, qt) -> list[dict[str, Any]]:
+    """Mes contra mes, año contra año y acumulado del año contra el anterior.
+
+    Una métrica que ya es un porcentaje no varía «un 8 % más»: varía **8 puntos
+    porcentuales**. Mezclar las dos unidades es el error clásico de estos
+    tableros, así que cada comparación dice en qué unidad está expresada.
+    """
+    serie = S.query(ds_id, f"""
+        SELECT date_trunc('month', {qt}) p, {agg} v FROM {{t}}{where}
+        GROUP BY 1 ORDER BY 1""", params)
+    if serie.empty:
+        return []
+    serie = serie.dropna(subset=["p"])
+    if serie.empty:
+        return []
+
+    periodos = [str(p)[:7] for p in serie["p"]]
+    valores = {periodos[i]: _num(serie["v"].iloc[i]) for i in range(len(periodos))}
+    actual = periodos[-1]
+    anio, mes = int(actual[:4]), int(actual[5:7])
+    es_pct = kpi.get("format") == "percent"
+
+    def _mismo_mes(a: int) -> str:
+        return f"{a:04d}-{mes:02d}"
+
+    def _acumulado(a: int) -> float | None:
+        """Acumulado del año hasta el mes actual: se comparan tramos iguales."""
+        vs = [valores[f"{a:04d}-{m:02d}"] for m in range(1, mes + 1)
+              if valores.get(f"{a:04d}-{m:02d}") is not None]
+        if not vs:
+            return None
+        return sum(vs) / len(vs) if kpi["agg"] == "avg" or es_pct else sum(vs)
+
+    candidatas = [
+        ("mom", "mes anterior", valores.get(actual),
+         valores.get(f"{anio:04d}-{mes - 1:02d}" if mes > 1 else f"{anio - 1:04d}-12")),
+        ("yoy", "mismo mes del año anterior", valores.get(actual),
+         valores.get(_mismo_mes(anio - 1))),
+        ("ytd", "acumulado del año anterior", _acumulado(anio), _acumulado(anio - 1)),
+    ]
+
+    out: list[dict[str, Any]] = []
+    for cid, etiqueta, hoy, antes in candidatas:
+        if hoy is None or antes is None:
+            continue
+        comp = {"id": cid, "label": etiqueta, "period": actual,
+                "value": hoy, "previous": antes, "unit": "pp" if es_pct else "pct"}
+        if es_pct:
+            comp["delta_pp"] = round(hoy - antes, 2)
+            comp["direction"] = 1 if comp["delta_pp"] > 0 else (-1 if comp["delta_pp"] < 0 else 0)
+        elif antes != 0:
+            comp["delta_pct"] = round((hoy / antes - 1) * 100, 2)
+            comp["direction"] = 1 if comp["delta_pct"] > 0 else (-1 if comp["delta_pct"] < 0 else 0)
+        else:
+            continue                       # dividir por cero no informa nada
+        out.append(comp)
+    return out
 
 
 def _run_chart(ds_id, chart, where, params, exprs=None) -> dict[str, Any]:
