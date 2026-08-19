@@ -89,16 +89,30 @@ jobs:
           export MV_PORT=8475
           export MV_API_TOKEN=tok-ci
           export MV_FRONTEND_DIR="$PWD/frontend"
-          ./pybuild/mv-backend/mv-backend.exe &
+          # La salida del binario se guarda: si no levanta, lo único que
+          # explica por qué es su propio error, y en background se perdía.
+          ./pybuild/mv-backend/mv-backend.exe > "$RUNNER_TEMP/backend.log" 2>&1 &
           BACK=$!
+          for i in $(seq 1 90); do
+            if curl -fsS -m 3 "http://127.0.0.1:8475/api/health" > /dev/null 2>&1; then
+              echo "el backend respondió a los $((i * 2)) segundos"; break
+            fi
+            if ! kill -0 "$BACK" 2>/dev/null; then
+              echo "::error::el .exe terminó solo, sin llegar a escuchar. Su salida:"
+              cat "$RUNNER_TEMP/backend.log" || true
+              exit 1
+            fi
+            if [ "$i" = "90" ]; then
+              echo "::error::el .exe no respondió en 180 s; su salida fue:"
+              cat "$RUNNER_TEMP/backend.log" || true
+              exit 1
+            fi
+            sleep 2
+          done
           python - <<'PY'
-          import time, httpx
+          import httpx, time
           B = "http://127.0.0.1:8475"; H = {"X-MV-Token": "tok-ci"}
           C = httpx.Client(timeout=60)
-          for _ in range(60):
-              try:
-                  C.get(f"{B}/api/health", timeout=2); break
-              except Exception: time.sleep(2)
           assert C.get(f"{B}/api/datasets").status_code == 401, "la auth no corta"
           assert C.get(f"{B}/api/datasets", headers=H).status_code == 200
           data = open("examples/gestiones_con_texto.csv", "rb").read()
