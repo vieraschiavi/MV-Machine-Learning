@@ -45,7 +45,7 @@ def test_la_pagina_deriva_la_misma_clave_publica_que_el_programa():
       }
     """
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, f"la página no corrió: {r.stderr[-500:]}"
 
     pares = [linea.split() for linea in r.stdout.splitlines() if linea.strip()]

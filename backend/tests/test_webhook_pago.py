@@ -64,7 +64,7 @@ def llamar_al_webhook(pago: dict, privada: str, cuerpo: dict | None = None) -> d
         {{ estado, consultas, registrado, errores }}) + '\\n');
     """
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stderr[-600:]
     return json.loads(r.stderr.strip().splitlines()[-1])
 

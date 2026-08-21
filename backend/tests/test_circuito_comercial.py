@@ -25,7 +25,7 @@ sin_node = pytest.mark.skipif(shutil.which("node") is None,
 
 def _correr(guion: str) -> str:
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     if r.returncode != 0:
         raise AssertionError(f"el firmador del servidor falló: {r.stderr[-500:]}")
     return r.stdout.strip()
