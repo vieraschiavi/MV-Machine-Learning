@@ -55,7 +55,7 @@ def resumen():
         f"console.log(JSON.stringify(resumirVentas({json.dumps(PAGOS)})));\n"
     )
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stderr[-500:]
     return json.loads(r.stdout)
 
@@ -107,7 +107,7 @@ def test_si_falta_el_neto_no_se_inventa_un_numero(resumen):
         "console.log(JSON.stringify(resumirVentas(p)));\n"
     )
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stderr[-500:]
     d = json.loads(r.stdout)
     assert d["bruto"] == 100 and d["neto"] == 100 and d["comision"] == 0
@@ -124,6 +124,6 @@ def test_la_clave_del_panel_se_compara_sin_filtrar_el_tiempo():
         "console.log(JSON.stringify(r));\n"
     )
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stderr[-500:]
     assert json.loads(r.stdout) == [True, False, False, False, False, False]
