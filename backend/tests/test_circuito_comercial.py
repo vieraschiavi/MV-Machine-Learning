@@ -17,30 +17,37 @@ from pathlib import Path
 import pytest
 from app.core import licensing as L
 
-FIRMADOR = Path(__file__).resolve().parents[2] / "api" / "pago-confirmado.js"
+# El módulo real del servidor, sin copias ni recortes: se importa tal cual está.
+FIRMADOR = Path(__file__).resolve().parents[2] / "api" / "_firmar.js"
 sin_node = pytest.mark.skipif(shutil.which("node") is None,
                               reason="hace falta Node para emitir como el servidor web")
 
 
+def _correr(guion: str) -> str:
+    r = subprocess.run(["node", "--input-type=module", "-e", guion],
+                       capture_output=True, text=True, timeout=60)
+    if r.returncode != 0:
+        raise AssertionError(f"el firmador del servidor falló: {r.stderr[-500:]}")
+    return r.stdout.strip()
+
+
 def emitir_como_el_servidor(clave_privada: str, plan: str, titular: str) -> str:
     """Corre el mismo código que el servidor usa tras un pago aprobado."""
-    # Se lee el firmador real y se ejecuta su función tal cual está escrita: si
-    # alguien la cambia y deja de coincidir con el verificador, esto lo caza.
-    fuente = FIRMADOR.read_text(encoding="utf-8")
-    cuerpo = fuente[fuente.index("const b64url"):fuente.index("async function enviarPorCorreo")]
-    guion = f"""
-      const crypto = require('node:crypto');
-      const emitirLicencia = new Function('crypto',
-        {json.dumps(cuerpo)} + '; return emitirLicencia;')(crypto);
-      const dias = {{'profesional-mes': 31, 'profesional-anio': 366,
-                     'empresa-mes': 31, 'empresa-anio': 366}}[{json.dumps(plan)}];
-      console.log(emitirLicencia('paid', {json.dumps(titular)}, dias,
-                                 {json.dumps(clave_privada)}, 'plan:' + {json.dumps(plan)}));
-    """
-    r = subprocess.run(["node", "-e", guion], capture_output=True, text=True, timeout=60)
-    if r.returncode != 0:
-        raise AssertionError(f"el firmador del servidor falló: {r.stderr[-400:]}")
-    return r.stdout.strip()
+    return _correr(
+        f"import {{ DIAS, emitirLicencia }} from {json.dumps(FIRMADOR.as_uri())};\n"
+        f"console.log(emitirLicencia('paid', {json.dumps(titular)},"
+        f" DIAS[{json.dumps(plan)}], {json.dumps(clave_privada)},"
+        f" 'plan:' + {json.dumps(plan)}));\n"
+    )
+
+
+def emitir_owner(clave_privada: str, titular: str) -> str:
+    """La licencia de dueño, la misma que emite /api/licencia y el instalador."""
+    return _correr(
+        f"import {{ emitirLicencia }} from {json.dumps(FIRMADOR.as_uri())};\n"
+        f"console.log(emitirLicencia('owner', {json.dumps(titular)}, null,"
+        f" {json.dumps(clave_privada)}, 'emision:manual'));\n"
+    )
 
 
 @sin_node
@@ -86,6 +93,29 @@ def test_el_cliente_paga_y_su_licencia_activa_el_programa(plan, dias, tmp_path, 
 
     # 5 · y sigue habilitado aunque la prueba original esté vencida
     assert L.status()["licensed"] is True
+    L.deactivate()
+    L.load()
+
+
+@sin_node
+def test_la_licencia_de_dueno_no_vence_y_habilita_todo(tmp_path, monkeypatch):
+    """La que emite /api/licencia para el dueño y la que va dentro del instalador."""
+    monkeypatch.delenv("MV_LICENSE", raising=False)
+    monkeypatch.setattr(L, "_marca_de_inicio", lambda: tmp_path / ".prueba")
+    L.deactivate()
+
+    priv, pub = L.generate_keypair()
+    monkeypatch.setattr(L, "PUBLIC_KEY_B64", pub)
+
+    token = emitir_owner(priv, "Martín Viera")
+    L.activate(token)
+    lic, nivel = L.verify(token), L.current_tier()
+    assert nivel.name == "owner"
+    assert lic.expires_at is None and lic.days_left is None   # no caduca nunca
+    assert not lic.expired
+    assert nivel.max_rows is None and not nivel.export_watermark
+    for funcion in ("sql_connectors", "ai_providers", "text_features", "scoring"):
+        L.require(funcion)
     L.deactivate()
     L.load()
 
