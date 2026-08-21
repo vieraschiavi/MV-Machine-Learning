@@ -217,6 +217,40 @@ anterior, y hay que hacerla una vez.
 
 ---
 
+## Si hacés el repositorio privado
+
+Es razonable querer cerrarlo, pero hay una consecuencia concreta que conviene
+saber **antes** de apretar el botón:
+
+* **El botón de descarga de la página deja de funcionar.** Hoy apunta a
+  `github.com/vieraschiavi/MV-Machine-Learning/releases/latest/download/…`.
+  En un repositorio privado ese archivo exige estar logueado y ser
+  colaborador: el visitante anónimo recibe un 404. La demo se vuelve
+  indescargable y no hay aviso de error, simplemente no baja.
+* **El panel deja de contar descargas** salvo que cargues también un
+  `GITHUB_TOKEN` en Vercel (un token personal con permiso de lectura del
+  repositorio). Sin eso, la sección de descargas queda en «sin datos».
+* **Las compilaciones pasan a consumir cuota.** En repositorio público son
+  gratis; en privado, el plan gratuito da 2.000 minutos por mes y los runners
+  de Windows cuentan **el doble**. Cada compilación lleva unos 10 minutos, o
+  sea 20 de cuota: alcanza para unas 100 compilaciones mensuales, de sobra,
+  pero ya no es infinito.
+
+Las dos salidas razonables:
+
+1. **Dejar el código privado y los instaladores en otro lado.** Un segundo
+   repositorio público, vacío de código, que sólo tenga los releases. El
+   workflow publica ahí y la página apunta ahí. Es gratis y es lo que hace
+   mucha gente.
+2. **Dejarlo público.** El código no es el producto: el producto es el
+   instalador compilado y las licencias firmadas. Sin tu clave privada, tener
+   el código no le sirve a nadie para emitir licencias válidas.
+
+Lo que **no** cambia en ninguno de los dos casos: la clave privada nunca
+estuvo en el repositorio, así que hacerlo privado no la protege más de lo que
+ya está.
+
+
 ## Recordatorios
 
 * **Nunca** pegues `MP_ACCESS_TOKEN`, `MV_LICENSE_PRIVATE_KEY` ni `PANEL_CLAVE`
