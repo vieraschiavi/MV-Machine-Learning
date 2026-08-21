@@ -143,13 +143,22 @@ jobs:
           kill $BACK || true
 
       # ── instaladores ────────────────────────────────────────────────────────
+      # Los dos empaquetados van en bash y no en PowerShell: PowerShell parte
+      # `-c.artifactName="..."` en dos argumentos, electron-builder toma el
+      # segundo pedazo como nombre de archivo de configuración y muere buscando
+      # un archivo llamado «.artifactName=MV-AutoML-Studio-Owner-Setup.exe».
       - name: Instalador OWNER (con licencia embebida)
         working-directory: desktop
+        shell: bash
         run: |
           npm install
-          npx electron-builder --win -c electron-builder.yml `
-            -c.extraMetadata.channel=owner `
+          npx electron-builder --win -p never -c electron-builder.yml \
+            -c.extraMetadata.channel=owner \
             -c.artifactName="MV-AutoML-Studio-Owner-Setup.exe"
+          # Se aparta antes de compilar el demo: los dos empaquetados escriben
+          # en dist/ y el segundo puede llevarse puesto lo del primero.
+          mkdir -p ../entrega
+          mv dist/MV-AutoML-Studio-Owner-Setup.exe ../entrega/
 
       - name: Instalador DEMO (sin licencia; misma clave pública)
         working-directory: desktop
@@ -157,16 +166,17 @@ jobs:
         run: |
           rm -f owner/license.key         # el demo NO lleva la licencia
           echo 'Compilacion demo: sin licencia embebida.' > owner/LEEME.txt
-          npx electron-builder --win -c electron-builder.yml \
+          npx electron-builder --win -p never -c electron-builder.yml \
             -c.extraMetadata.channel=demo \
             -c.artifactName="MV-AutoML-Studio-Demo-Setup.exe"
+          mv dist/MV-AutoML-Studio-Demo-Setup.exe ../entrega/
 
       - name: Publicar DEMO (release público)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'desktop-latest' }}
           name: MV AutoML Studio — instalador Windows
-          files: desktop/dist/MV-AutoML-Studio-Demo-Setup.exe
+          files: entrega/MV-AutoML-Studio-Demo-Setup.exe
           body: |
             Instalador de Windows (64 bits). Arranca en modo Demo y se
             activa a Profesional con una licencia. El instalador permite
@@ -179,7 +189,7 @@ jobs:
           tag_name: owner-${{ github.run_number }}
           name: "Owner build ${{ github.run_number }} (privado)"
           draft: true
-          files: desktop/dist/MV-AutoML-Studio-Owner-Setup.exe
+          files: entrega/MV-AutoML-Studio-Owner-Setup.exe
           body: |
             Compilación con licencia OWNER embebida: todas las funciones
             habilitadas, incluida la emisión de licencias. Este release es

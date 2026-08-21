@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generar las claves de licencia — MV AutoML Studio</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231e3a8a'/%3E%3Ctext x='16' y='22' font-family='system-ui' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'%3EMV%3C/text%3E%3C/svg%3E">
+<style>
+:root{ --bg:#0a0c12; --panel:#141926; --line:#232b3f; --text:#e9ecf4;
+       --dim:#98a2b8; --accent:#4f7cf7; --ok:#38c780; --warn:#f0a63a; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding:30px 20px;
+     font:15px/1.62 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.caja{max-width:760px;margin:0 auto}
+.marca{display:flex;align-items:center;gap:11px;margin-bottom:26px}
+.logo{width:38px;height:38px;border-radius:9px;background:#1e3a8a;color:#fff;
+      display:grid;place-items:center;font-weight:700;font-size:15px}
+h1{font-size:27px;letter-spacing:-.4px;margin-bottom:10px}
+h2{font-size:15.5px;margin-bottom:10px}
+.sub{color:var(--dim);margin-bottom:24px}
+.tarjeta{background:var(--panel);border:1px solid var(--line);border-radius:13px;
+         padding:22px;margin-bottom:16px}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:0;cursor:pointer;
+     padding:12px 20px;border-radius:9px;font-weight:600;font-size:15px;
+     font-family:inherit;text-decoration:none}
+.btn.sec{background:transparent;border:1px solid var(--line);color:var(--text);
+         padding:7px 13px;font-size:13px;font-weight:500}
+.btn:disabled{opacity:.5;cursor:default}
+.campo{margin-top:18px}
+.etq{display:flex;align-items:center;justify-content:space-between;gap:10px;
+     margin-bottom:7px;flex-wrap:wrap}
+.etq b{font-size:13.5px}
+.nombre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+        color:var(--accent)}
+.valor{width:100%;background:#0d1119;border:1px solid var(--line);border-radius:9px;
+       padding:12px;color:var(--text);font-family:ui-monospace,Menlo,Consolas,monospace;
+       font-size:12.5px;word-break:break-all;resize:none;line-height:1.5}
+.aviso{border-left:3px solid var(--warn);background:rgba(240,166,58,.07);
+       padding:13px 15px;border-radius:0 9px 9px 0;color:var(--dim);font-size:13.5px;
+       margin-bottom:16px}
+.aviso.bien{border-color:var(--ok);background:rgba(56,199,128,.07)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);
+      vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12.5px}
+td code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;
+        color:var(--accent);white-space:nowrap}
+a{color:var(--accent)}
+ol{margin:0 0 0 19px}
+ol li{margin-bottom:9px}
+.oculto{display:none}
+.pie{color:var(--dim);font-size:13px;margin-top:24px;text-align:center}
+</style>
+</head>
+<body>
+<div class="caja">
+  <div class="marca">
+    <div class="logo">MV</div>
+    <div><b>MV AutoML Studio</b> · configuración</div>
+  </div>
+
+  <h1>Generá las dos claves de licencia</h1>
+  <p class="sub">Son un par: una firma las licencias que se venden y la otra las
+     verifica dentro del programa del cliente. Se generan acá, en tu navegador —
+     no viajan a ningún servidor, ni al nuestro.</p>
+
+  <div class="aviso">
+    <b>Hacelo una sola vez y guardalas.</b> Cada instalador que se compila lleva
+    grabada la clave pública. Si más adelante generás un par nuevo, las licencias
+    que ya vendiste dejan de validar en los instaladores nuevos.
+  </div>
+
+  <div class="tarjeta">
+    <button class="btn" id="generar">Generar mis dos claves</button>
+    <p class="sub" style="margin:12px 0 0;font-size:13.5px">Tarda un segundo. Se
+       usa el generador de números aleatorios del sistema operativo.</p>
+
+    <div id="salida" class="oculto">
+      <div class="campo">
+        <div class="etq">
+          <b>1 · Clave privada <span style="color:var(--warn)">(secreta)</span></b>
+          <span class="nombre">MV_LICENSE_PRIVATE_KEY</span>
+          <button class="btn sec" data-copiar="priv">Copiar</button>
+        </div>
+        <textarea class="valor" id="priv" rows="2" readonly></textarea>
+      </div>
+
+      <div class="campo">
+        <div class="etq">
+          <b>2 · Clave pública (no es secreta)</b>
+          <span class="nombre">MV_LICENSE_PUBLIC_KEY</span>
+          <button class="btn sec" data-copiar="pub">Copiar</button>
+        </div>
+        <textarea class="valor" id="pub" rows="2" readonly></textarea>
+      </div>
+
+      <p style="margin-top:18px">
+        <a class="btn sec" id="respaldo" download="MV-claves-de-licencia.txt">
+          Descargar respaldo en un archivo de texto</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="tarjeta" id="destinos">
+    <h2>Dónde va cada una</h2>
+    <table>
+      <tr><th>Valor</th><th>Plataforma</th><th>Nombre exacto</th></tr>
+      <tr>
+        <td>Privada</td>
+        <td><a href="https://github.com/vieraschiavi/MV-Machine-Learning/settings/secrets/actions/new" target="_blank" rel="noopener">GitHub → Secrets → Actions</a></td>
+        <td><code>MV_LICENSE_PRIVATE_KEY</code></td>
+      </tr>
+      <tr>
+        <td>Pública</td>
+        <td>GitHub → Secrets → Actions</td>
+        <td><code>MV_LICENSE_PUBLIC_KEY</code></td>
+      </tr>
+      <tr>
+        <td>Privada</td>
+        <td><a href="https://vercel.com/dashboard" target="_blank" rel="noopener">Vercel → Settings → Environment Variables</a></td>
+        <td><code>MV_LICENSE_PRIVATE_KEY</code></td>
+      </tr>
+    </table>
+    <p class="sub" style="margin:15px 0 0;font-size:13.5px">
+      La privada va en los dos lados <b>con el mismo valor</b>: GitHub la usa para
+      firmar tu licencia de dueño cuando compila el instalador, y Vercel para
+      firmar la licencia de cada cliente que paga. La pública sólo hace falta en
+      GitHub, porque es la que queda grabada adentro del programa.</p>
+  </div>
+
+  <div class="aviso">
+    <b>La privada no se pega en ningún otro lado.</b> Ni en el código, ni en un
+    correo, ni en un chat. Quien la tenga puede emitir licencias gratis del
+    producto. Los dos lugares de la tabla la guardan cifrada y no la vuelven a
+    mostrar.
+  </div>
+
+  <div class="tarjeta">
+    <h2>Y después</h2>
+    <ol>
+      <li>Guardá el archivo de respaldo en algún lugar tuyo que no sea el
+        repositorio (un gestor de contraseñas, o un pendrive).</li>
+      <li>Cargá los tres valores de la tabla.</li>
+      <li>En GitHub, entrá a <b>Actions → Escritorio Windows → Run workflow</b>.
+        Vuelve a compilar el instalador, ahora con tu clave pública adentro.</li>
+      <li>Desde ese momento, cada cliente que pague recibe su licencia sola.</li>
+    </ol>
+  </div>
+
+  <p class="pie">Esta página no guarda nada. Si la recargás, las claves que ves
+     se pierden: por eso el respaldo.</p>
+</div>
+
+<script>
+// Ed25519 sin librerías: de una semilla de 32 bytes se deriva la clave pública.
+// Es el mismo cálculo que hace el programa en la máquina del cliente, así que
+// el par que sale de acá es exactamente el que el verificador espera.
+const P = (1n << 255n) - 19n;
+const D = 37095705934669439343138083508754565189542113879843219016388785533085940283555n;
+const Gx = 15112221349535400772501151409588531511454012693041857206046113283949847762202n;
+const Gy = 46316835694926478169428394003475163141307993866256225615783033603165251855960n;
+
+const mod = (a) => ((a % P) + P) % P;
+function pot(b, e) { let r = 1n; b = mod(b);
+  while (e > 0n) { if (e & 1n) r = mod(r * b); b = mod(b * b); e >>= 1n; } return r; }
+const inverso = (a) => pot(a, P - 2n);
+
+// Coordenadas extendidas (X, Y, Z, T): evitan una inversión por suma.
+function sumar(p, q) {
+  const [X1, Y1, Z1, T1] = p, [X2, Y2, Z2, T2] = q;
+  const A = mod((Y1 - X1) * (Y2 - X2)), B = mod((Y1 + X1) * (Y2 + X2));
+  const C = mod(T1 * 2n * D * T2), Dd = mod(Z1 * 2n * Z2);
+  const E = B - A, F = Dd - C, G = Dd + C, H = B + A;
+  return [mod(E * F), mod(G * H), mod(F * G), mod(E * H)];
+}
+function multiplicar(k, p) {
+  let r = [0n, 1n, 1n, 0n];
+  while (k > 0n) { if (k & 1n) r = sumar(r, p); p = sumar(p, p); k >>= 1n; }
+  return r;
+}
+function codificar(p) {
+  const zi = inverso(p[2]), x = mod(p[0] * zi);
+  let v = mod(p[1] * zi);
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 32; i++) { out[i] = Number(v & 255n); v >>= 8n; }
+  out[31] |= Number(x & 1n) << 7;              // el bit de signo de x
+  return out;
+}
+async function publicaDesdeSemilla(semilla) {
+  const h = new Uint8Array(await crypto.subtle.digest('SHA-512', semilla));
+  const a = h.slice(0, 32);
+  a[0] &= 248; a[31] &= 127; a[31] |= 64;      // recorte estándar de Ed25519
+  let k = 0n;
+  for (let i = 31; i >= 0; i--) k = (k << 8n) | BigInt(a[i]);
+  return codificar(multiplicar(k, [Gx, Gy, 1n, mod(Gx * Gy)]));
+}
+const aBase64 = (u) => btoa(String.fromCharCode(...u));
+
+const $ = (id) => document.getElementById(id);
+
+$('generar').addEventListener('click', async () => {
+  const boton = $('generar');
+  boton.disabled = true; boton.textContent = 'Generando…';
+  try {
+    const semilla = new Uint8Array(32);
+    crypto.getRandomValues(semilla);
+    const privada = aBase64(semilla);
+    const publica = aBase64(await publicaDesdeSemilla(semilla));
+    $('priv').value = privada;
+    $('pub').value = publica;
+    $('salida').classList.remove('oculto');
+    boton.textContent = 'Generar otro par distinto';
+    $('respaldo').href = URL.createObjectURL(new Blob([
+      'Claves de licencia de MV AutoML Studio',
+      'Generadas el ' + new Date().toLocaleString('es-UY'),
+      '',
+      'MV_LICENSE_PRIVATE_KEY  (SECRETA — GitHub Secrets y Vercel)',
+      privada,
+      '',
+      'MV_LICENSE_PUBLIC_KEY   (no secreta — GitHub Secrets)',
+      publica,
+      '',
+      'No las cambies una vez que vendas la primera licencia.',
+    ].join('\n')], { type: 'text/plain' }));
+  } catch (e) {
+    alert('No se pudieron generar las claves en este navegador: ' + e.message);
+  } finally {
+    boton.disabled = false;
+  }
+});
+
+document.querySelectorAll('[data-copiar]').forEach((b) => {
+  b.addEventListener('click', async () => {
+    const campo = $(b.dataset.copiar);
+    try { await navigator.clipboard.writeText(campo.value); }
+    catch { campo.select(); document.execCommand('copy'); }
+    const antes = b.textContent;
+    b.textContent = 'Copiado';
+    setTimeout(() => { b.textContent = antes; }, 1400);
+  });
+});
+</script>
+</body>
+</html>

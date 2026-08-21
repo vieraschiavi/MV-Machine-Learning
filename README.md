@@ -301,3 +301,9 @@ pipeline por motivos que no son del código.
 * [`examples/`](examples/README.md) — datasets sintéticos listos para recorrer
   la plataforma, incluida una columna de texto libre y un panel de cobranzas
   con fuga contable para que la auditoría trabaje.
+* [Puesta en producción](docs/PRODUCCION.md) — paso a paso por plataforma para
+  dejar el cobro, las licencias y el panel andando, sin correr un solo comando.
+* [Análisis del negocio](docs/MV-AutoML-Studio-Analisis.xlsx) — calificación por
+  etapa, modelo de rentabilidad neta a 24 meses (con y sin publicidad,
+  descontando comisiones e impuestos de Uruguay) y mapa de competencia en
+  Uruguay, LATAM y el mundo. Los supuestos son editables y todo recalcula.

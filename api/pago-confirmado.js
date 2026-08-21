@@ -18,41 +18,10 @@
  *   RESEND_API_KEY           opcional: si está, la licencia se manda por correo
  *   CORREO_DESDE             remitente verificado, p. ej. "MV Software <ventas@…>"
  */
-import crypto from 'node:crypto';
+import { DIAS, emitirLicencia } from './_firmar.js';
 
-const DIAS = { 'profesional-mes': 31, 'profesional-anio': 366,
-               'empresa-mes': 31, 'empresa-anio': 366 };
 const NIVEL = { 'profesional-mes': 'paid', 'profesional-anio': 'paid',
                 'empresa-mes': 'paid', 'empresa-anio': 'paid' };
-
-const b64url = (buf) =>
-  Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-/** Arma el token con el mismo formato que emite el programa: MVAS.payload.firma */
-function emitirLicencia(nivel, titular, dias, clavePrivadaB64, nota = '') {
-  const ahora = Date.now() / 1000;
-  const licencia = {
-    expires_at: dias == null ? null : ahora + dias * 86400,
-    features: [],
-    id: `lic_${crypto.randomBytes(6).toString('hex')}`,
-    issued_at: ahora,
-    licensee: titular,
-    notes: nota,
-    tier: nivel,
-  };
-  // Claves ordenadas y sin espacios: el verificador firma exactamente estos
-  // bytes, así que cualquier diferencia de formato invalida la licencia.
-  const payload = Buffer.from(JSON.stringify(licencia, Object.keys(licencia).sort()));
-
-  // Ed25519 en formato DER: Node no acepta la semilla cruda directamente.
-  const der = Buffer.concat([
-    Buffer.from('302e020100300506032b657004220420', 'hex'),
-    Buffer.from(clavePrivadaB64, 'base64'),
-  ]);
-  const clave = crypto.createPrivateKey({ key: der, format: 'der', type: 'pkcs8' });
-  const firma = crypto.sign(null, payload, clave);
-  return `MVAS.${b64url(payload)}.${b64url(firma)}`;
-}
 
 async function enviarPorCorreo(destino, licencia, plan) {
   const key = process.env.RESEND_API_KEY;
