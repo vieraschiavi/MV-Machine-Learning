@@ -72,11 +72,21 @@ Cargá dos, uno por vez. En *Name* va el nombre exacto, en *Secret* el valor:
 Después andá a **Actions → Escritorio Windows → Run workflow**. En unos 15
 minutos quedan publicados los dos instaladores:
 
-* **El del cliente**, en un release marcado como **borrador (draft)**. No es
+* **El del cliente**, en un release marcado como **borrador (draft)**, con una
+  etiqueta nueva en cada compilación (`cliente-13`, `cliente-14`…). No es
   público a propósito: se lo entrega `/api/descargar` a quien llega con una
   licencia válida, y a nadie más.
 * **El tuyo (Owner)**, en otro borrador. Trae tu licencia de dueño adentro, así
   que abre el programa completo sin pedirte nada.
+
+Los borradores se acumulan: uno por compilación. No molestan —sólo los ves vos—
+pero cada tanto conviene borrar los viejos desde la página de *Releases*, porque
+cada uno ocupa 375 MB.
+
+> **Por qué la etiqueta cambia en cada compilación.** Un release que ya está
+> publicado no vuelve solo a borrador: la acción que los sube lo actualiza y lo
+> deja público. Con una etiqueta nueva cada vez, el release nace borrador y no
+> hay nada que revertir.
 
 Si compilás sin haber cargado los secretos, el instalador igual sale, pero con
 un sello descartable: sirve para probar, no para vender.

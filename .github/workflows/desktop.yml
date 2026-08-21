@@ -177,6 +177,28 @@ jobs:
             -c.win.artifactName="MV-AutoML-Studio-Setup.exe"
           mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Setup.exe
 
+      # Cierre de lo que dejaron las compilaciones viejas.
+      #
+      # `softprops/action-gh-release` con `draft: true` **no** convierte de
+      # vuelta a borrador un release que ya estaba publicado: lo actualiza y lo
+      # deja público. Como `desktop-latest` venía publicado de antes, el primer
+      # intento de cerrar la descarga no cerró nada — subió el instalador nuevo
+      # al mismo release abierto, con un texto que decía «esto es un borrador».
+      # Peor que no haber hecho nada, porque parecía hecho.
+      - name: Cerrar el release público que quedó de antes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+                 --jq '.[] | select(.tag_name=="desktop-latest" and .draft==false) | .id' || true)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$id" -F draft=true
+            echo "::warning::desktop-latest estaba público con el instalador adentro; se pasó a borrador."
+          else
+            echo "no hay ningún release público en desktop-latest"
+          fi
+
       # El instalador NO se publica abierto. Un archivo público es el artefacto
       # de ingeniería regalado a cualquiera que pase, competencia incluida, y
       # sin dejar rastro de quién se lo llevó. El release queda en borrador —sus
@@ -184,11 +206,18 @@ jobs:
       # `/api/descargar`, que verifica la licencia del cliente antes de darle un
       # enlace temporal. Quien quiere conocerlo sin comprar pide una demo en
       # vivo desde el sitio.
+      #
+      # La etiqueta cambia en cada compilación, igual que la del owner. Reusar
+      # una etiqueta fija fue lo que abrió el agujero de arriba: un release que
+      # ya existe publicado no vuelve solo a borrador. Con una etiqueta nueva,
+      # cada release nace borrador y no hay nada que revertir. `/api/descargar`
+      # recorre los releases y toma el más nuevo que tenga el instalador, así
+      # que el nombre de la etiqueta le da igual.
       - name: Publicar el instalador del CLIENTE (borrador; lo entrega /api/descargar)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'desktop-latest' }}
-          name: MV AutoML Studio — instalador Windows
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('cliente-{0}', github.run_number) }}
+          name: MV AutoML Studio — instalador Windows (${{ github.run_number }})
           draft: true
           files: entrega/MV-AutoML-Studio-Setup.exe
           body: |
