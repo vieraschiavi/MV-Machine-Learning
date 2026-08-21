@@ -69,3 +69,40 @@ export function claveValida(recibida, esperada) {
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
 }
+
+/**
+ * Verifica un token de licencia con la clave pública. Es el mismo cálculo que
+ * hace el programa en la máquina del cliente, y sirve para lo mismo: decidir si
+ * quien golpea la puerta pagó.
+ *
+ * Devuelve la licencia si la firma es válida y no venció; `null` en cualquier
+ * otro caso. No distingue entre «firma inválida» y «vencida» a propósito: el
+ * que la manda no necesita saber cuál de las dos cosas falló.
+ *
+ * @param {string} token  MVAS.payload.firma
+ * @param {string} publicaB64  clave pública Ed25519 en base64
+ */
+export function verificarLicencia(token, publicaB64) {
+  try {
+    const partes = String(token || '').split('.');
+    if (partes.length !== 3 || partes[0] !== 'MVAS') return null;
+
+    const deB64url = (s) => Buffer.from(s.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+    const payload = deB64url(partes[1]);
+    const firma = deB64url(partes[2]);
+
+    // Ed25519 en formato DER (SPKI): Node no acepta los 32 bytes crudos.
+    const der = Buffer.concat([
+      Buffer.from('302a300506032b6570032100', 'hex'),
+      Buffer.from(publicaB64, 'base64'),
+    ]);
+    const clave = crypto.createPublicKey({ key: der, format: 'der', type: 'spki' });
+    if (!crypto.verify(null, payload, clave, firma)) return null;
+
+    const licencia = JSON.parse(payload.toString('utf8'));
+    if (licencia.expires_at != null && licencia.expires_at < Date.now() / 1000) return null;
+    return licencia;
+  } catch {
+    return null;
+  }
+}

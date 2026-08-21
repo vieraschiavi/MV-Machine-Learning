@@ -21,7 +21,9 @@ fijo y un valor que sale de algún lado.
 | `MV_LICENSE_PUBLIC_KEY` | El **lector del sello**. Va adentro de cada instalador para reconocer las licencias legítimas. No es secreto. | Sale junto con el anterior, del mismo botón |
 | `MP_ACCESS_TOKEN` | La llave de tu cuenta de MercadoPago para cobrar. | Panel de MercadoPago |
 | `PANEL_CLAVE` | La contraseña para entrar a tu panel de ventas. | **La inventás vos.** Una frase larga que no uses en otro lado |
-| `RESEND_API_KEY` | Permiso para mandar el correo con la licencia. | Panel de Resend |
+| `RESEND_API_KEY` | Permiso para mandar correos: la licencia al que compra, y el aviso a vos cuando alguien pide una demo. | Panel de Resend |
+| `GITHUB_TOKEN` | Deja que el sitio saque el instalador de GitHub para entregárselo a quien pagó. Sólo lectura. | GitHub → Developer settings |
+| `CORREO_AVISOS` | A qué dirección te llegan los pedidos de demo. | La tuya |
 | `CORREO_DESDE` | Desde qué dirección sale ese correo. | Lo escribís vos |
 | `SITIO` | La dirección de tu página. | La que te dé Vercel, o tu dominio |
 
@@ -70,10 +72,11 @@ Cargá dos, uno por vez. En *Name* va el nombre exacto, en *Secret* el valor:
 Después andá a **Actions → Escritorio Windows → Run workflow**. En unos 15
 minutos quedan publicados los dos instaladores:
 
-* **Demo**, público, en `Releases`. Es el que baja la gente desde tu página.
-* **Owner**, en un release marcado como **borrador (draft)**: sólo lo ves vos.
-  Ese instalador trae tu licencia de dueño adentro, así que abre el programa
-  completo sin pedirte nada.
+* **El del cliente**, en un release marcado como **borrador (draft)**. No es
+  público a propósito: se lo entrega `/api/descargar` a quien llega con una
+  licencia válida, y a nadie más.
+* **El tuyo (Owner)**, en otro borrador. Trae tu licencia de dueño adentro, así
+  que abre el programa completo sin pedirte nada.
 
 Si compilás sin haber cargado los secretos, el instalador igual sale, pero con
 un sello descartable: sirve para probar, no para vender.
@@ -88,10 +91,13 @@ un sello descartable: sirve para probar, no para vender.
 |---|---|---|
 | `MP_ACCESS_TOKEN` | tu credencial de MercadoPago (`APP_USR-…`) | El botón de compra no cobra |
 | `MV_LICENSE_PRIVATE_KEY` | **la misma** privada del Paso 1 | El pago entra pero no se emite la licencia |
+| `MV_LICENSE_PUBLIC_KEY` | la pública del Paso 1 | El que compró no puede descargar el instalador |
+| `GITHUB_TOKEN` | un token de sólo lectura (abajo se explica) | Ídem: la descarga no funciona |
 | `PANEL_CLAVE` | una frase larga que inventás vos | El panel de ventas queda cerrado |
-| `RESEND_API_KEY` | tu clave de Resend (`re_…`) | La licencia se emite pero no se envía sola |
+| `RESEND_API_KEY` | tu clave de Resend (`re_…`) | Ni la licencia ni los pedidos de demo te llegan por correo |
 | `CORREO_DESDE` | `MV Software <ventas@tudominio.com>` | Sale desde una dirección de prueba |
-| `SITIO` | `https://tu-sitio.vercel.app` | Se deduce sola, pero conviene fijarla |
+| `CORREO_AVISOS` | tu dirección, para los pedidos de demo | Se usa `vieraschiavi@gmail.com` |
+| `SITIO` | `https://tu-sitio.vercel.app` | Los enlaces de descarga salen mal armados |
 
 Marcá todas para **Production**. Después de cargarlas hay que apretar
 **Redeploy** una vez para que el sitio las tome.
@@ -102,8 +108,15 @@ Marcá todas para **Production**. Después de cargarlas hay que apretar
   aplicación → *Credenciales*. Empezá con las **de prueba** y recién cambiá a
   las de producción cuando hayas hecho la compra de ensayo del final.
 * **Resend** → `https://resend.com/api-keys` → *Create API Key* (alcanza con
-  permiso *Sending access*). Para que el correo salga desde tu dominio y no
-  caiga en spam, verificá el dominio en `https://resend.com/domains`.
+  permiso *Sending access*). Es gratis hasta 3.000 correos por mes y hace
+  **dos** cosas: le manda la licencia al que compra, y te avisa a vos cuando
+  alguien pide una demo. Para que el correo salga desde tu dominio y no caiga
+  en spam, verificá el dominio en `https://resend.com/domains`.
+* **GitHub token** → `https://github.com/settings/personal-access-tokens/new`.
+  Elegí *Only select repositories* → `MV-Machine-Learning`, y en *Repository
+  permissions* poné **Contents: Read-only**. Nada más. Con eso el sitio puede
+  ir a buscar el instalador para entregárselo a quien pagó, y no puede tocar
+  nada. Copiá el token cuando te lo muestre: no lo vuelve a mostrar.
 
 ---
 
@@ -118,6 +131,37 @@ Eso es lo que dispara la licencia. El servidor no le cree al aviso: toma el
 número de operación y le pregunta a MercadoPago si ese pago está realmente
 aprobado. Sin esta verificación, cualquiera podría mandar un mensaje falso
 diciendo «pagué» y llevarse una licencia.
+
+---
+
+## Cómo llega un cliente
+
+No hay instalador para bajar de la página. Quien quiere conocer el programa
+llena el formulario del sitio y se agenda una demostración en vivo. La razón es
+comercial, no técnica:
+
+* Un `.exe` abierto **regala el producto terminado** a cualquiera que pase, la
+  competencia incluida, y no hay forma de saber quién se lo llevó.
+* Con el pedido queda registrado **quién preguntó, desde qué empresa y con qué
+  correo**. Eso separa a un interesado de verdad de alguien que sólo mira.
+* Media hora mostrándolo con los datos del propio interesado vende mucho más
+  que dejarlo probar solo, aburrirse y cerrar la ventana.
+
+Lo que sí es público es el resultado: los videos del sitio muestran el programa
+funcionando, en los tres idiomas.
+
+**El recorrido completo:**
+
+1. El visitante llena el formulario. A vos te llega un correo con su nombre,
+   empresa, país, teléfono y qué quiere analizar — respondiendo ese correo le
+   contestás directo a él.
+2. Le hacés la demo. Si le sirve, le emitís una licencia desde el panel y le
+   pasás el enlace de descarga que sale ahí mismo.
+3. Si prefiere comprar solo, paga en el sitio: la licencia y el enlace le
+   llegan por correo en el momento, sin que vos hagas nada.
+
+Los pedidos también quedan en los registros de Vercel, así que un problema con
+el correo no te hace perder un contacto.
 
 ---
 
@@ -166,9 +210,10 @@ Abajo del panel hay un formulario para dos casos:
 * **Tu licencia de dueño**: elegís *Dueño*, apretás *Emitir*, y te da un código
   sin vencimiento con todo habilitado. Sirve para validar el programa completo
   sin depender del instalador owner.
-* **Reponerle la licencia a un cliente**: elegís *Cliente*, el plan que compró y
-  su correo. Se emite y se le manda. Úsalo cuando alguien pagó y el correo se
-  perdió o cayó en spam.
+* **Darle acceso a alguien después de la demo, o reponerle la licencia a un
+  cliente**: elegís *Cliente*, el plan y su correo. El panel te devuelve dos
+  cosas: el código de licencia y el **enlace de descarga**, que sólo funciona
+  con esa licencia. Si pusiste el correo, las dos le llegan solas.
 
 ---
 
@@ -183,9 +228,12 @@ Abajo del panel hay un formulario para dos casos:
 3. Fijate que llegue el correo con la licencia. Si no configuraste Resend, la
    licencia queda igual en los registros de Vercel (*Logs*): buscá la línea que
    dice `licencia`.
-4. Abrí el programa y pegá ese código. Tiene que pasar a **Profesional** al
-   instante.
-5. Entrá al panel: la venta tiene que aparecer ahí.
+4. En ese mismo correo va tu enlace de descarga. Abrilo: tiene que empezar a
+   bajar el instalador. Probá también qué pasa si le cambiás una letra a la
+   licencia en la dirección — tiene que rebotar.
+5. Instalá y pegá el código en el programa. Tiene que pasar a **Profesional**
+   al instante.
+6. Entrá al panel: la venta tiene que aparecer ahí.
 
 Recién cuando eso funcione, cambiá al token de producción y hacé *Redeploy*.
 
@@ -207,6 +255,12 @@ Recién cuando eso funcione, cambiá al token de producción y hacé *Redeploy*.
 * `test_panel.py` — los totales del panel contra una lista de pagos armada a
   mano con los casos molestos: pendientes, rechazados, devoluciones parciales y
   el mismo cliente comprando dos veces.
+* `test_descarga_y_demo.py` — la puerta de la descarga acepta una licencia
+  legítima (firmada en Python, verificada por el sitio en JavaScript) y rechaza
+  las vencidas, las firmadas con otra clave y cualquier cosa inventada en la
+  dirección. Y el formulario de demo valida lo que tiene que validar, corta a
+  los robots por el campo trampa y no deja que un nombre con saltos de línea
+  ensucie el correo que te llega.
 * El workflow de Windows compila el `.exe` y **lo corre de verdad**: pide el
   token, sube un archivo, entrena un modelo y calcula SHAP. Si el binario no
   arranca, no se publica nada.
@@ -222,33 +276,24 @@ anterior, y hay que hacerla una vez.
 Es razonable querer cerrarlo, pero hay una consecuencia concreta que conviene
 saber **antes** de apretar el botón:
 
-* **El botón de descarga de la página deja de funcionar.** Hoy apunta a
-  `github.com/vieraschiavi/MV-Machine-Learning/releases/latest/download/…`.
-  En un repositorio privado ese archivo exige estar logueado y ser
-  colaborador: el visitante anónimo recibe un 404. La demo se vuelve
-  indescargable y no hay aviso de error, simplemente no baja.
-* **El panel deja de contar descargas** salvo que cargues también un
-  `GITHUB_TOKEN` en Vercel (un token personal con permiso de lectura del
-  repositorio). Sin eso, la sección de descargas queda en «sin datos».
+**La descarga no se rompe.** Ya no depende de que el repositorio sea público:
+el release del instalador es un borrador y el archivo se entrega con el
+`GITHUB_TOKEN`, que funciona igual en un repositorio privado. Esto era un
+problema antes de que la demo pasara a ser bajo pedido; ahora no lo es.
+
+Lo único que cambia de verdad:
+
 * **Las compilaciones pasan a consumir cuota.** En repositorio público son
   gratis; en privado, el plan gratuito da 2.000 minutos por mes y los runners
-  de Windows cuentan **el doble**. Cada compilación lleva unos 10 minutos, o
-  sea 20 de cuota: alcanza para unas 100 compilaciones mensuales, de sobra,
+  de Windows cuentan **el doble**. Cada compilación lleva unos 12 minutos, o
+  sea 24 de cuota: alcanza para unas 80 compilaciones mensuales, de sobra,
   pero ya no es infinito.
+* **Revisá que el `GITHUB_TOKEN` siga teniendo acceso** al repositorio después
+  de cerrarlo. Si lo generaste con *Only select repositories*, sigue andando.
 
-Las dos salidas razonables:
-
-1. **Dejar el código privado y los instaladores en otro lado.** Un segundo
-   repositorio público, vacío de código, que sólo tenga los releases. El
-   workflow publica ahí y la página apunta ahí. Es gratis y es lo que hace
-   mucha gente.
-2. **Dejarlo público.** El código no es el producto: el producto es el
-   instalador compilado y las licencias firmadas. Sin tu clave privada, tener
-   el código no le sirve a nadie para emitir licencias válidas.
-
-Lo que **no** cambia en ninguno de los dos casos: la clave privada nunca
-estuvo en el repositorio, así que hacerlo privado no la protege más de lo que
-ya está.
+Y una cosa que conviene tener clara: la clave privada nunca estuvo en el
+repositorio, así que hacerlo privado no la protege más de lo que ya está. Lo
+que protege es no publicar el instalador — y eso ya está hecho.
 
 
 ## Recordatorios

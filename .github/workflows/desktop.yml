@@ -166,28 +166,39 @@ jobs:
           mkdir -p ../entrega
           mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Owner-Setup.exe
 
-      - name: Instalador DEMO (sin licencia; misma clave pública)
+      - name: Instalador CLIENTE (sin licencia; misma clave pública)
         working-directory: desktop
         shell: bash
         run: |
-          rm -f owner/license.key         # el demo NO lleva la licencia
-          echo 'Compilacion demo: sin licencia embebida.' > owner/LEEME.txt
+          rm -f owner/license.key         # el del cliente NO lleva la licencia
+          echo 'Compilacion de cliente: sin licencia embebida.' > owner/LEEME.txt
           npx electron-builder --win -p never -c electron-builder.yml \
-            -c.extraMetadata.channel=demo \
-            -c.win.artifactName="MV-AutoML-Studio-Demo-Setup.exe"
-          mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Demo-Setup.exe
+            -c.extraMetadata.channel=cliente \
+            -c.win.artifactName="MV-AutoML-Studio-Setup.exe"
+          mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Setup.exe
 
-      - name: Publicar DEMO (release público)
+      # El instalador NO se publica abierto. Un archivo público es el artefacto
+      # de ingeniería regalado a cualquiera que pase, competencia incluida, y
+      # sin dejar rastro de quién se lo llevó. El release queda en borrador —sus
+      # archivos no son alcanzables sin credenciales— y la única puerta es
+      # `/api/descargar`, que verifica la licencia del cliente antes de darle un
+      # enlace temporal. Quien quiere conocerlo sin comprar pide una demo en
+      # vivo desde el sitio.
+      - name: Publicar el instalador del CLIENTE (borrador; lo entrega /api/descargar)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'desktop-latest' }}
           name: MV AutoML Studio — instalador Windows
-          files: entrega/MV-AutoML-Studio-Demo-Setup.exe
+          draft: true
+          files: entrega/MV-AutoML-Studio-Setup.exe
           body: |
-            Instalador de Windows (64 bits). Arranca en modo Demo y se
-            activa a Profesional con una licencia. El instalador permite
-            elegir el directorio de instalación y crea los accesos directos
-            en el Escritorio y el Menú de inicio.
+            Instalador de Windows (64 bits). Arranca en período de prueba y se
+            activa a Profesional con una licencia. Permite elegir el directorio
+            de instalación y crea los accesos directos en el Escritorio y el
+            Menú de inicio.
+
+            Este release es un borrador a propósito: el archivo se entrega por
+            `/api/descargar`, que primero verifica la licencia del comprador.
 
       - name: Publicar OWNER (release borrador, sólo colaboradores)
         uses: softprops/action-gh-release@v2

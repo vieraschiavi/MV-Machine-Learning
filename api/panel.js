@@ -131,9 +131,12 @@ async function traerDescargas() {
     }
   }
   archivos.sort((x, y) => y.descargas - x.descargas);
-  const demo = archivos.filter((a) => /demo/i.test(a.archivo))
+  // El contador de GitHub sólo cuenta lo que se bajó desde GitHub. Como el
+  // instalador del cliente ahora se entrega por `/api/descargar` con un enlace
+  // temporal, esas bajadas SÍ suman acá: el enlace apunta al mismo archivo.
+  const owner = archivos.filter((a) => /owner/i.test(a.archivo))
     .reduce((s, a) => s + a.descargas, 0);
-  return { disponible: true, total, demo, owner: total - demo, archivos };
+  return { disponible: true, total, owner, clientes: total - owner, archivos };
 }
 
 export default async function handler(req, res) {

@@ -81,12 +81,14 @@ CALIFICACIONES = [
      "El instalador no está firmado digitalmente: Windows SmartScreen va a mostrar una "
      "advertencia hasta juntar reputación (un certificado EV cuesta entre US$ 250 y 400 al "
      "año). Falta límite de intentos en las funciones del sitio, y el panel se protege con "
-     "una sola contraseña sin segundo factor. El repositorio todavía es público."),
+     "una sola contraseña sin segundo factor. El repositorio todavía es público, aunque el "
+     "instalador ya no."),
     ("Distribución e instalación", 7.0,
      "Instalador NSIS asistido: el usuario elige el disco y la carpeta, no se clava en C:. "
      "Crea acceso directo en Escritorio y Menú de inicio, deja desinstalador registrado, e "
      "instala por usuario sin pedir permisos de administrador. Se compila solo en cada "
-     "integración y publica dos versiones: demo pública y owner en borrador privado.",
+     "integración y publica dos versiones, las dos en releases privados: la del "
+     "cliente, que entrega el sitio sólo contra una licencia válida, y la de dueño.",
      "Sin firma digital, sin actualización automática dentro del programa y sin versión "
      "para macOS ni Linux. El instalador pesa 375 MB y ocupa cerca de 1,6 GB una vez "
      "instalado, por las bibliotecas de ML."),
@@ -97,13 +99,16 @@ CALIFICACIONES = [
      "Falta una primera pantalla que guíe al que abre el programa por primera vez, plantillas "
      "por rubro (cobranzas, ventas, rotación) y un modo presentación para mostrarle el "
      "resultado a un gerente."),
-    ("Web de venta", 7.0,
+    ("Web de venta", 7.5,
      "Sitio en tres idiomas con video narrado por idioma, precios claros, cobro con "
-     "MercadoPago del lado del servidor, página de gracias y descarga directa del instalador. "
-     "Todo estático: carga rápido y no cuesta nada mantenerlo.",
+     "MercadoPago del lado del servidor y formulario de pedido de demo que llega por correo. "
+     "El instalador no se regala: se muestra en vivo y se entrega contra licencia, así que "
+     "cada interesado deja nombre, empresa y correo en vez de bajar el producto y "
+     "desaparecer. Todo estático: carga rápido y no cuesta nada mantenerlo.",
      "No hay dominio propio, ni prueba social (casos, logos, testimonios), ni contenido para "
-     "buscadores, ni medición de visitas. Sin eso el sitio convierte a quien ya venía "
-     "decidido, no capta."),
+     "buscadores, ni medición de visitas. Y el pedido de demo agrega fricción: convierte "
+     "menos visitantes en pruebas, a cambio de que las pruebas valgan más. Hay que mirar "
+     "cuántos pedidos entran por mes antes de dar por buena esa apuesta."),
     ("Rentabilidad demostrada", 5.0,
      "El circuito de cobro está armado y probado de punta a punta: se paga, se emite la "
      "licencia, el programa la acepta. El panel muestra clientes, ingresos netos y descargas "
