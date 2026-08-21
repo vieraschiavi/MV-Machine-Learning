@@ -34,8 +34,12 @@ a = Analysis(
     datas=datas + [(os.path.join(raiz, "backend", "app"), "app")],
     binaries=binaries,
     hiddenimports=hidden,
+    # numba y llvmlite estaban excluidos para bajar el tamaño, pero SHAP los
+    # importa al arrancar («shap/utils/_clustering.py»): sin ellos el binario
+    # muere antes de escuchar. La explicación de por qué cada variable pesa lo
+    # que pesa es una función que el producto vende, así que pesan y se quedan.
     excludes=["tkinter", "matplotlib", "IPython", "jupyter", "pytest", "PIL",
-              "hypothesis", "numba", "llvmlite",
+              "hypothesis",
               "nvidia", "nvidia.cuda_runtime", "nvidia.cublas", "nvidia.nccl"],
     noarchive=False,
 )

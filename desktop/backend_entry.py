@@ -16,6 +16,7 @@ multiprocessing.freeze_support()          # obligatorio en Windows congelado
 # ── imports que el análisis estático no ve ───────────────────────────────────
 import catboost  # noqa: F401
 import lightgbm  # noqa: F401
+import numba  # noqa: F401  (shap lo importa al arrancar)
 import openpyxl  # noqa: F401
 import optuna  # noqa: F401
 import pymssql  # noqa: F401

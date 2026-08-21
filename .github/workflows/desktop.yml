@@ -121,8 +121,8 @@ jobs:
                      content=data, headers=H).json()
           job = C.post(f"{B}/api/automl/train", headers=H, json={
               "dataset_id": r["dataset"]["id"], "target": "Pago30d",
-              "budget_seconds": 20, "max_models": 3, "shap": False,
-              "permutation_importance": False, "exclude": ["IdGestion"]}).json()
+              "budget_seconds": 20, "max_models": 3, "shap": True,
+              "permutation_importance": True, "exclude": ["IdGestion"]}).json()
           for _ in range(120):
               st = C.get(f"{B}/api/jobs/{job['id']}", headers=H).json()
               if st["status"] in ("terminado", "error"): break
@@ -133,6 +133,12 @@ jobs:
           # el ejemplo tiene señal realista, no fuga: un AUC perfecto sería
           # la señal de que algo se rompió, no de que anda bien
           assert 0.78 < auc < 0.99, f"AUC fuera de lo esperable: {auc}"
+          # SHAP se ejercita a propósito: importa numba al arrancar, y cuando
+          # numba faltaba el binario moría antes de escuchar. Si la prueba no
+          # lo usara, el que se encontraría con el error sería el cliente.
+          variables = st["result"]["report"]["features"]["ranking"]
+          assert any(v.get("shap_mean_abs") for v in variables), "SHAP no calculó nada"
+          print(f"SHAP en el .exe: {len(variables)} variables explicadas")
           PY
           kill $BACK || true
 
