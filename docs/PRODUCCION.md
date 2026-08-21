@@ -17,7 +17,7 @@ fijo y un valor que sale de algún lado.
 
 | Cómo se llama | Qué es, en criollo | De dónde sale el valor |
 |---|---|---|
-| `MV_LICENSE_PRIVATE_KEY` | El **sello** con el que se firman las licencias. Quien lo tenga puede regalar el producto. | Lo generás vos en `tusitio.com/claves.html` |
+| `MV_LICENSE_PRIVATE_KEY` | El **sello** con el que se firman las licencias. Quien lo tenga puede regalar el producto. | Lo generás vos en `tusitio.com/claves` |
 | `MV_LICENSE_PUBLIC_KEY` | El **lector del sello**. Va adentro de cada instalador para reconocer las licencias legítimas. No es secreto. | Sale junto con el anterior, del mismo botón |
 | `MP_ACCESS_TOKEN` | La llave de tu cuenta de MercadoPago para cobrar. | Panel de MercadoPago |
 | `PANEL_CLAVE` | La contraseña para entrar a tu panel de ventas. | **La inventás vos.** Una frase larga que no uses en otro lado |
@@ -38,7 +38,7 @@ Dos aclaraciones sobre cosas que confunden:
 
 ## Paso 1 · Generar tu sello de licencias
 
-1. Abrí **`https://tu-sitio.vercel.app/claves.html`**.
+1. Abrí **`https://tu-sitio.vercel.app/claves`**.
    (Si todavía no publicaste el sitio, hacé primero el Paso 3 y volvé acá.)
 2. Apretá **Generar mis dos claves**.
 3. Apretá **Descargar respaldo** y guardá ese archivo en algún lugar tuyo que no
@@ -142,7 +142,7 @@ venta que no te llega.
 
 ## Tu panel de ventas
 
-**Dónde:** `https://tu-sitio.vercel.app/panel.html`. Entrás con la `PANEL_CLAVE`
+**Dónde:** `https://tu-sitio.vercel.app/panel`. Entrás con la `PANEL_CLAVE`
 que inventaste.
 
 Muestra, en vivo:

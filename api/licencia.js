@@ -35,7 +35,7 @@ export default async function handler(req, res) {
   if (!privada) {
     return res.status(503).json({
       error: 'Falta MV_LICENSE_PRIVATE_KEY en el servidor.',
-      detalle: 'Generá el par en /claves.html y cargalo en Vercel.',
+      detalle: 'Generá el par en /claves y cargalo en Vercel.',
     });
   }
 
