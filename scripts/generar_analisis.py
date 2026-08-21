@@ -88,7 +88,8 @@ CALIFICACIONES = [
      "instala por usuario sin pedir permisos de administrador. Se compila solo en cada "
      "integración y publica dos versiones: demo pública y owner en borrador privado.",
      "Sin firma digital, sin actualización automática dentro del programa y sin versión "
-     "para macOS ni Linux. El instalador pesa alrededor de 1,6 GB por las bibliotecas de ML."),
+     "para macOS ni Linux. El instalador pesa 375 MB y ocupa cerca de 1,6 GB una vez "
+     "instalado, por las bibliotecas de ML."),
     ("Diseño del producto", 7.5,
      "Interfaz coherente en tres idiomas, tableros con filtros, tablas y gráficos "
      "interactivos exportables a Excel y CSV, KPI detectados solos, mapa de correlaciones y "
