@@ -48,7 +48,7 @@ def test_la_pagina_deriva_la_misma_clave_publica_que_el_programa():
                        capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, f"la página no corrió: {r.stderr[-500:]}"
 
-    pares = [l.split() for l in r.stdout.splitlines() if l.strip()]
+    pares = [linea.split() for linea in r.stdout.splitlines() if linea.strip()]
     assert len(pares) == 8, r.stdout
 
     for privada_b64, publica_del_navegador in pares:
