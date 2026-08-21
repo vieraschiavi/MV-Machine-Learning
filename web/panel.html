@@ -143,9 +143,13 @@ a{color:var(--accent)}
       </div>
       <button class="btn" id="emitir">Emitir</button>
       <div id="resultado" class="oculto">
+        <label style="margin-top:16px">Licencia · se pega en el programa</label>
         <div class="token" id="tokenLic"></div>
-        <p style="margin-top:11px">
+        <label style="margin-top:16px">Enlace de descarga · sólo funciona con esta licencia</label>
+        <div class="token" id="linkLic"></div>
+        <p style="margin-top:13px">
           <button class="btn sec" id="copiarLic">Copiar la licencia</button>
+          <button class="btn sec" id="copiarLink">Copiar el enlace</button>
           <span class="sub" id="notaLic"></span>
         </p>
       </div>
@@ -225,7 +229,8 @@ function dibujar(d) {
   ] : [{ t: 'Ventas', v: '—', n: v.motivo || 'sin datos' }];
 
   if (g.disponible) {
-    tarjetas.push({ t: 'Descargas', v: entero(g.total), n: `${entero(g.demo)} del instalador demo` });
+    tarjetas.push({ t: 'Descargas', v: entero(g.clientes),
+                    n: `${entero(g.owner)} de tu instalador de dueño` });
   } else {
     tarjetas.push({ t: 'Descargas', v: '—', n: g.motivo || 'sin datos' });
   }
@@ -289,6 +294,7 @@ $('emitir').addEventListener('click', async () => {
     }
     const d = await pedir('/api/licencia', { method: 'POST', body: JSON.stringify(cuerpo) });
     $('tokenLic').textContent = d.licencia;
+    $('linkLic').textContent = d.descarga;
     $('notaLic').textContent = (d.dias ? `Vale ${d.dias} días.` : 'Sin vencimiento.')
       + (d.enviada ? ' Se envió por correo.' : '');
     $('resultado').classList.remove('oculto');
@@ -299,11 +305,15 @@ $('emitir').addEventListener('click', async () => {
   }
 });
 
-$('copiarLic').addEventListener('click', async () => {
-  await navigator.clipboard.writeText($('tokenLic').textContent);
-  $('copiarLic').textContent = 'Copiada';
-  setTimeout(() => { $('copiarLic').textContent = 'Copiar la licencia'; }, 1400);
-});
+function copiador(boton, campo, etiqueta) {
+  $(boton).addEventListener('click', async () => {
+    await navigator.clipboard.writeText($(campo).textContent);
+    $(boton).textContent = 'Copiado';
+    setTimeout(() => { $(boton).textContent = etiqueta; }, 1400);
+  });
+}
+copiador('copiarLic', 'tokenLic', 'Copiar la licencia');
+copiador('copiarLink', 'linkLic', 'Copiar el enlace');
 
 // Si la pestaña ya tenía la clave, entra sola.
 if (guardada()) {

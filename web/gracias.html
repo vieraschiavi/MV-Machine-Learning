@@ -52,21 +52,22 @@ a{color:var(--accent)}
     <h2>Qué hacer ahora</h2>
     <div class="paso">
       <div class="num">1</div>
-      <div><b>Descargá el programa.</b> Es el mismo instalador que la versión de
-        prueba: no hace falta desinstalar nada si ya lo tenías.</div>
+      <div><b>Abrí el correo que te mandamos.</b> Ahí van las dos cosas que
+        necesitás: tu enlace de descarga y tu código de licencia.</div>
     </div>
     <div class="paso">
       <div class="num">2</div>
-      <div><b>Abrí el programa</b> y buscá el recuadro de licencia en la pantalla
-        de inicio.</div>
+      <div><b>Descargá el instalador</b> desde ese enlace. Es personal: sólo
+        funciona con tu licencia, y sirve todo el tiempo que dure —guardá el
+        correo para cuando cambies de computadora.</div>
     </div>
     <div class="paso">
       <div class="num">3</div>
-      <div><b>Pegá el código</b> que te llegó por correo y confirmá. Se activa al
-        instante, sin reinstalar y sin reiniciar.</div>
+      <div><b>Abrí el programa y pegá el código</b> en el recuadro de licencia de
+        la pantalla de inicio. Se activa al instante, sin reinstalar y sin
+        reiniciar.</div>
     </div>
-    <p style="margin-top:17px">
-      <a class="btn" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases/latest/download/MV-AutoML-Studio-Demo-Setup.exe">Descargar para Windows</a>
+    <p style="margin-top:17px" id="acciones">
       <a class="btn sec" href="/">Volver al sitio</a>
     </p>
   </div>
@@ -82,8 +83,25 @@ a{color:var(--accent)}
     <b>¿No te llegó el correo?</b> Fijate en la carpeta de correo no deseado.
     Si igual no aparece, escribinos a
     <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a> con el
-    número de la operación y te la reenviamos enseguida.
+    número de la operación y te lo reenviamos enseguida. Tu licencia ya está
+    emitida: no perdiste nada.
   </div>
+
+<script>
+// Si el enlace trae la licencia (por ejemplo, cuando se reenvía a mano desde el
+// panel), se le ahorra al comprador ir a buscar el correo.
+(function(){
+  var lic = new URLSearchParams(location.search).get('lic');
+  if (!lic) return;
+  var a = document.createElement('a');
+  a.className = 'btn';
+  a.href = '/api/descargar?lic=' + encodeURIComponent(lic);
+  a.textContent = 'Descargar para Windows';
+  var p = document.getElementById('acciones');
+  p.insertBefore(a, p.firstChild);
+  p.insertBefore(document.createTextNode(' '), p.firstChild.nextSibling);
+})();
+</script>
 
   <p class="pie">MV AutoML Studio es un producto de <b>MV Software</b>, desde
      Uruguay para LATAM y el mundo.</p>

@@ -15,6 +15,7 @@
  *   MV_LICENSE_PRIVATE_KEY   clave privada Ed25519 (base64)
  *   RESEND_API_KEY           opcional: si está y se pasa un correo, se envía
  *   CORREO_DESDE             remitente verificado
+ *   SITIO                    URL pública, para armar el enlace de descarga
  */
 import { DIAS, claveValida, emitirLicencia } from './_firmar.js';
 
@@ -64,6 +65,11 @@ export default async function handler(req, res) {
     .filter(Boolean).join(' ');
   const licencia = emitirLicencia(nivel, titular, duracion, privada, detalle);
 
+  // El instalador no es público: el enlace de descarga va atado a la licencia y
+  // es lo único que le sirve al que la recibe.
+  const sitio = process.env.SITIO || `https://${req.headers?.host || ''}`;
+  const descarga = `${sitio}/api/descargar?lic=${encodeURIComponent(licencia)}`;
+
   let enviada = false;
   if (correo && process.env.RESEND_API_KEY) {
     try {
@@ -80,7 +86,11 @@ export default async function handler(req, res) {
           text: [
             'Acá va tu licencia de MV AutoML Studio.',
             '',
-            'Pegá este código en el programa, en la pantalla de inicio:',
+            '1 · Descargá el instalador desde este enlace, que es tuyo:',
+            '',
+            descarga,
+            '',
+            '2 · Abrí el programa y pegá este código en la pantalla de inicio:',
             '',
             licencia,
             '',
@@ -98,5 +108,5 @@ export default async function handler(req, res) {
   // rastro está en los registros de Vercel.
   console.log(JSON.stringify({ emision: 'manual', nivel, titular, plan, dias: duracion, correo, enviada }));
   res.setHeader('Cache-Control', 'no-store');
-  return res.status(200).json({ licencia, nivel, dias: duracion, titular, enviada });
+  return res.status(200).json({ licencia, descarga, nivel, dias: duracion, titular, enviada });
 }

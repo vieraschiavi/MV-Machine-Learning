@@ -17,13 +17,14 @@
  *   MV_LICENSE_PRIVATE_KEY   clave privada Ed25519 (base64), la del repositorio
  *   RESEND_API_KEY           opcional: si está, la licencia se manda por correo
  *   CORREO_DESDE             remitente verificado, p. ej. "MV Software <ventas@…>"
+ *   SITIO                    URL pública, para armar el enlace de descarga
  */
 import { DIAS, emitirLicencia } from './_firmar.js';
 
 const NIVEL = { 'profesional-mes': 'paid', 'profesional-anio': 'paid',
                 'empresa-mes': 'paid', 'empresa-anio': 'paid' };
 
-async function enviarPorCorreo(destino, licencia, plan) {
+async function enviarPorCorreo(destino, licencia, plan, sitio) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !destino) return false;
   const r = await fetch('https://api.resend.com/emails', {
@@ -38,11 +39,18 @@ async function enviarPorCorreo(destino, licencia, plan) {
         '',
         `Plan: ${plan}`,
         '',
-        'Pegá este código en el programa, en la pantalla de inicio:',
+        '1 · Descargá el instalador desde este enlace, que es tuyo:',
+        '',
+        `${sitio}/api/descargar?lic=${encodeURIComponent(licencia)}`,
+        '',
+        '2 · Instalalo y abrilo. En la pantalla de inicio, pegá este código:',
         '',
         licencia,
         '',
         'Se activa al instante y no vence hasta el final del período contratado.',
+        'Guardá este correo: el enlace de descarga sirve durante toda tu licencia,',
+        'para cuando cambies de computadora o reinstales.',
+        '',
         'Si tenés cualquier problema, respondé este correo.',
       ].join('\n'),
     }),
@@ -90,7 +98,11 @@ export default async function handler(req, res) {
     // El plan queda anotado en la licencia: Profesional y Empresa habilitan hoy
     // lo mismo, así que sin esto no habría forma de saber cuál se vendió.
     const licencia = emitirLicencia(nivel, titular, dias, clave, `plan:${plan} pago:${id}`);
-    const enviada = await enviarPorCorreo(correo, licencia, plan);
+    // `SITIO` es la fuente buena; el host del pedido es sólo un respaldo. Con
+    // `?.` porque acá adentro una excepción cancela la emisión de la licencia:
+    // el cliente pagó y se quedaría sin nada por armar mal un enlace.
+    const sitio = process.env.SITIO || `https://${req.headers?.host || ''}`;
+    const enviada = await enviarPorCorreo(correo, licencia, plan, sitio);
 
     // Queda en el registro de Vercel: si el correo no salió, la licencia se
     // puede recuperar de acá en vez de perderse.

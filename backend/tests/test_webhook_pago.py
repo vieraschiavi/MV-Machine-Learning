@@ -28,8 +28,10 @@ pytestmark = pytest.mark.skipif(shutil.which("node") is None,
                                 reason="hace falta Node para correr el webhook")
 
 
-def llamar_al_webhook(pago: dict, privada: str, cuerpo: dict | None = None) -> dict:
+def llamar_al_webhook(pago: dict, privada: str, cuerpo: dict | None = None,
+                      sin_cabeceras: bool = False) -> dict:
     """Corre el handler real con `fetch` interceptado. Devuelve lo que registró."""
+    cabeceras = "" if sin_cabeceras else "headers: { host: 'mv-automl-studio.vercel.app' }"
     guion = f"""
       process.env.MP_ACCESS_TOKEN = 'token-de-prueba';
       process.env.MV_LICENSE_PRIVATE_KEY = {json.dumps(privada)};
@@ -58,7 +60,7 @@ def llamar_al_webhook(pago: dict, privada: str, cuerpo: dict | None = None) -> d
       const res = {{ status(c) {{ estado = c; return this; }}, end() {{ return this; }},
                      json(x) {{ return this; }}, setHeader() {{}} }};
       await handler({{ method: 'POST', body: {json.dumps(cuerpo or {"data": {"id": "999"}})},
-                       query: {{}} }}, res);
+                       query: {{}}, {cabeceras} }}, res);
 
       process.stderr.write(JSON.stringify(
         {{ estado, consultas, registrado, errores }}) + '\\n');
@@ -105,6 +107,20 @@ def test_pago_aprobado_emite_la_licencia_del_plan_que_compro(plan, dias, monkeyp
     assert lic.days_left == dias
     assert f"plan:{plan}" in (lic.notes or "")
     assert "pago:999" in (lic.notes or "")      # queda atada a la operación
+
+
+def test_el_cobro_no_se_cae_si_el_pedido_llega_sin_cabeceras(monkeypatch):
+    """El enlace de descarga se arma con el host del pedido cuando falta SITIO.
+    Si eso lanzara, la excepción cancelaría la emisión: el cliente habría pagado
+    y no recibiría ni la licencia. Vale más un enlace feo que ninguna licencia."""
+    priv, pub = L.generate_keypair()
+    monkeypatch.setattr(L, "PUBLIC_KEY_B64", pub)
+
+    guion_sin_cabeceras = llamar_al_webhook(
+        pago_aprobado("profesional-anio"), priv, sin_cabeceras=True)
+    assert not guion_sin_cabeceras["errores"], guion_sin_cabeceras["errores"]
+    registro = json.loads(guion_sin_cabeceras["registrado"][0])
+    assert L.verify(registro["licencia"]).tier == "paid"
 
 
 @pytest.mark.parametrize("estado", ["pending", "in_process", "rejected", "cancelled"])

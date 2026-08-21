@@ -211,6 +211,26 @@ footer{padding:34px 0 14px;color:var(--faint);font-size:13px}
 footer .legal{max-width:78ch;line-height:1.6}
 footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+
+/* Pedido de demo */
+.dlbox.conform{align-items:flex-start}
+.pasos{margin:0 0 4px 18px;color:var(--muted-d);font-size:14.5px}
+.pasos li{margin-bottom:7px}
+.pasos b{color:var(--ink-d)}
+.dlform{display:grid;gap:11px;min-width:min(340px,100%);flex:1}
+.dlform .ff{display:flex;flex-direction:column;gap:5px;min-width:0}
+.dlform .ff2{display:grid;gap:11px;grid-template-columns:1fr 1fr}
+.dlform label{font-size:12.5px;font-weight:750;color:var(--ink-d)}
+.dlform .opt{font-weight:400;color:var(--muted-d)}
+.dlform input,.dlform textarea{font:inherit;font-size:14px;padding:10px 12px;width:100%;
+  border-radius:10px;border:1px solid var(--line-d);background:#fff;color:var(--ink-d);resize:vertical}
+.dlform input:focus,.dlform textarea:focus{outline:2px solid var(--amber2);outline-offset:1px}
+/* Campo trampa: una persona nunca lo ve ni lo completa; los robots sí. */
+.trampa{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important}
+.fmsg{font-size:13px;margin:0;min-height:1.2em}
+.fmsg.mal{color:#c62828}
+.fmsg.bien{color:#1b7f4b;font-weight:700}
+@media(max-width:560px){.dlform .ff2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -222,7 +242,7 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
     <a href="#videos" data-i="nav2">Videos</a>
     <a href="#metodo" data-i="nav3">Método</a>
     <a href="#precios" data-i="nav4">Planes</a>
-    <a href="#descarga" data-i="nav5">Descarga</a>
+    <a href="#demo" data-i="nav5">Demo</a>
     <a href="#faq" data-i="nav6">Preguntas</a>
   </div>
   <div class="right">
@@ -399,9 +419,9 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
   <div class="pgrid">
     <div class="plan">
       <h3 data-i="p1n">Demo</h3>
-      <p class="who" data-i="p1w">Para probarlo con tus propios datos, sin poner tarjeta.</p>
+      <p class="who" data-i="p1w">Media hora en vivo con tus propios datos, y después el programa a prueba.</p>
       <div class="amt">US$ 0</div>
-      <div class="per" data-i="p1p">para siempre</div>
+      <div class="per" data-i="p1p">15 días de prueba</div>
       <ul>
         <li data-i="p1a">Hasta 50.000 filas por dataset</li>
         <li data-i="p1b">3 datasets · 1 espacio de trabajo</li>
@@ -409,7 +429,7 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
         <li data-i="p1d">Resultados reales, con marca de agua en el Excel</li>
         <li data-i="p1e">Sin conectores SQL ni IA</li>
       </ul>
-      <a href="#descarga" class="btn btn-od" data-i="p1b2">Descargar la demo</a>
+      <a href="#demo" class="btn btn-od" data-i="p1b2">Pedir una demo</a>
     </div>
 
     <div class="plan pop">
@@ -454,28 +474,59 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
   </div>
 </div></section>
 
-<!-- ── DESCARGA ───────────────────────────────────────────────────────── -->
-<section class="panel" id="descarga"><div class="wrap">
-  <div class="eyebrow" data-i="dey">Descarga</div>
-  <h2 class="h2" data-i="dh">Instalalo en tu Windows</h2>
-  <p class="lead-d" data-i="dl">Un instalador común y corriente: te deja elegir la carpeta —no se clava en C:—, crea el acceso directo en el escritorio y en el menú de inicio, y no pide permisos de administrador. Arranca en modo demo; si ya compraste, pegás la licencia y queda en Profesional.</p>
+<!-- ── DEMO ───────────────────────────────────────────────────────────── -->
+<section class="panel" id="demo"><div class="wrap">
+  <div class="eyebrow" data-i="dey">Demo</div>
+  <h2 class="h2" data-i="dh">Te la mostramos con tus propios datos</h2>
+  <p class="lead-d" data-i="dl">No hay instalador abierto para bajar. Nos sentamos media hora con vos, traés un archivo tuyo —o uno parecido al tuyo— y lo corremos juntos: el ETL, el modelo entrenado, el tablero y las preguntas en castellano. Salís de esa reunión sabiendo si te sirve, no adivinando.</p>
 
-  <div class="dlbox">
+  <div class="dlbox conform">
     <div class="txt">
-      <h3 data-i="dbt">MV AutoML Studio para Windows</h3>
-      <p data-i="dbp">Instalador de 64 bits. Incluye el motor completo: no hace falta instalar Python ni nada técnico.</p>
+      <h3 data-i="dbt">Qué pasa cuando apretás enviar</h3>
+      <ol class="pasos">
+        <li data-i="dp1"><b>Te escribimos el mismo día</b> para acordar día y hora.</li>
+        <li data-i="dp2"><b>Media hora por videollamada</b>, con tu caso arriba de la mesa.</li>
+        <li data-i="dp3"><b>Si te sirve</b>, te lo dejamos instalado con un período de prueba sobre tus propios datos.</li>
+      </ol>
       <div class="reqs">
         <span class="req" data-i="dr1">Windows 10 u 11 · 64 bits</span>
         <span class="req" data-i="dr2">8 GB de RAM recomendados</span>
-        <span class="req" data-i="dr3">~1,2 GB de disco</span>
+        <span class="req" data-i="dr3">Sin costo y sin compromiso</span>
       </div>
     </div>
-    <div class="dlacts">
-      <a class="btn btn-a" id="dlBtn" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases/latest/download/MV-AutoML-Studio-Demo-Setup.exe">
-        <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg><span data-i="dbtn">Descargar la demo</span></a>
-      <a class="btn btn-od" href="https://github.com/vieraschiavi/MV-Machine-Learning/releases" data-i="dall">Ver todas las versiones</a>
-      <p class="dlmini" data-i="dmini">Gratis, sin tarjeta y sin registro.</p>
-    </div>
+
+    <form class="dlform" id="formDemo" novalidate>
+      <div class="ff">
+        <label for="fNombre" data-i="fl1">Nombre y apellido</label>
+        <input id="fNombre" name="nombre" autocomplete="name">
+      </div>
+      <div class="ff">
+        <label for="fEmpresa" data-i="fl2">Empresa</label>
+        <input id="fEmpresa" name="empresa" autocomplete="organization">
+      </div>
+      <div class="ff2">
+        <div class="ff">
+          <label for="fPais" data-i="fl3">País</label>
+          <input id="fPais" name="pais" autocomplete="country-name">
+        </div>
+        <div class="ff">
+          <label for="fTel"><span data-i="fl5">Teléfono</span> <span class="opt" data-i="fopt">(opcional)</span></label>
+          <input id="fTel" name="telefono" autocomplete="tel">
+        </div>
+      </div>
+      <div class="ff">
+        <label for="fCorreo" data-i="fl4">Correo de trabajo</label>
+        <input id="fCorreo" name="correo" type="email" autocomplete="email">
+      </div>
+      <div class="ff">
+        <label for="fMsj"><span data-i="fl6">¿Qué te gustaría analizar?</span> <span class="opt" data-i="fopt2">(opcional)</span></label>
+        <textarea id="fMsj" name="mensaje" rows="3"></textarea>
+      </div>
+      <input class="trampa" id="fWeb" name="web" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="btn btn-a" type="submit" id="btnDemo" data-i="dbtn">Pedir la demo</button>
+      <p class="dlmini" data-i="dmini">Lo lee y lo contesta una persona. No cae en el vacío.</p>
+      <p class="fmsg" id="msgDemo" role="status" aria-live="polite"></p>
+    </form>
   </div>
 </div></section>
 
@@ -513,9 +564,9 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 
 <div class="wrap"><div class="band">
   <h2 data-i="bh">Probalo con tus propios datos</h2>
-  <p data-i="bp">Bajás el instalador, arrastrás tu Excel y en unos minutos tenés el modelo entrenado y el tablero armado.</p>
+  <p data-i="bp">Traés tu Excel a la reunión y en unos minutos lo ves entrenado, con el tablero armado y las preguntas contestadas.</p>
   <div class="bandcta">
-    <a href="#descarga" class="btn btn-a" data-i="bb1">Descargar la demo</a>
+    <a href="#demo" class="btn btn-a" data-i="bb1">Pedir una demo</a>
     <a href="#precios" class="btn btn-o" data-i="bb2">Ver planes</a>
   </div>
 </div></div>
@@ -564,7 +615,7 @@ document.querySelectorAll('[data-i]').forEach(function(el){ ORIG[el.getAttribute
 
 var I18N = {
   pt:{
-    nav1:"Produto",nav2:"Vídeos",nav3:"Método",nav4:"Planos",nav5:"Download",nav6:"Perguntas",navbuy:"Comprar",
+    nav1:"Produto",nav2:"Vídeos",nav3:"Método",nav4:"Planos",nav5:"Demo",nav6:"Perguntas",navbuy:"Comprar",
     kick:"AutoML de desktop · sem código",
     h1:'De qualquer conjunto de dados a um modelo <span class="am">validado</span>, sem escrever código',
     lead:"Você traz um Excel, um CSV ou uma consulta ao seu servidor SQL. O programa faz o ETL sozinho, treina e compara modelos para o objetivo que você escreve com suas palavras, monta o painel com os KPIs que detecta e responde perguntas sobre os dados. Instala no seu Windows: os dados nunca saem do seu computador.",
@@ -606,9 +657,9 @@ var I18N = {
     prey:"Planos",prh:"Escolha seu plano e comece hoje",
     prl:"Preço de referência em dólares; a cobrança é em pesos uruguaios pelo MercadoPago (cartão, débito ou transferência) ao câmbio do dia. A licença é emitida no momento do pagamento e fica associada ao seu computador; se você fechar a aba ou ficar sem sinal, ela não se perde: enviamos assim mesmo.",
     pcm:"Mensal",pca:"Anual · 2 meses grátis",
-    p1n:"Demo",p1w:"Para testar com os seus próprios dados, sem cartão.",p1p:"para sempre",
+    p1n:"Demo",p1w:"Meia hora ao vivo com os seus dados, e depois o programa em teste.",p1p:"15 dias de teste",
     p1a:"Até 50.000 linhas por conjunto de dados",p1b:"3 conjuntos · 1 espaço de trabalho",p1c:"3 famílias de modelos",
-    p1d:"Resultados reais, com marca d'água no Excel",p1e:"Sem conectores SQL nem IA",p1b2:"Baixar a demo",
+    p1d:"Resultados reais, com marca d'água no Excel",p1e:"Sem conectores SQL nem IA",p1b2:"Pedir uma demo",
     ptag:"Recomendado",p2n:"Profissional",p2w:"Para trabalhar a sério: sem limites de tamanho e com todo o motor aberto.",
     p2a:"Linhas e conjuntos de dados sem limite",p2b:"As 15 famílias de modelos e a otimização completa",
     p2c:"Conectores SQL e provedores de IA",p2d:"Texto livre (TF-IDF), painéis e exportação sem marca",
@@ -618,12 +669,18 @@ var I18N = {
     p3d:"Suporte prioritário por e-mail",p3e:"Ajustes sob medida a combinar",p3b2:"Falar sobre Empresa",
     pb1:"Cartão · débito · transferência",pb2:"Nota fiscal uruguaia",
     pnote:"A demo e a versão paga são o mesmo programa: ao ativar a licença ele se desbloqueia, sem reinstalar nada.",
-    dey:"Download",dh:"Instale no seu Windows",
-    dl:"Um instalador comum: deixa você escolher a pasta —não se prende ao C:—, cria o atalho na área de trabalho e no menu iniciar, e não pede permissões de administrador. Abre em modo demo; se você já comprou, cola a licença e passa a Profissional.",
-    dbt:"MV AutoML Studio para Windows",
-    dbp:"Instalador de 64 bits. Inclui o motor completo: não é preciso instalar Python nem nada técnico.",
-    dr1:"Windows 10 ou 11 · 64 bits",dr2:"8 GB de RAM recomendados",dr3:"~1,2 GB de disco",
-    dbtn:"Baixar a demo",dall:"Ver todas as versões",dmini:"Grátis, sem cartão e sem cadastro.",
+    dey:"Demo",dh:"Mostramos com os seus próprios dados",
+    dl:"Não há instalador aberto para baixar. Sentamos meia hora com você: traga um arquivo seu —ou parecido com o seu— e rodamos juntos o ETL, o modelo treinado, o painel e as perguntas em português. Você sai dessa reunião sabendo se serve, não adivinhando.",
+    dbt:"O que acontece quando você envia",
+    dp1:"<b>Escrevemos no mesmo dia</b> para combinar dia e hora.",
+    dp2:"<b>Meia hora por videochamada</b>, com o seu caso em cima da mesa.",
+    dp3:"<b>Se servir</b>, deixamos instalado com um período de teste sobre os seus próprios dados.",
+    dr1:"Windows 10 ou 11 · 64 bits",dr2:"8 GB de RAM recomendados",dr3:"Sem custo e sem compromisso",
+    fl1:"Nome e sobrenome",fl2:"Empresa",fl3:"País",fl4:"E-mail de trabalho",
+    fl5:"Telefone",fl6:"O que você gostaria de analisar?",fopt:"(opcional)",fopt2:"(opcional)",
+    dbtn:"Pedir a demo",dmini:"Quem lê e responde é uma pessoa. Não cai no vazio.",
+    fok:"Recebido. Escrevemos para você hoje mesmo.",ferr:"Não foi possível enviar. Tente de novo.",
+    fenv:"Enviando…",
     qey:"Perguntas",qh:"O que mais nos perguntam",
     q1:"Meus dados sobem para algum servidor?",
     a1:"Não. O programa roda inteiro no seu computador: o conjunto de dados, o treino e os relatórios ficam no seu disco. A única coisa que sai para a internet é a consulta à IA, e só se você configurar um provedor e fizer uma pergunta.",
@@ -638,13 +695,13 @@ var I18N = {
     q6:"Posso testar antes de pagar?",
     a6:"Sim: a demo é o mesmo programa, com limite de linhas e sem conectores. Os números que mostra são reais, não estão degradados.",
     bh:"Teste com os seus próprios dados",
-    bp:"Você baixa o instalador, arrasta o seu Excel e em poucos minutos tem o modelo treinado e o painel montado.",
-    bb1:"Baixar a demo",bb2:"Ver planos",
+    bp:"Você traz o seu Excel para a reunião e em poucos minutos vê o modelo treinado, o painel montado e as perguntas respondidas.",
+    bb1:"Pedir uma demo",bb2:"Ver planos",
     legal:"MV AutoML Studio · Plataforma de análise de dados e machine learning que roda no seu computador. Os números que aparecem nas capturas desta página são dados de demonstração sintéticos, ilustrativos do funcionamento do produto.",
     mvsw:'MV AutoML Studio é um produto da <b>MV Software</b>, do Uruguai para a LATAM e o mundo. Contato: <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a>'
   },
   en:{
-    nav1:"Product",nav2:"Videos",nav3:"Method",nav4:"Plans",nav5:"Download",nav6:"FAQ",navbuy:"Buy",
+    nav1:"Product",nav2:"Videos",nav3:"Method",nav4:"Plans",nav5:"Demo",nav6:"FAQ",navbuy:"Buy",
     kick:"Desktop AutoML · no code",
     h1:'From any dataset to a <span class="am">validated</span> model, without writing code',
     lead:"Bring an Excel file, a CSV or a query against your SQL server. The program runs the ETL on its own, trains and compares models for the target you type in your own words, builds the dashboard from the KPIs it detects, and answers questions about your data. It installs on your Windows machine: the data never leaves your computer.",
@@ -686,9 +743,9 @@ var I18N = {
     prey:"Plans",prh:"Pick your plan and start today",
     prl:"Reference price in US dollars; billing is in Uruguayan pesos through MercadoPago (card, debit or transfer) at the day's rate. The licence is issued at the moment of payment and tied to your machine; if you close the tab or lose signal it is not lost, we send it to you anyway.",
     pcm:"Monthly",pca:"Yearly · 2 months free",
-    p1n:"Demo",p1w:"To try it on your own data, without a card.",p1p:"forever",
+    p1n:"Demo",p1w:"Half an hour live on your own data, then the program on trial.",p1p:"15-day trial",
     p1a:"Up to 50,000 rows per dataset",p1b:"3 datasets · 1 workspace",p1c:"3 model families",
-    p1d:"Real results, watermarked Excel",p1e:"No SQL connectors or AI",p1b2:"Download the demo",
+    p1d:"Real results, watermarked Excel",p1e:"No SQL connectors or AI",p1b2:"Request a demo",
     ptag:"Recommended",p2n:"Professional",p2w:"For real work: no size limits and the whole engine open.",
     p2a:"Unlimited rows and datasets",p2b:"All 15 model families and full optimisation",
     p2c:"SQL connectors and AI providers",p2d:"Free text (TF-IDF), dashboards and export without watermark",
@@ -698,12 +755,18 @@ var I18N = {
     p3d:"Priority email support",p3e:"Custom work to be agreed",p3b2:"Talk about Enterprise",
     pb1:"Card · debit · transfer",pb2:"Uruguayan invoice",
     pnote:"The demo and the paid version are the same program: activating a licence unlocks it, with nothing to reinstall.",
-    dey:"Download",dh:"Install it on your Windows",
-    dl:"An ordinary installer: it lets you choose the folder —it does not force C:—, creates the desktop and start-menu shortcuts, and asks for no administrator rights. It starts in demo mode; if you already bought, paste the licence and it turns Professional.",
-    dbt:"MV AutoML Studio for Windows",
-    dbp:"64-bit installer. The full engine is included: no need to install Python or anything technical.",
-    dr1:"Windows 10 or 11 · 64-bit",dr2:"8 GB RAM recommended",dr3:"~1.2 GB disk",
-    dbtn:"Download the demo",dall:"See all releases",dmini:"Free, no card and no sign-up.",
+    dey:"Demo",dh:"We show it on your own data",
+    dl:"There is no open installer to download. We sit down with you for half an hour: bring a file of yours —or one like yours— and we run the ETL, the trained model, the dashboard and the plain-English questions together. You leave that call knowing whether it fits, not guessing.",
+    dbt:"What happens when you hit send",
+    dp1:"<b>We write back the same day</b> to agree on a time.",
+    dp2:"<b>Half an hour on a video call</b>, with your case on the table.",
+    dp3:"<b>If it fits</b>, we leave it installed with a trial period on your own data.",
+    dr1:"Windows 10 or 11 · 64-bit",dr2:"8 GB RAM recommended",dr3:"Free, no strings attached",
+    fl1:"Full name",fl2:"Company",fl3:"Country",fl4:"Work email",
+    fl5:"Phone",fl6:"What would you like to analyse?",fopt:"(optional)",fopt2:"(optional)",
+    dbtn:"Request the demo",dmini:"A person reads and answers this. It does not vanish.",
+    fok:"Got it. We will write to you today.",ferr:"Could not send it. Please try again.",
+    fenv:"Sending…",
     qey:"FAQ",qh:"What people ask us most",
     q1:"Does my data go up to a server?",
     a1:"No. The program runs entirely on your machine: the dataset, the training and the reports stay on your disk. The only thing that leaves for the internet is the AI query, and only if you configure a provider and ask a question.",
@@ -718,8 +781,8 @@ var I18N = {
     q6:"Can I try it before paying?",
     a6:"Yes: the demo is the same program, with a row limit and no connectors. The numbers it shows are real, not degraded.",
     bh:"Try it on your own data",
-    bp:"Download the installer, drop in your Excel file, and in a few minutes you have the model trained and the dashboard built.",
-    bb1:"Download the demo",bb2:"See plans",
+    bp:"Bring your spreadsheet to the call and within minutes you see the model trained, the dashboard built and your questions answered.",
+    bb1:"Request a demo",bb2:"See plans",
     legal:"MV AutoML Studio · A data analysis and machine learning platform that runs on your own machine. The figures shown in the screenshots on this page are synthetic demonstration data, illustrative of how the product works.",
     mvsw:'MV AutoML Studio is a product of <b>MV Software</b>, from Uruguay for LATAM and the world. Enquiries: <a href="mailto:vieraschiavi@gmail.com">vieraschiavi@gmail.com</a>'
   }
@@ -747,6 +810,65 @@ function pintarPrecios(){
     b.classList.toggle('on', b.getAttribute('data-ciclo') === CICLO);
   });
 }
+
+/* ── pedido de demo ────────────────────────────────────────────────────────
+   El instalador no se descarga solo: quien quiere verlo lo pide y se agenda.
+   Los mensajes salen del mismo diccionario que el resto de la página, así que
+   el visitante los lee en su idioma.                                       */
+function textoDemo(clave, porOmision){
+  var dict = CUR === 'es' ? null : I18N[CUR];
+  return (dict && dict[clave] != null) ? dict[clave] : porOmision;
+}
+
+(function(){
+  var form = document.getElementById('formDemo');
+  if (!form) return;
+  var boton = document.getElementById('btnDemo');
+  var msg = document.getElementById('msgDemo');
+
+  form.addEventListener('submit', function(ev){
+    ev.preventDefault();
+    msg.className = 'fmsg';
+    msg.textContent = '';
+
+    var cuerpo = {
+      nombre:   form.nombre.value,
+      empresa:  form.empresa.value,
+      pais:     form.pais.value,
+      correo:   form.correo.value,
+      telefono: form.telefono.value,
+      mensaje:  form.mensaje.value,
+      web:      form.web.value      /* el campo trampa viaja tal cual */
+    };
+
+    var etiqueta = boton.textContent;
+    boton.disabled = true;
+    boton.textContent = textoDemo('fenv', 'Enviando…');
+
+    fetch('/api/solicitar-demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cuerpo)
+    }).then(function(r){
+      return r.json().then(function(d){ return { ok: r.ok, d: d }; });
+    }).then(function(res){
+      if (!res.ok) throw new Error(res.d && res.d.error);
+      /* El formulario se reemplaza por la confirmación: dejarlo en pantalla
+         invita a mandar el mismo pedido tres veces. */
+      form.querySelectorAll('.ff, .ff2, button, .dlmini').forEach(function(el){
+        el.style.display = 'none';
+      });
+      msg.className = 'fmsg bien';
+      msg.textContent = textoDemo('fok', 'Recibido. Te escribimos hoy mismo.');
+    }).catch(function(err){
+      msg.className = 'fmsg mal';
+      msg.textContent = (err && err.message)
+        || textoDemo('ferr', 'No se pudo enviar. Probá de nuevo.');
+      boton.disabled = false;
+      boton.textContent = etiqueta;
+    });
+  });
+})();
 
 function setLang(lang){
   CUR = lang;
