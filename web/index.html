@@ -535,8 +535,8 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
    Al tener el link de cobro de MercadoPago, pegalo acá y el botón deja de
    abrir el correo y pasa a cobrar directo. */
 var CONFIG = {
-  mercadoPagoMensual: "",   // ej: "https://mpago.la/xxxxxxx"
-  mercadoPagoAnual:   "",
+  // El cobro se arma en /api/crear-pago, del lado del servidor: la credencial
+  // de MercadoPago vive en una variable de entorno y nunca baja al navegador.
   contacto: "vieraschiavi@gmail.com"
 };
 
@@ -770,50 +770,48 @@ document.querySelectorAll('.ptoggle button').forEach(function(b){
   b.addEventListener('click', function(){ CICLO = b.getAttribute('data-ciclo'); pintarPrecios(); });
 });
 
-/* Botón de compra: si hay link de MercadoPago cobra directo; si todavía no
-   está cargado, abre un correo con el plan elegido en vez de dejar al
-   visitante sin salida. */
+/* Botón de compra: el cobro lo arma el servidor, que es el único que tiene
+   la credencial de MercadoPago. Si todavía no está configurada, en vez de
+   dejar al visitante sin salida se abre un correo con el plan elegido. */
 document.querySelectorAll('.js-pago').forEach(function(a){
   a.addEventListener('click', function(ev){
-    var link = CICLO === 'mes' ? CONFIG.mercadoPagoMensual : CONFIG.mercadoPagoAnual;
-    var plan = a.getAttribute('data-plan');
-    if (link) { a.setAttribute('href', link); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); return; }
     ev.preventDefault();
-    var asunto = {es:'Quiero contratar MV AutoML Studio', pt:'Quero contratar o MV AutoML Studio',
-                  en:'I want to buy MV AutoML Studio'}[CUR];
-    var ciclo = {es:{mes:'mensual',anio:'anual'}, pt:{mes:'mensal',anio:'anual'},
-                 en:{mes:'monthly',anio:'yearly'}}[CUR][CICLO];
-    var cuerpo = {es:'Hola, quiero contratar el plan ' + plan + ' (' + ciclo + ').',
-                  pt:'Olá, quero contratar o plano ' + plan + ' (' + ciclo + ').',
-                  en:'Hello, I would like the ' + plan + ' plan (' + ciclo + ').'}[CUR];
-    window.location.href = 'mailto:' + CONFIG.contacto +
-      '?subject=' + encodeURIComponent(asunto + ' — ' + plan) +
-      '&body=' + encodeURIComponent(cuerpo);
+    var plan = a.getAttribute('data-plan');
+    var clave = (plan === 'Empresa' ? 'empresa' : 'profesional')
+              + (CICLO === 'mes' ? '-mes' : '-anio');
+    var textoOriginal = a.textContent;
+    a.textContent = {es:'Abriendo el pago…', pt:'Abrindo o pagamento…',
+                     en:'Opening checkout…'}[CUR];
+    a.style.pointerEvents = 'none';
+
+    fetch('/api/crear-pago', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({plan: clave})
+    }).then(function(r){ return r.json().then(function(d){ return {ok: r.ok, d: d}; }); })
+      .then(function(res){
+        if (res.ok && res.d.url) { window.location.href = res.d.url; return; }
+        porCorreo(plan);
+      })
+      .catch(function(){ porCorreo(plan); })
+      .finally(function(){
+        a.textContent = textoOriginal;
+        a.style.pointerEvents = '';
+      });
   });
 });
 
-/* Los videos están narrados y con la interfaz en cada idioma: al cambiar de
-   idioma se cambia la fuente. Si el video estaba reproduciéndose se lo deja
-   quieto —cambiar el archivo debajo de los pies del visitante molesta más de
-   lo que ayuda—, y se recuerda el segundo en el que iba. */
-function cambiarVideos(lang){
-  document.querySelectorAll('video[data-video]').forEach(function(v){
-    var nombre = v.getAttribute('data-video');
-    var esperado = 'video/' + nombre + '-' + lang + '.mp4';
-    var fuentes = v.querySelectorAll('source');
-    if (!fuentes.length || fuentes[0].getAttribute('src') === esperado) return;
-    var t = v.currentTime, sonando = !v.paused && !v.ended;
-    fuentes[0].setAttribute('src', esperado);
-    if (fuentes[1]) fuentes[1].setAttribute('src', 'video/' + nombre + '-' + lang + '.webm');
-    v.load();
-    if (t > 0.2) {
-      v.addEventListener('loadedmetadata', function reanudar(){
-        v.removeEventListener('loadedmetadata', reanudar);
-        try { v.currentTime = Math.min(t, (v.duration || t) - 0.1); } catch(e){}
-        if (sonando) v.play().catch(function(){});
-      });
-    }
-  });
+function porCorreo(plan){
+  var asunto = {es:'Quiero contratar MV AutoML Studio', pt:'Quero contratar o MV AutoML Studio',
+                en:'I want to buy MV AutoML Studio'}[CUR];
+  var ciclo = {es:{mes:'mensual',anio:'anual'}, pt:{mes:'mensal',anio:'anual'},
+               en:{mes:'monthly',anio:'yearly'}}[CUR][CICLO];
+  var cuerpo = {es:'Hola, quiero contratar el plan ' + plan + ' (' + ciclo + ').',
+                pt:'Olá, quero contratar o plano ' + plan + ' (' + ciclo + ').',
+                en:'Hello, I would like the ' + plan + ' plan (' + ciclo + ').'}[CUR];
+  window.location.href = 'mailto:' + CONFIG.contacto +
+    '?subject=' + encodeURIComponent(asunto + ' — ' + plan) +
+    '&body=' + encodeURIComponent(cuerpo);
 }
 
 /* Idioma guardado, o el del navegador la primera vez. */
