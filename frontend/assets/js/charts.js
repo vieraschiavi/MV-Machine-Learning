@@ -198,24 +198,73 @@ export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) 
   // propia matriz, que es lo que pasaba antes.
   const labelW = Math.min(190, Math.max(70, largoMax * CHAR + 10));
   const size = Math.min(cell, Math.max(12, (width - labelW - 24) / Math.max(n, 1)));
-  const topH = Math.round(largoMax * CHAR * 0.72) + 12;   // proyección a 45°
+
+  // EL ÁNGULO SALE DEL ESPACIO QUE HAY, no al revés.
+  //
+  // Estaba fijo en 45°, y entre dos etiquetas contiguas sólo hay `size` de
+  // paso horizontal — o sea size·sin(45°) = 0.71·size de separación
+  // perpendicular. Con la celda por defecto (26) son 18.4 u para un texto de
+  // 12.4 u de alto: entra justo. Pero `size` baja hasta 12 cuando crecen las
+  // columnas, y ahí quedan 8.5 u para el mismo texto: se pisan sin remedio.
+  //
+  // Ahora el ángulo se abre hasta donde haga falta, con tope en 90° (vertical),
+  // que es lo que usan los heatmaps densos justamente porque no puede
+  // solaparse. Se pide 1.45× el cuerpo de letra y no 1.18× (el alto real,
+  // medido en el navegador) para dejar aire entre etiqueta y etiqueta: pegadas
+  // sin tocarse se leen igual de mal.
+  const ALTO_TEXTO = 1.18;                 // alto real del glifo / cuerpo, medido
+  const fs = Math.max(8, Math.min(10.5, size * 0.8));
+  const seno = Math.min(1, (fs * 1.45) / Math.max(size, 1));
+  const ang = Math.max(45, Math.asin(seno) * 180 / Math.PI);
+  const rad = (ang * Math.PI) / 180;
+
+  // El largo del texto se proyecta sobre los dos ejes según el ángulo elegido:
+  // cuanto más vertical, más alto necesita arriba y menos se desborda a la
+  // derecha. Con 45° fijo esto estaba escrito a mano como 0.72 y dejaba de
+  // valer apenas cambiaba el ángulo.
+  const largoTexto = largoMax * (CHAR * fs / 11);
+  const topH = Math.round(largoTexto * Math.sin(rad)) + ALTO_TEXTO * fs;
+  const desborde = largoTexto * Math.cos(rad);
   const height = topH + n * size + 14;
-  const ancho = Math.max(width, labelW + n * size + topH * 0.72 + 12);
+
+  // El lienzo mide lo que ocupa el gráfico, NO el `width` pedido. Antes era
+  // max(width, …), así que una matriz de cinco columnas —que necesita ~330 u—
+  // reservaba igual las 640 del ancho por defecto: el SVG se estira al panel
+  // con width:100%, y el dibujo quedaba apretado contra el borde izquierdo con
+  // más de la mitad del panel vacío. Se ve en la captura del video.
+  const ancho = Math.ceil(labelW + n * size + desborde + 12);
 
   const { box, svg } = frame(ancho, height, title);
+
+  // Tope de estirado. `.chart { width: 100% }` estira el SVG a lo que mida el
+  // panel, y al sacar el piso de 640 u una matriz chica pasaba a escalarse
+  // 3.7×: celdas enormes y etiquetas de 39 px. Se limita por lo único que
+  // importa para leerlo — que la etiqueta no pase de 16 px — en vez de por un
+  // ancho fijo, que es lo que había traído el hueco a la derecha.
+  box.style.maxWidth = `${Math.round(ancho * (16 / fs))}px`;
+
   labels.forEach((lb, i) => {
     const y = topH + i * size;
+    // El cuerpo va por `style` y no por el atributo `font-size`: app.css tiene
+    // `.chart text { font-size: 10.5px }`, y una regla CSS le gana SIEMPRE a un
+    // atributo de presentación. Con el atributo, todo el cálculo de arriba se
+    // hacía contra un tamaño que después no era el que se dibujaba.
     const izq = svgEl('text', {
-      x: labelW - 7, y: y + size * 0.68, 'text-anchor': 'end', 'font-size': 11,
+      x: labelW - 7, y: y + size * 0.68, 'text-anchor': 'end',
+      style: `font-size:${fs.toFixed(2)}px`,
     });
     izq.textContent = corto(lb);
     izq.appendChild(svgEl('title')).textContent = String(lb);
     svg.appendChild(izq);
 
-    const cx = labelW + i * size + size * 0.62;
+    // Se ancla en el CENTRO de la columna (no en 0.62 del borde): con el
+    // ángulo variable, un desfase fijo corre todas las etiquetas respecto de
+    // su columna y a 90° se nota que no coinciden con la celda que nombran.
+    const cx = labelW + i * size + size / 2;
     const arriba = svgEl('text', {
-      x: cx, y: topH - 5, 'text-anchor': 'start', 'font-size': 11,
-      transform: `rotate(-45 ${cx} ${topH - 5})`,
+      x: cx, y: topH - 5, 'text-anchor': 'start',
+      style: `font-size:${fs.toFixed(2)}px`,
+      transform: `rotate(${-ang} ${cx} ${topH - 5})`,
     });
     arriba.textContent = corto(lb);
     arriba.appendChild(svgEl('title')).textContent = String(lb);
