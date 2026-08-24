@@ -106,7 +106,7 @@ un sello descartable: sirve para probar, no para vender.
 | `PANEL_CLAVE` | una frase larga que inventás vos | El panel de ventas queda cerrado |
 | `RESEND_API_KEY` | tu clave de Resend (`re_…`) | Ni la licencia ni los pedidos de demo te llegan por correo |
 | `CORREO_DESDE` | `MV Software <ventas@tudominio.com>` | Sale desde una dirección de prueba |
-| `CORREO_AVISOS` | tu dirección, para los pedidos de demo | Se usa `vieraschiavi@gmail.com` |
+| `CORREO_AVISOS` | tu dirección, para los avisos | Se usa `vieraschiavi@gmail.com` |
 | `SITIO` | `https://tu-sitio.vercel.app` | Los enlaces de descarga salen mal armados |
 
 Marcá todas para **Production**. Después de cargarlas hay que apretar
@@ -172,6 +172,33 @@ funcionando, en los tres idiomas.
 
 Los pedidos también quedan en los registros de Vercel, así que un problema con
 el correo no te hace perder un contacto.
+
+---
+
+### Qué te llega por correo
+
+Con `RESEND_API_KEY` cargada, te avisan tres cosas distintas:
+
+| Cuándo | Qué dice |
+|---|---|
+| Alguien pide una demo | Nombre, empresa, país, teléfono y qué quiere analizar. Respondiendo el correo le contestás directo a él |
+| Alguien **abre el checkout** | Plan, monto y hora. Todavía no pagó: avisa que hay alguien decidiéndose ahora |
+| Alguien **paga** | La licencia emitida, con el enlace de descarga. Ese correo se lo lleva el cliente, y la copia te queda en los registros |
+
+El del checkout tiene una guarda para no repetirse: el que duda toca el botón
+varias veces, y sin eso un solo interesado te manda cinco correos y el aviso
+deja de leerse. Se avisa una vez por persona y plan cada media hora.
+
+> **Un límite honesto de esa guarda.** Vive en la memoria del servidor, no en
+> una base de datos. Vercel puede levantar varias instancias, y dos clics
+> atendidos por instancias distintas pasarían los dos. Tapa el caso que molesta
+> —el mismo visitante insistiendo— pero no es una garantía absoluta. Ponerle una
+> base de datos para esto costaría más de lo que resuelve.
+
+Ninguno de estos avisos puede voltear lo que lo dispara: si Resend está caído o
+falta la clave, el comprador llega al checkout igual y el pedido de demo queda
+registrado igual. Está probado a propósito en `test_aviso_de_compra.py`, porque
+es la clase de falla que no se nota hasta que se pierde una venta.
 
 ---
 
