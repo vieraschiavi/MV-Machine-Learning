@@ -15,7 +15,7 @@
  *   CORREO_AVISOS    a dónde llegan los pedidos (por omisión, el del dueño)
  *   CORREO_DESDE     remitente verificado
  */
-const DESTINO = process.env.CORREO_AVISOS || 'vieraschiavi@gmail.com';
+import { avisar } from './_avisar.js';
 
 // Deliberadamente laxo: la validación de correos por expresión regular rechaza
 // direcciones válidas si se pone exigente, y acá el costo de un falso negativo
@@ -23,11 +23,6 @@ const DESTINO = process.env.CORREO_AVISOS || 'vieraschiavi@gmail.com';
 const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const limpio = (v, tope) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, tope);
-
-function escapar(s) {
-  return String(s).replace(/[&<>"]/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-}
 
 export function validar(cuerpo) {
   // Campo trampa: está oculto por CSS, así que una persona nunca lo completa.
@@ -70,31 +65,12 @@ export default async function handler(req, res) {
   // Primero el registro: si el correo falla, el contacto no se pierde.
   console.log(JSON.stringify({ pedido: 'demo', ...datos }));
 
-  let avisado = false;
-  if (process.env.RESEND_API_KEY) {
-    try {
-      const r = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: process.env.CORREO_DESDE || 'MV Software <onboarding@resend.dev>',
-          to: [DESTINO],
-          // Respondiendo el correo se le contesta directo a quien pidió la demo.
-          reply_to: datos.correo,
-          subject: `Demo pedida: ${datos.empresa} (${datos.pais})`,
-          text: lineas,
-          html: `<pre style="font:14px/1.6 ui-monospace,monospace">${escapar(lineas)}</pre>`,
-        }),
-      });
-      avisado = r.ok;
-      if (!r.ok) console.error('Resend rechazó el aviso:', await r.text());
-    } catch (e) {
-      console.error('No se pudo avisar del pedido de demo:', e);
-    }
-  }
+  // Respondiendo el correo se le contesta directo a quien pidió la demo.
+  const avisado = await avisar({
+    asunto: `Demo pedida: ${datos.empresa} (${datos.pais})`,
+    responderA: datos.correo,
+    texto: lineas,
+  });
 
   res.setHeader('Cache-Control', 'no-store');
   // Al visitante se le confirma igual: el pedido quedó registrado del lado del

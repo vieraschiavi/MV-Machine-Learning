@@ -9,7 +9,10 @@
  * Variables de entorno:
  *   MP_ACCESS_TOKEN   credencial de MercadoPago (producción o prueba)
  *   SITIO             URL pública del sitio, para las páginas de retorno
+ *   RESEND_API_KEY    opcional: si está, avisa por correo que alguien empezó a pagar
+ *   CORREO_AVISOS     a dónde llega ese aviso
  */
+import { avisar, horaLocal, yaAvisado } from './_avisar.js';
 
 // Los precios viven acá, del lado del servidor: si dependieran de lo que manda
 // el navegador, cualquiera podría comprar el plan Empresa por un peso.
@@ -77,9 +80,47 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: 'No se pudo iniciar el cobro. Probá de nuevo.' });
     }
 
+    // Aviso de que alguien arrancó un pago. Llega antes que el cobro
+    // confirmado, así que sirve para saber que hay alguien decidiéndose ahora.
+    //
+    // Va DESPUÉS de tener el link y no se espera su resultado: si Resend está
+    // caído o la clave falta, el comprador tiene que llegar igual al checkout.
+    // Perder una venta por no poder avisar de ella sería absurdo.
+    avisarDelIntento(elegido, plan, email, req).catch(() => {});
+
     return res.status(200).json({ url: datos.init_point, referencia });
   } catch (err) {
     console.error('Error creando la preferencia:', err);
     return res.status(502).json({ error: 'No se pudo iniciar el cobro. Probá de nuevo.' });
   }
+}
+
+/**
+ * Avisa que alguien apretó comprar, una sola vez por persona y plan.
+ *
+ * La guarda importa porque el que duda toca el botón varias veces: sin ella,
+ * un solo interesado manda cinco correos y el aviso deja de leerse.
+ */
+async function avisarDelIntento(elegido, plan, email, req) {
+  const correo = String(email || '').trim().toLowerCase();
+  // Sin correo se cae al origen del pedido: peor identificador, pero evita que
+  // un mismo visitante anónimo dispare un aviso por clic.
+  const quien = correo
+    || String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || 'anónimo';
+  if (yaAvisado(`pago:${quien}:${plan}`)) return;
+
+  await avisar({
+    asunto: `Alguien está comprando: ${elegido.titulo}`,
+    responderA: correo || undefined,
+    texto: [
+      `Plan:    ${plan}`,
+      `Monto:   US$ ${elegido.precio}`,
+      `Correo:  ${correo || '(no lo dejó)'}`,
+      `Hora:    ${horaLocal()}`,
+      '',
+      'Esto avisa que abrió el checkout, no que pagó. La confirmación del cobro',
+      'llega por el webhook y es la que emite la licencia.',
+    ].join('\n'),
+  });
 }
