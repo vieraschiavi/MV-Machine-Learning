@@ -16,7 +16,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import ai, automl, connectors, dashboards, datasets, etl, exports, jobs, licenses, workspaces
+from .api import (
+    ai,
+    automl,
+    connectors,
+    dashboards,
+    datasets,
+    etl,
+    exports,
+    ingenieria,
+    jobs,
+    licenses,
+    workspaces,
+)
 from .config import settings
 from .core import licensing as L
 from .core import security as S
@@ -42,7 +54,7 @@ app.add_middleware(
 
 for r in (datasets.router, connectors.router, etl.router, automl.router,
           ai.router, exports.router, jobs.router, workspaces.router, licenses.router,
-          dashboards.router):
+          dashboards.router, ingenieria.router):
     app.include_router(r)
 
 

@@ -85,6 +85,28 @@ de trabajos; se cambia desde la barra superior y viaja en cada request
 persiste el historial de trabajos entre reinicios; si se pierde, se
 reconstruye solo desde el disco.
 
+### 2 quáter. Ingeniería de datos
+
+Las cuatro preguntas que hay que contestar antes de modelar y que ninguna
+pantalla contestaba, todas medidas sobre los datos y no supuestas:
+
+* **Claves.** Qué identifica una fila: clave simple, compuesta (entidad +
+  período) y candidatas a foránea. Un importe con decimales no repite en 3.000
+  filas y **no** es una clave: se descarta midiendo si los valores son enteros,
+  no por el tipo declarado.
+* **Tiempo.** Cobertura, huecos, frescura y tendencia, con la **granularidad
+  medida**: un panel con una fila por mes tiene el 97 % del calendario vacío
+  contado en días, y decirle «faltan 1.030 días» es cierto e inútil.
+* **Cruces.** Qué tabla se puede unir con cuál, por el **solapamiento real de
+  valores** y no porque dos columnas se llamen igual, con la cardinalidad
+  (1:1, 1:N, N:1, N:N) y el aviso cuando el cruce multiplica filas.
+* **Contrato de datos.** Diccionario, `CREATE TABLE` para SQL Server,
+  PostgreSQL, MySQL/MariaDB o DuckDB, verificaciones SQL que devuelven cero
+  cuando está todo bien, y el modelo `dbt` con sus tests.
+
+Está incluido: no es un módulo aparte ni se cobra por separado. El detalle está
+en [`docs/INGENIERIA_DE_DATOS.md`](docs/INGENIERIA_DE_DATOS.md).
+
 ### 3. Decís qué querés predecir, en tus palabras
 
 Escribís *"si el cliente va a pagar en los próximos 30 días"* y la plataforma

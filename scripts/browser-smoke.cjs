@@ -11,7 +11,8 @@
 const { chromium } = require('playwright');
 
 const BASE = process.env.MV_URL || 'http://127.0.0.1:8000';
-const VISTAS = ['overview', 'data', 'explore', 'dashboard', 'etl', 'model', 'results', 'ai', 'export'];
+const VISTAS = ['overview', 'data', 'explore', 'dashboard', 'etl', 'ingenieria', 'model',
+  'results', 'ai', 'export'];
 const IDIOMAS = ['es', 'en', 'pt'];
 
 (async () => {

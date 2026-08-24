@@ -170,6 +170,42 @@ def test_flujo_completo_etl_entrenamiento_y_exportacion(client, subido):
     assert csv["result"]["rows"] == limpio["rows"]
 
 
+def test_ingenieria_contesta_las_cuatro_preguntas(client, subido):
+    """Claves, tiempo y contrato salen del mismo informe: una sola pasada."""
+    r = client.get(f"/api/ingenieria/{subido['id']}?dialecto=postgresql")
+    assert r.status_code == 200, r.text
+    inf = r.json()
+    assert inf["filas"] == subido["rows"]
+    assert inf["claves"]["pk_simple"] or inf["claves"]["pk_compuesta"] \
+        or inf["claves"]["sin_clave"]
+    assert inf["tiempo"]["granularidad"] in ("diario", "semanal", "mensual")
+    assert inf["contrato"]["ddl"].startswith("--")
+    assert '"' in inf["contrato"]["ddl"], "PostgreSQL cita con comillas dobles"
+    assert inf["contrato"]["verificaciones"]
+
+
+def test_ingenieria_sin_nivel_de_licencia(client, subido):
+    """No es un producto aparte: no se cobra ni se bloquea por nivel."""
+    for ruta in ("claves", "tiempo", "contrato"):
+        assert client.get(f"/api/ingenieria/{subido['id']}/{ruta}").status_code == 200
+
+
+def test_ingenieria_dataset_inexistente_da_404(client):
+    assert client.get("/api/ingenieria/ds_no_existe").status_code == 404
+
+
+def test_ingenieria_dialecto_inventado_da_400(client, subido):
+    r = client.get(f"/api/ingenieria/{subido['id']}/contrato?dialecto=oráculo")
+    assert r.status_code == 400
+    assert "oráculo" in r.json()["detail"]
+
+
+def test_cruces_sin_dos_datasets_lo_dice_sin_romperse(client, subido):
+    r = client.post("/api/ingenieria/cruces", json={"datasets": [subido["id"]]})
+    assert r.status_code == 200
+    assert r.json()["sugerencias"] == []
+
+
 def test_entrenar_con_objetivo_inexistente_da_400(client, subido):
     r = client.post("/api/automl/train",
                     json={"dataset_id": subido["id"], "target": "no_existe"})

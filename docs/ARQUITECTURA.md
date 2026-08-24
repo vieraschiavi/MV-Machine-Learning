@@ -40,6 +40,7 @@ omisión) y la interfaz avisa cuántas filas se usaron sobre cuántas hay.
 | `core/storage.py` | Ingesta sin límite, detección de encoding/separador/decimal, almacén Parquet, consultas DuckDB |
 | `core/profiling.py` | Perfil por columna, calidad de datos, correlaciones, análisis del objetivo, inferencia del tipo de tarea |
 | `core/etl.py` | Propuesta del plan, detección de tipos reales, auditoría de fuga, compilación a SQL, ejecución |
+| `core/ingenieria.py` | Claves (simple, compuesta y foráneas), cobertura y huecos de la serie de tiempo, cruces posibles entre tablas con su cardinalidad, y contrato de datos: diccionario, DDL por motor, verificaciones y modelo dbt |
 | `core/features.py` | Codificación dual: matriz de árboles (ordinal, admite nulos) y matriz lineal (one-hot, imputada, escalada) |
 | `core/automl.py` | Partición en tres ventanas, catálogo de modelos, optimización con Optuna, calibración, combinación, veredicto |
 | `core/explain.py` | Importancia nativa, permutación sobre el holdout y SHAP con dirección del efecto |
