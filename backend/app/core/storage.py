@@ -236,6 +236,67 @@ def _cast_to(table: pa.Table, schema: pa.Schema) -> pa.Table:
 
 
 # ─────────────────────────────────────────────────────────── ingesta ──────────
+_FECHA_RE = re.compile(
+    r"^\s*\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}([ T]\d{1,2}:\d{2}(:\d{2})?)?\s*$")
+_ORDEN_RE = re.compile(r"^\s*(\d{1,2})[-/.](\d{1,2})[-/.]\d{2,4}")
+
+
+def _fechas_en_texto(df: pd.DataFrame, prefiere_dia: bool) -> dict[str, bool]:
+    """Columnas de texto que en realidad son fechas, y en qué orden vienen.
+
+    Un CSV no trae tipos: una fecha llega como texto y se guardaría como texto.
+    Eso deja al dataset sin ninguna columna temporal — sin cobertura, sin
+    frescura y con ``VARCHAR`` donde va una fecha en el DDL — aunque el archivo
+    esté lleno de fechas. La detección es a propósito estricta: se exige que
+    casi todos los valores tengan forma de fecha **y** que se puedan leer. Un
+    código como ``1.234-5`` no pasa el patrón, y una columna con un 10% de
+    basura se queda como texto en vez de perder ese 10% en silencio.
+
+    El orden día/mes se decide por evidencia (un 25 en la primera posición no
+    puede ser un mes). Cuando todos los valores son ambiguos —el caso real de
+    un archivo con puras fechas del 1 al 12— se usa la pista del formato: un
+    archivo con coma decimal viene de una configuración regional que escribe
+    ``dd/mm/aaaa``.
+    """
+    out: dict[str, bool] = {}
+    for c in df.columns:
+        s = df[c]
+        if not (pd.api.types.is_object_dtype(s) or pd.api.types.is_string_dtype(s)):
+            continue
+        muestra = s.dropna().astype(str).head(500)
+        if len(muestra) < 3:
+            continue
+        if muestra.map(lambda v: bool(_FECHA_RE.match(v))).mean() < 0.95:
+            continue
+        dia_primero = prefiere_dia
+        partes = [m for m in (_ORDEN_RE.match(v) for v in muestra) if m]
+        if partes:
+            if max(int(m.group(1)) for m in partes) > 12:
+                dia_primero = True
+            elif max(int(m.group(2)) for m in partes) > 12:
+                dia_primero = False
+        leidas = pd.to_datetime(muestra, errors="coerce", dayfirst=dia_primero,
+                                format="mixed")
+        if leidas.notna().mean() >= 0.95:
+            out[c] = dia_primero
+    return out
+
+
+def _aplicar_fechas(df: pd.DataFrame, fechas: dict[str, bool]) -> pd.DataFrame:
+    """Convierte de una vez las columnas que la muestra dio por fechas.
+
+    La decisión se toma una sola vez, con el primer bloque, y se aplica igual a
+    todos: si cada bloque decidiera por su cuenta, uno podría escribir marca de
+    tiempo y el siguiente texto sobre la misma columna, y el Parquet quedaría
+    con esquemas incompatibles.
+    """
+    for c, dia_primero in fechas.items():
+        if c in df.columns:
+            df[c] = pd.to_datetime(df[c], errors="coerce", dayfirst=dia_primero,
+                                   format="mixed")
+    return df
+
+
 def _ingest_text(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
     reader = pd.read_csv(
         path,
@@ -251,6 +312,7 @@ def _ingest_text(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
         keep_default_na=True,
     )
     first = True
+    fechas: dict[str, bool] | None = None
     for chunk in reader:
         if first:
             chunk.columns = _clean_columns(chunk.columns)
@@ -258,7 +320,9 @@ def _ingest_text(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
             first = False
         else:
             chunk.columns = cols
-        sink.write(chunk)
+        if fechas is None:
+            fechas = _fechas_en_texto(chunk, opts.get("decimal") == ",")
+        sink.write(_aplicar_fechas(chunk, fechas))
 
 
 def _ingest_excel(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:

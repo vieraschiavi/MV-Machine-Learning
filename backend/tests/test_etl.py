@@ -24,11 +24,41 @@ def test_descarta_constante_identificador_y_columna_vacia(plan):
     assert "objetivo" not in dropped
 
 
-def test_no_descarta_la_fecha_como_identificador(plan):
-    """Una fecha tiene un valor por fila; sin detección de tipo se perdería."""
+def test_no_descarta_la_fecha_como_identificador(plan, dataset_binary):
+    """Una fecha tiene un valor por fila; sin detección de tipo se perdería.
+
+    Desde que la ingesta reconoce las fechas escritas como texto en un CSV, la
+    columna llega acá ya tipada y `parse_datetime` no tiene nada que hacer. Lo
+    que se cuida es la garantía, no el paso: que la fecha no se descarte por
+    tener un valor por fila y que termine aprovechada.
+    """
+    tipos = {c["name"]: c["arrow_type"]
+             for c in storage.load_meta(dataset_binary.id).columns}
+    assert "timestamp" in tipos["fecha"].lower(), "la ingesta tendría que tiparla"
     assert "fecha" not in _ops(plan, "drop_column")
-    assert "fecha" in _ops(plan, "parse_datetime")
     assert "fecha" in _ops(plan, "expand_datetime")
+
+
+def test_parsea_la_fecha_que_la_ingesta_dejo_como_texto(tmp_path):
+    """La ingesta es estricta a propósito: si un porcentaje de los valores no
+    tiene forma de fecha, deja la columna como texto antes que convertir el
+    resto en nulos sin avisar. El ETL, que mira una columna por vez y con el
+    nombre a la vista, la levanta igual."""
+    n = 240
+    valores = [f"2024-{(i % 12) + 1:02d}-15" for i in range(n)]
+    for i in range(0, n, 12):
+        valores[i] = "sin dato"        # 8%: suficiente para que la ingesta no la tipe
+    df = pd.DataFrame({"fecha_alta": valores,
+                       "monto": [float(i) for i in range(n)],
+                       "objetivo": [i % 2 for i in range(n)]})
+    ruta = tmp_path / "fechas_sucias.csv"
+    df.to_csv(ruta, index=False)
+    ds = storage.ingest_file(ruta, "fechas_sucias")
+    tipos = {c["name"]: c["arrow_type"] for c in ds.columns}
+    assert "string" in tipos["fecha_alta"].lower()
+
+    plan = etl.propose(ds.id, target="objetivo")
+    assert "fecha_alta" in _ops(plan, "parse_datetime")
 
 
 def test_convierte_texto_numerico_con_simbolo_y_coma_decimal(plan):
