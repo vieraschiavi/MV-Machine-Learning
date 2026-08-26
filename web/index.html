@@ -139,6 +139,11 @@ nav .wrap{display:flex;align-items:center;gap:16px;height:60px}
 .vframe{border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.18);background:#0E1117;
   border:1px solid var(--line-d)}
 .vframe video{width:100%;display:block;background:#0E1117}
+/* El subtítulo va sobre la grabación: sin fondo propio queda ilegible en las
+   partes claras de la pantalla, y con letra fija tapa medio video en el
+   celular. Fondo sólido y tamaño relativo al ancho del marco. */
+.vframe video::cue{background:rgba(6,10,20,.85);color:#fff;font-size:.78em;
+  line-height:1.3;font-family:inherit;text-shadow:none}
 .vcap{color:var(--muted-d);font-size:13.5px;margin:12px 0 0}
 .vgrid{display:grid;gap:34px}
 
@@ -304,18 +309,22 @@ footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
   <div class="vgrid">
     <div>
       <div class="vframe">
-        <video controls preload="metadata" playsinline poster="" data-video="recorrido">
+        <video controls preload="metadata" playsinline data-video="recorrido">
           <source src="video/recorrido-es.mp4" type="video/mp4">
           <source src="video/recorrido-es.webm" type="video/webm">
+          <track kind="subtitles" srclang="es" label="Español" default
+                 src="video/recorrido-es.vtt">
         </video>
       </div>
       <p class="vcap" data-i="vc1"><b>Recorrido completo.</b> Se sube un archivo, la plataforma lo perfila, se escribe la variable objetivo en castellano y entrena; al final se ve el informe con el modelo campeón, su AUC sobre el holdout ciego y el análisis de variables.</p>
     </div>
     <div>
       <div class="vframe">
-        <video controls preload="metadata" playsinline poster="" data-video="tablero">
+        <video controls preload="metadata" playsinline data-video="tablero">
           <source src="video/tablero-es.mp4" type="video/mp4">
           <source src="video/tablero-es.webm" type="video/webm">
+          <track kind="subtitles" srclang="es" label="Español" default
+                 src="video/tablero-es.vtt">
         </video>
       </div>
       <p class="vcap" data-i="vc2"><b>Tablero y preguntas.</b> Los KPIs con su variación contra el mes anterior, las series y los filtros salen del propio dataset, sin configurarlos; se filtra, se exporta a Excel y se le pregunta en castellano sobre lo que quedó a la vista.</p>
@@ -869,6 +878,44 @@ function textoDemo(clave, porOmision){
     });
   });
 })();
+
+var IDIOMA_LARGO = { es: 'Espa\u00f1ol', en: 'English', pt: 'Portugu\u00eas' };
+
+/* Cada video existe en los tres idiomas —narrado y subtitulado— pero el
+   navegador se queda con el que cargó primero. Elegir inglés y seguir
+   escuchando la voz en castellano es peor que no tener el video en inglés:
+   parece que el producto tampoco habla el idioma.
+
+   Se cambia el archivo, no sólo los textos de alrededor. Y sólo cuando el
+   idioma cambió de verdad: `load()` rebobina, y llamarlo de gusto le corta la
+   reproducción al visitante que está mirando. */
+function cambiarVideos(lang){
+  document.querySelectorAll('video[data-video]').forEach(function(v){
+    if (v.dataset.lang === lang) return;
+    var base = v.getAttribute('data-video');
+    var andaba = !v.paused && !v.ended;
+    v.dataset.lang = lang;
+    v.querySelectorAll('source').forEach(function(s){
+      var ext = (s.type === 'video/webm') ? 'webm' : 'mp4';
+      s.setAttribute('src', 'video/' + base + '-' + lang + '.' + ext);
+    });
+    v.querySelectorAll('track').forEach(function(t){ t.remove(); });
+    var pista = document.createElement('track');
+    pista.kind = 'subtitles';
+    pista.srclang = lang;
+    pista.label = IDIOMA_LARGO[lang] || lang;
+    pista.setAttribute('default', '');
+    pista.src = 'video/' + base + '-' + lang + '.vtt';
+    v.appendChild(pista);
+    v.load();
+    /* El atributo `default` no alcanza en todos los navegadores; con la pista
+       ya cargada se la enciende a mano. En la web casi nadie le da al sonido:
+       sin subtítulo encendido, el video es mudo y no dice nada en ningún
+       idioma. */
+    if (v.textTracks && v.textTracks.length) v.textTracks[0].mode = 'showing';
+    if (andaba) { var p = v.play(); if (p && p.catch) p.catch(function(){}); }
+  });
+}
 
 function setLang(lang){
   CUR = lang;

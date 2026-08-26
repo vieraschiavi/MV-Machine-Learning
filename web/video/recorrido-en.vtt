@@ -1,0 +1,73 @@
+WEBVTT
+
+00:00:00.500 --> 00:00:05.504 line:-1 align:center size:84%
+MV AutoML Studio. From any dataset
+to a validated model, without
+
+00:00:05.504 --> 00:00:07.850 line:-1 align:center size:84%
+writing a single line of code.
+
+00:00:08.000 --> 00:00:12.699 line:-1 align:center size:84%
+You drop the file and the platform
+profiles it on its own: it detects
+
+00:00:12.699 --> 00:00:17.126 line:-1 align:center size:84%
+each column's type, the data
+quality, and the free text, which it
+
+00:00:17.126 --> 00:00:19.850 line:-1 align:center size:84%
+vectorises so it competes with the
+rest.
+
+00:00:20.000 --> 00:00:25.450 line:-1 align:center size:84%
+The correlation map shows at a
+glance which variables move
+
+00:00:25.450 --> 00:00:26.850 line:-1 align:center size:84%
+together.
+
+00:00:27.000 --> 00:00:32.091 line:-1 align:center size:84%
+You type the target in plain
+language. The platform finds the
+
+00:00:32.091 --> 00:00:36.450 line:-1 align:center size:84%
+column, recognises it as a
+classification problem and builds
+
+00:00:36.450 --> 00:00:37.850 line:-1 align:center size:84%
+the plan.
+
+00:00:38.000 --> 00:00:43.373 line:-1 align:center size:84%
+Before training it audits for
+leakage and drops whatever memorises
+
+00:00:43.373 --> 00:00:47.850 line:-1 align:center size:84%
+instead of generalising, such as
+each row's identifier.
+
+00:00:48.000 --> 00:00:54.501 line:-1 align:center size:84%
+Then the models compete: it tunes
+hyperparameters, tries different
+
+00:00:54.501 --> 00:00:57.850 line:-1 align:center size:84%
+families and blends the best ones.
+
+00:00:58.000 --> 00:01:02.869 line:-1 align:center size:84%
+The number it reports comes from the
+blind holdout, the window untouched
+
+00:01:02.869 --> 00:01:07.536 line:-1 align:center size:84%
+by any decision. Zero point eight
+eight AUC, with minimal degradation
+
+00:01:07.536 --> 00:01:10.850 line:-1 align:center size:84%
+against the selection window: the
+model holds up.
+
+00:01:11.000 --> 00:01:14.577 line:-1 align:center size:84%
+And it explains why: every variable
+with its real weight and which way
+
+00:01:14.577 --> 00:01:18.000 line:-1 align:center size:84%
+it pushes. Effective contact raises
+payment; days overdue lower it.

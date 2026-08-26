@@ -14,7 +14,8 @@ que todo suene igual. Tres motores, en este orden:
    clave se usa primero: es la de mejor calidad.
 
 El guion sale de `guiones.js`, que es también lo que muestra la web: no hay
-forma de que el audio diga una cosa y la página otra.
+forma de que el audio diga una cosa y la página otra. De paso se escriben los
+subtítulos, con la duración real de cada frase ya medida.
 
 Uso:
     python web/video/generar_voz.py              # todos los idiomas
@@ -29,6 +30,8 @@ import subprocess
 import sys
 import wave
 from pathlib import Path
+
+import generar_subtitulos
 
 AQUI = Path(__file__).resolve().parent
 IDIOMAS = ("es", "en", "pt")
@@ -211,6 +214,11 @@ def main(idiomas: tuple[str, ...]) -> None:
                         raise SystemExit("no se pudo sintetizar la narración")
                 tramos.append((tramo["t"], mp3))
             largo = duracion(mudo)
+            # Los subtítulos se escriben acá porque acá se sabe cuánto dura
+            # realmente cada frase: mirando sólo el guion habría que suponerlo.
+            generar_subtitulos.escribir(
+                nombre, lang, guiones[nombre][lang],
+                [duracion(mp3) for _, mp3 in tramos], largo)
             ultimo = tramos[-1][0] + duracion(tramos[-1][1])
             if ultimo > largo + 1.5:
                 print(f"  aviso: la narración termina en {ultimo:.1f} s y el video "

@@ -25,6 +25,21 @@ cuatrocientos— y agrupado por tramos de atraso en vez de estados internos:
 así se lee sin conocer la nomenclatura de ninguna empresa y el gráfico queda
 ordenado solo, de `0-30` a `+360`.
 
+## Los mismos datos en inglés y en portugués
+
+[`traducir.py`](traducir.py) escribe `gestiones_con_texto-en.csv`,
+`gestiones_con_texto-pt.csv`, `cobranzas_panel-en.xlsx` y
+`cobranzas_panel-pt.xlsx`. Existen por los videos del sitio: un KPI se llama
+como la columna de la que sale, así que el video en inglés mostraba
+`MontoACobrarVencido` mientras la voz hablaba en inglés — media pantalla
+traducida no se lee como un producto internacional, se lee como una traducción
+a medio hacer.
+
+**Los números no se regeneran**: se toma el archivo en castellano y se le
+cambian los nombres de columna, las categorías y las notas del gestor. Los tres
+idiomas muestran exactamente las mismas cifras, y los tres videos se pueden
+comparar cuadro a cuadro.
+
 Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
 la auditoría antes de entrenar.

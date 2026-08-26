@@ -1,0 +1,70 @@
+WEBVTT
+
+00:00:00.500 --> 00:00:05.558 line:-1 align:center size:84%
+MV AutoML Studio. De cualquier
+dataset a un modelo validado, sin
+
+00:00:05.558 --> 00:00:07.850 line:-1 align:center size:84%
+escribir una línea de código.
+
+00:00:08.000 --> 00:00:12.315 line:-1 align:center size:84%
+Se arrastra el archivo y la
+plataforma lo perfila sola: detecta
+
+00:00:12.315 --> 00:00:17.110 line:-1 align:center size:84%
+el tipo de cada columna, la calidad
+de los datos y el texto libre, que
+
+00:00:17.110 --> 00:00:19.850 line:-1 align:center size:84%
+vectoriza para que compita con el
+resto.
+
+00:00:20.000 --> 00:00:26.850 line:-1 align:center size:84%
+El mapa de correlaciones muestra de
+una qué variables se mueven juntas.
+
+00:00:27.000 --> 00:00:31.449 line:-1 align:center size:84%
+El objetivo se escribe en
+castellano, en tus palabras. La
+
+00:00:31.449 --> 00:00:36.450 line:-1 align:center size:84%
+plataforma identifica la columna,
+reconoce que es una clasificación y
+
+00:00:36.450 --> 00:00:37.850 line:-1 align:center size:84%
+arma el plan.
+
+00:00:38.000 --> 00:00:42.850 line:-1 align:center size:84%
+Antes de entrenar audita la fuga de
+información y descarta lo que
+
+00:00:42.850 --> 00:00:47.850 line:-1 align:center size:84%
+memoriza en vez de generalizar, como
+el identificador de cada fila.
+
+00:00:48.000 --> 00:00:54.666 line:-1 align:center size:84%
+Ahora compiten los modelos: ajusta
+hiperparámetros, prueba familias
+
+00:00:54.666 --> 00:00:57.850 line:-1 align:center size:84%
+distintas y combina las mejores.
+
+00:00:58.000 --> 00:01:02.263 line:-1 align:center size:84%
+El número que se reporta sale del
+holdout ciego, la ventana que no se
+
+00:01:02.263 --> 00:01:06.340 line:-1 align:center size:84%
+tocó en ninguna decisión. Cero coma
+ochenta y ocho de AUC, con una
+
+00:01:06.340 --> 00:01:10.850 line:-1 align:center size:84%
+degradación mínima contra la ventana
+de selección: el modelo se sostiene.
+
+00:01:11.000 --> 00:01:14.709 line:-1 align:center size:84%
+Y explica por qué: cada variable con
+su peso real y hacia dónde empuja.
+
+00:01:14.709 --> 00:01:18.000 line:-1 align:center size:84%
+El contacto efectivo sube el pago;
+los días de atraso lo bajan.

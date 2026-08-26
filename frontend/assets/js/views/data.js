@@ -86,13 +86,16 @@ function sqlCard(rerender) {
       inp.oninput = () => { conn[key] = inp.value; };
       fields.appendChild(el('div', { class: 'field' }, el('label', { text: t(labelKey) }), inp));
     };
-    add('label', 'data.connection_label', 'text', 'Producción');
+    // Los ejemplos también son texto de la interfaz: escritos a mano quedaban
+    // en castellano dentro de la aplicación en inglés, y el del host era el
+    // servidor real de casa — que además salía filmado en los videos de la web.
+    add('label', 'data.connection_label', 'text', t('data.ph_label'));
     if (eng === 'custom') {
-      add('url', 'data.connection_url', 'text', 'oracle+oracledb://usuario:clave@host:1521/?service_name=orcl');
+      add('url', 'data.connection_url', 'text', t('data.ph_url'));
     } else if (eng === 'sqlite' || eng === 'duckdb') {
-      add('database', 'data.database', 'text', '/ruta/al/archivo.db');
+      add('database', 'data.database', 'text', t('data.ph_file'));
     } else {
-      add('host', 'data.host', 'text', '10.1.3.46');
+      add('host', 'data.host', 'text', t('data.ph_host'));
       add('port', 'data.port', 'number');
       add('database', 'data.database');
       add('username', 'data.username');
