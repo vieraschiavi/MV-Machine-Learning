@@ -240,3 +240,8 @@ jobs:
             Compilación con licencia OWNER embebida: todas las funciones
             habilitadas, incluida la emisión de licencias. Este release es
             un borrador: no es visible públicamente.
+
+            No hace falta bajarlo desde acá: `instalador-owner/Bajar-OWNER.bat`
+            lo pide al sitio con la licencia de dueño, sin token ni cuenta de
+            GitHub. `/api/descargar` entrega esta compilación cuando la licencia
+            es de nivel `owner`.

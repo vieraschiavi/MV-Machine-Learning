@@ -13,19 +13,27 @@
  * y aunque pudiera sería pagar ancho de banda para hacer de intermediario: se
  * pide el enlace temporal y se manda al cliente directo a buscarlo.
  *
+ * Una licencia de nivel `owner` recibe el instalador OWNER, que trae la
+ * licencia de dueño adentro. Es la forma de bajar la versión completa sin
+ * entrar a la interfaz de GitHub ni manejar tokens: la licencia que ya
+ * identifica al dueño alcanza para pedirla.
+ *
  * Variables de entorno:
  *   MV_LICENSE_PUBLIC_KEY  clave pública Ed25519 (base64). No es secreta.
  *   GITHUB_TOKEN           token con permiso de lectura del repositorio
  *   REPO                   opcional: "usuario/repositorio"
  *   ARCHIVO_INSTALADOR     opcional: nombre del .exe a entregar
+ *   ARCHIVO_INSTALADOR_OWNER  opcional: nombre del .exe de dueño
  */
 import { verificarLicencia } from './_firmar.js';
 
 const REPO = process.env.REPO || 'vieraschiavi/MV-Machine-Learning';
 const ARCHIVO = process.env.ARCHIVO_INSTALADOR || 'MV-AutoML-Studio-Setup.exe';
+const ARCHIVO_OWNER = process.env.ARCHIVO_INSTALADOR_OWNER
+  || 'MV-AutoML-Studio-Owner-Setup.exe';
 
 /** Busca el instalador en el release más reciente que lo tenga. */
-async function ubicarInstalador(gh) {
+async function ubicarInstalador(gh, archivo = ARCHIVO) {
   const r = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=30`, {
     headers: { Authorization: `Bearer ${gh}`, Accept: 'application/vnd.github+json' },
   });
@@ -33,10 +41,10 @@ async function ubicarInstalador(gh) {
   const releases = await r.json();
   for (const rel of releases) {
     for (const a of rel.assets || []) {
-      if (a.name === ARCHIVO) return a.url;      // la API los devuelve del más nuevo al más viejo
+      if (a.name === archivo) return a.url;      // la API los devuelve del más nuevo al más viejo
     }
   }
-  throw new Error(`no hay ningún release con ${ARCHIVO}`);
+  throw new Error(`no hay ningún release con ${archivo}`);
 }
 
 /** Pide a GitHub el enlace temporal al archivo. */
@@ -72,11 +80,18 @@ export default async function handler(req, res) {
     });
   }
 
+  // El dueño se lleva la compilación de dueño. Es el mismo camino que el del
+  // cliente —la licencia entra por la dirección y sale un enlace temporal—, así
+  // que probar la versión completa no pide nada más que la licencia que ya
+  // tiene: ni entrar a GitHub, ni un token, ni bajar un release borrador a mano.
+  const archivo = licencia.tier === 'owner' ? ARCHIVO_OWNER : ARCHIVO;
+
   try {
-    const destino = await enlaceTemporal(await ubicarInstalador(gh), gh);
+    const destino = await enlaceTemporal(await ubicarInstalador(gh, archivo), gh);
     // Queda registrado quién bajó y cuándo, sin guardar la licencia entera.
     console.log(JSON.stringify({
       descarga: licencia.id, nivel: licencia.tier, titular: licencia.licensee,
+      archivo,
     }));
     res.setHeader('Cache-Control', 'no-store');
     return res.redirect(302, destino);

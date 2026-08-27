@@ -1,0 +1,75 @@
+@echo off
+setlocal enabledelayedexpansion
+title MV AutoML Studio - activar edicion OWNER
+REM (c) 2026 Martin Viera. Software propietario.
+REM
+REM Convierte una instalacion que ya tenes en edicion OWNER, sin bajar de nuevo
+REM los 375 MB del instalador. Escribe la licencia en la carpeta de datos del
+REM programa; al reabrirlo, arranca en nivel Owner.
+REM
+REM La licencia es un token firmado con Ed25519: escribir el archivo a mano no
+REM sirve de nada, el programa verifica la firma contra la clave publica que
+REM lleva embebida (backend/app/core/licensing.py).
+
+set "LICFILE=%~dp0mi-licencia.txt"
+set "DATOS=%APPDATA%\MV AutoML Studio\data"
+
+echo.
+echo  ============================================
+echo   ACTIVAR EDICION OWNER
+echo  ============================================
+echo.
+
+set "LIC="
+if exist "%LICFILE%" (
+  set /p LIC=<"%LICFILE%"
+  echo  Licencia leida de mi-licencia.txt
+)
+if not defined LIC (
+  echo  Pega tu licencia de dueno. Se emite en tu sitio, /panel,
+  echo  seccion "Emitir licencia", nivel Owner, sin vencimiento.
+  echo.
+  set /p LIC=  Licencia: 
+  if not defined LIC (
+    echo.
+    echo  [ERROR] No escribiste ninguna licencia.
+    goto :fin
+  )
+  >"%LICFILE%" echo !LIC!
+)
+
+REM Un control barato antes de escribir: las licencias empiezan con MVAS.
+echo !LIC! | findstr /b /c:"MVAS." >nul
+if errorlevel 1 (
+  echo.
+  echo  [ERROR] Eso no parece una licencia: tienen que empezar con MVAS.
+  echo          Revisa que la hayas copiado entera, sin cortar el final.
+  goto :fin
+)
+
+if not exist "%DATOS%" (
+  echo  [AVISO] No encuentro la carpeta de datos del programa:
+  echo          %DATOS%
+  echo          Se crea igual: si todavia no instalaste, la licencia queda
+  echo          esperando y el programa la toma la primera vez que arranque.
+  mkdir "%DATOS%" 2>nul
+)
+
+>"%DATOS%\license.key" echo !LIC!
+if errorlevel 1 (
+  echo  [ERROR] No pude escribir en %DATOS%
+  goto :fin
+)
+
+echo.
+echo  [OK] Licencia escrita en:
+echo       %DATOS%\license.key
+echo.
+echo  Cerra el programa si lo tenes abierto y volve a abrirlo. Arriba a la
+echo  derecha tiene que decir Owner.
+echo.
+echo  Para volver atras: Desactivar-OWNER.bat
+
+:fin
+echo.
+pause

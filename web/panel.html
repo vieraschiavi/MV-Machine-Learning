@@ -110,6 +110,18 @@ a{color:var(--accent)}
     <div class="tarjeta"><h2>Descargas del instalador</h2>
       <div class="envoltorio"><table id="tablaDescargas"></table></div></div>
 
+    <!-- ── qué falta para vender ──────────────────────────────────────────── -->
+    <div class="tarjeta">
+      <h2>Configuración del sitio</h2>
+      <p class="sub" style="margin-bottom:16px">Las variables de las que depende
+         cobrar, emitir la licencia, mandarla y entregar el instalador. El botón
+         de probar no mira si están escritas: usa cada credencial contra su
+         servicio.</p>
+      <p><button class="btn sec" id="probarConfig">Probar las credenciales</button>
+         <span class="sub" id="notaConfig"></span></p>
+      <div class="envoltorio" style="margin-top:14px"><table id="tablaConfig"></table></div>
+    </div>
+
     <!-- ── emisión a mano ─────────────────────────────────────────────────── -->
     <div class="tarjeta">
       <h2>Emitir una licencia a mano</h2>
@@ -271,7 +283,50 @@ function dibujar(d) {
     g.disponible ? 'Todavía no hay instaladores publicados.' : (g.motivo || 'sin datos'));
 }
 
-async function cargar() { dibujar(await pedir('/api/panel')); }
+// ── configuración ──────────────────────────────────────────────────────────
+// Sin esto, «qué me falta para vender» se contesta abriendo la consola de
+// Vercel y comparando a mano contra la documentación. Cada faltante dice qué
+// se rompe: la lista de nombres sola no ordena por dónde empezar.
+function dibujarConfig(d) {
+  const marca = (v) => {
+    if (!v.cargada) return `<span class="pill ${v.critica ? 'mal' : 'esp'}">falta</span>`;
+    if (v.prueba) {
+      return v.prueba.anda
+        ? '<span class="pill ok">anda</span>'
+        : `<span class="pill mal">no anda</span> <span class="sub">${v.prueba.detalle || ''}</span>`;
+    }
+    return '<span class="pill ok">cargada</span>';
+  };
+  tabla($('tablaConfig'),
+    [{ t: 'Variable' }, { t: 'Estado' }, { t: 'Si falta' }],
+    (d.variables || []).map((v) => [
+      `<code>${v.nombre}</code>`, marca(v),
+      v.cargada ? `<span class="sub">${v.para}</span>` : v.si_falta,
+    ]),
+    'sin datos');
+  const faltan = d.faltan_criticas;
+  $('notaConfig').textContent = faltan
+    ? `Faltan ${faltan} de las que no se puede vender sin ellas.`
+    : 'Todo lo necesario está cargado.';
+}
+
+async function cargarConfig(probar = false) {
+  dibujarConfig(await pedir('/api/estado' + (probar ? '?probar=1' : '')));
+}
+
+$('probarConfig').addEventListener('click', async () => {
+  const b = $('probarConfig');
+  b.disabled = true; b.textContent = 'Probando…';
+  try { await cargarConfig(true); } catch (e) { $('notaConfig').textContent = e.message; }
+  finally { b.disabled = false; b.textContent = 'Probar las credenciales'; }
+});
+
+async function cargar() {
+  dibujar(await pedir('/api/panel'));
+  // El estado de la configuración no debe voltear el panel: si el diagnóstico
+  // falla, las ventas se siguen viendo.
+  cargarConfig().catch((e) => { $('notaConfig').textContent = e.message; });
+}
 
 // ── emisión a mano ─────────────────────────────────────────────────────────
 function ajustarFormulario() {
