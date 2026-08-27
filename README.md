@@ -238,6 +238,19 @@ secretos `MV_LICENSE_PRIVATE_KEY` / `MV_LICENSE_PUBLIC_KEY` las licencias son
 estables entre builds; sin ellos se genera un par efímero y el workflow lo
 advierte.
 
+La carpeta `instalador-owner/` trae los dos caminos para probar la versión
+completa sin entrar a GitHub: `Bajar-OWNER.bat`, que se la pide al sitio con la
+licencia de dueño —`/api/descargar` entrega la compilación owner cuando la
+licencia es de nivel `owner`—, y `Activar-OWNER.bat`, que convierte una
+instalación de cliente que ya esté hecha. El `.exe` no está en el repositorio:
+pesa unos 375 MB y GitHub rechaza cualquier archivo de más de 100 MB.
+
+Qué falta configurar para vender se ve en el panel (tarjeta **Configuración del
+sitio**) o en `GET /api/estado`, que además puede usar cada credencial contra su
+servicio en vez de mirar si la variable está escrita. Los nombres de todas las
+variables están en `.env.example`; los valores van en Vercel y en GitHub, nunca
+en el repositorio.
+
 ### 13. Web de venta
 
 `web/` es el sitio estático de venta que se publica en Vercel, en **castellano,

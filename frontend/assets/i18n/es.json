@@ -314,7 +314,8 @@
     "protocol_text": "Los datos se parten en tres: entrenamiento para ajustar, selección para elegir, y holdout ciego que no se toca en ninguna decisión. El número que se reporta es el del holdout, porque reportar la ventana con la que se eligió el modelo siempre da mejor de lo que el modelo es.",
     "families": "Familias de modelos",
     "families_auto": "Selección automática por prioridad",
-    "families_hint": "Sin selección, compiten las mejores familias disponibles para el tamaño del dataset. El catálogo es extensible: cada familia es un archivo en backend/app/core/zoo."
+    "families_hint": "Sin selección, compiten las mejores familias disponibles para el tamaño del dataset. El catálogo es extensible: cada familia es un archivo en backend/app/core/zoo.",
+    "ai_fallback": "El proveedor de IA no respondió. La columna se identificó igual, por coincidencia con los nombres del dataset."
   },
   "results": {
     "title": "Resultados",

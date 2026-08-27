@@ -1,54 +1,54 @@
 WEBVTT
 
-00:00:00.500 --> 00:00:03.900 line:-1 align:center size:84%
+00:00:00.600 --> 00:00:05.060 line:-1 align:center size:84%
 El tablero se arma solo con
 cualquier dataset o consulta SQL.
 
-00:00:06.000 --> 00:00:09.387 line:-1 align:center size:84%
+00:00:05.900 --> 00:00:10.092 line:-1 align:center size:84%
 La plataforma detecta las métricas,
 las dimensiones y la columna de
 
-00:00:09.387 --> 00:00:11.510 line:-1 align:center size:84%
+00:00:10.092 --> 00:00:12.720 line:-1 align:center size:84%
 tiempo, y decide qué vale la pena
 mostrar.
 
-00:00:14.000 --> 00:00:17.360 line:-1 align:center size:84%
+00:00:13.500 --> 00:00:17.725 line:-1 align:center size:84%
 Cada indicador compara contra el mes
 anterior, contra el mismo mes del
 
-00:00:17.360 --> 00:00:20.520 line:-1 align:center size:84%
+00:00:17.725 --> 00:00:21.891 line:-1 align:center size:84%
 año pasado y el acumulado del año
 contra el anterior. En verde lo que
 
-00:00:20.520 --> 00:00:21.920 line:-1 align:center size:84%
+00:00:21.891 --> 00:00:23.460 line:-1 align:center size:84%
 crece, en rojo lo que cae.
 
-00:00:26.000 --> 00:00:29.651 line:-1 align:center size:84%
+00:00:24.200 --> 00:00:28.347 line:-1 align:center size:84%
 Y respeta la unidad: los montos
 varían en porcentaje, y lo que ya es
 
-00:00:29.651 --> 00:00:31.960 line:-1 align:center size:84%
+00:00:28.347 --> 00:00:30.970 line:-1 align:center size:84%
 un porcentaje varía en puntos
 porcentuales.
 
-00:00:35.000 --> 00:00:38.660 line:-1 align:center size:84%
+00:00:31.800 --> 00:00:36.940 line:-1 align:center size:84%
 Los filtros recalculan todo:
 indicadores, series, barras y tabla.
 
-00:00:40.000 --> 00:00:43.330 line:-1 align:center size:84%
+00:00:37.800 --> 00:00:42.280 line:-1 align:center size:84%
 El tablero completo se exporta a
 Excel o CSV con los filtros puestos,
 
-00:00:43.330 --> 00:00:44.730 line:-1 align:center size:84%
+00:00:42.280 --> 00:00:43.680 line:-1 align:center size:84%
 una hoja por gráfico.
 
-00:00:47.000 --> 00:00:49.819 line:-1 align:center size:84%
+00:00:44.400 --> 00:00:47.219 line:-1 align:center size:84%
 Y se le puede preguntar en
 castellano. Traduce la pregunta a
 
-00:00:49.819 --> 00:00:52.600 line:-1 align:center size:84%
+00:00:47.219 --> 00:00:50.000 line:-1 align:center size:84%
 SQL, la ejecuta de verdad sobre los
 datos y responde con el resultado
 
-00:00:52.600 --> 00:00:54.000 line:-1 align:center size:84%
+00:00:50.000 --> 00:00:51.400 line:-1 align:center size:84%
 real, no de memoria.

@@ -1,59 +1,59 @@
 WEBVTT
 
-00:00:00.500 --> 00:00:03.250 line:-1 align:center size:84%
+00:00:00.600 --> 00:00:04.650 line:-1 align:center size:84%
 O painel se monta sozinho com
 qualquer conjunto de dados ou
 
-00:00:03.250 --> 00:00:04.650 line:-1 align:center size:84%
+00:00:04.650 --> 00:00:06.050 line:-1 align:center size:84%
 consulta SQL.
 
-00:00:06.000 --> 00:00:09.781 line:-1 align:center size:84%
+00:00:06.800 --> 00:00:11.704 line:-1 align:center size:84%
 A plataforma detecta as métricas, as
 dimensões e a coluna de tempo, e
 
-00:00:09.781 --> 00:00:11.590 line:-1 align:center size:84%
+00:00:11.704 --> 00:00:14.050 line:-1 align:center size:84%
 decide o que vale a pena mostrar.
 
-00:00:14.000 --> 00:00:17.916 line:-1 align:center size:84%
+00:00:14.900 --> 00:00:19.709 line:-1 align:center size:84%
 Cada indicador compara contra o mês
 anterior, contra o mesmo mês do ano
 
-00:00:17.916 --> 00:00:21.590 line:-1 align:center size:84%
+00:00:19.709 --> 00:00:24.450 line:-1 align:center size:84%
 passado e o acumulado do ano contra
 o anterior. Em verde o que cresce,
 
-00:00:21.590 --> 00:00:22.990 line:-1 align:center size:84%
+00:00:24.450 --> 00:00:25.940 line:-1 align:center size:84%
 em vermelho o que cai.
 
-00:00:26.000 --> 00:00:29.946 line:-1 align:center size:84%
+00:00:26.700 --> 00:00:31.581 line:-1 align:center size:84%
 E respeita a unidade: os valores
 variam em porcentagem, e o que já é
 
-00:00:29.946 --> 00:00:32.500 line:-1 align:center size:84%
+00:00:31.581 --> 00:00:34.740 line:-1 align:center size:84%
 uma porcentagem varia em pontos
 percentuais.
 
-00:00:35.000 --> 00:00:37.780 line:-1 align:center size:84%
+00:00:35.600 --> 00:00:39.840 line:-1 align:center size:84%
 Os filtros recalculam tudo:
 indicadores, séries, barras e
 
-00:00:37.780 --> 00:00:39.180 line:-1 align:center size:84%
+00:00:39.840 --> 00:00:41.240 line:-1 align:center size:84%
 tabela.
 
-00:00:40.000 --> 00:00:43.660 line:-1 align:center size:84%
+00:00:42.000 --> 00:00:46.527 line:-1 align:center size:84%
 O painel completo é exportado para
 Excel ou CSV com os filtros
 
-00:00:43.660 --> 00:00:45.490 line:-1 align:center size:84%
+00:00:46.527 --> 00:00:48.790 line:-1 align:center size:84%
 aplicados, uma aba por gráfico.
 
-00:00:47.000 --> 00:00:50.169 line:-1 align:center size:84%
+00:00:49.600 --> 00:00:52.769 line:-1 align:center size:84%
 E dá para perguntar em linguagem
 comum. Traduz a pergunta para SQL,
 
-00:00:50.169 --> 00:00:52.600 line:-1 align:center size:84%
+00:00:52.769 --> 00:00:55.200 line:-1 align:center size:84%
 executa de verdade sobre os dados e
 responde com o resultado real, não
 
-00:00:52.600 --> 00:00:54.000 line:-1 align:center size:84%
+00:00:55.200 --> 00:00:56.600 line:-1 align:center size:84%
 de memória.

@@ -254,6 +254,46 @@ Abajo del panel hay un formulario para dos casos:
 
 ---
 
+## Qué te falta cargar, en vivo
+
+El panel tiene arriba del formulario una tarjeta **Configuración del sitio**:
+las nueve variables, cuáles están cargadas y qué se rompe con cada faltante. El
+botón *Probar las credenciales* no mira si la variable existe — usa cada una
+contra su servicio: le pregunta a MercadoPago quién sos, a Resend por tus
+dominios, a GitHub por el repositorio, y firma una licencia de prueba para
+verificar que la clave privada y la pública son del mismo par. Una clave mal
+pegada figura como «cargada» y no funciona; así se ve antes de la primera venta,
+no después.
+
+Lo mismo sin abrir el panel: `GET /api/estado` (agregando `?probar=1` para las
+pruebas en vivo). Nunca devuelve un valor, ni recortado.
+
+La plantilla con los nombres de todas las variables está en `.env.example`, en
+la raíz del repositorio. Es sólo una guía para copiar: los valores se cargan en
+Vercel y en GitHub, nunca en un archivo del repositorio.
+
+---
+
+## Probar la versión completa vos mismo
+
+La carpeta `instalador-owner/` del repositorio tiene los dos caminos, los dos
+sin entrar a GitHub ni manejar tokens:
+
+* **`Bajar-OWNER.bat`** — te pide una vez tu licencia de dueño y baja la
+  compilación Owner desde el sitio. `/api/descargar` entrega la compilación de
+  dueño cuando la licencia es de nivel `owner`, y la del cliente cuando es de
+  nivel pago: es la misma puerta, con la misma verificación de firma.
+* **`Activar-OWNER.bat`** — si ya tenés instalada la versión de cliente,
+  convierte esa instalación en Owner sin bajar los 375 MB otra vez.
+  `Desactivar-OWNER.bat` lo deshace.
+
+El `.exe` no está en el repositorio y no puede estarlo: pesa unos 375 MB —lleva
+Python, scikit-learn, LightGBM, XGBoost, CatBoost y SHAP adentro— y GitHub
+rechaza cualquier archivo de más de 100 MB. Vive como archivo de un release en
+borrador, que es lo que estos dos scripts saben buscar.
+
+---
+
 ## Probar que los pagos funcionan, antes de vender
 
 1. En Vercel, poné en `MP_ACCESS_TOKEN` el token **de prueba** y hacé *Redeploy*.

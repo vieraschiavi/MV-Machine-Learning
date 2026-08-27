@@ -134,6 +134,26 @@ def test_los_subtitulos_no_se_pisan_entre_si(lang: str):
             assert h1 > d1, f"{vtt.name}: cartel de duración cero en {d1:.2f}s"
 
 
+# Palabras que el visitante del sitio no tiene por qué saber. El número del
+# holdout se ve en pantalla; la voz no lo nombra. Quien mira el video decide si
+# le sirve el producto, no si entiende la sigla.
+JERGA = ("auc", "holdout", "tf-idf", "tfidf", "hiperparám", "hyperparam",
+         "leakage", "overfitting", "ensemble", "vectoriz", "walk-forward",
+         "cardinalidad", "percentil", "regularización")
+
+
+@pytest.mark.parametrize("lang", ["es", "en", "pt"])
+def test_el_recorrido_se_entiende_sin_saber_de_datos(lang: str):
+    """El recorrido es el video de entrada al sitio: lo mira cualquiera."""
+    js = GUIONES.read_text(encoding="utf-8")
+    narracion = json.loads(re.search(r"^window\.NARRACION\s*=\s*(\{.*?^\});",
+                                     js, re.S | re.M).group(1))
+    dicho = " ".join(p["text"] for p in narracion["recorrido"][lang]).lower()
+    encontradas = [t for t in JERGA if t in dicho]
+    assert not encontradas, (f"la narración del recorrido en {lang} usa "
+                             f"{encontradas}: se muestra en pantalla, no se nombra")
+
+
 @pytest.mark.parametrize("lang", ["es", "en", "pt"])
 def test_el_subtitulo_dice_lo_mismo_que_la_voz(lang: str):
     """Salen del mismo guion: si se separan, se lee una cosa y se escucha otra."""

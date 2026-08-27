@@ -7,6 +7,7 @@ import { el, clear, table, badge, note, emptyState, fail, toast, severityKind, i
 
 let nav = null;
 let tab = 'quality';
+let correlaciones = null;
 
 function datasetPicker(onChange) {
   const s = store.get();
@@ -173,9 +174,15 @@ export default {
         panels.appendChild(table(r.columns.map((c) => ({ key: c, label: c })), r.rows,
           { compact: true, maxHeight: '560px' }));
       } else if (key === 'correlations') {
-        panels.appendChild(el('div', { class: 'row' }, el('span', { class: 'spinner' })));
-        const corr = await api.get(`/api/datasets/${s.datasetId}/correlations`);
-        clear(panels).appendChild(correlationsPanel(corr));
+        // La matriz se calcula sobre el dataset entero y tarda. Se guarda: sin
+        // esto, ir a otra pestaña y volver la recalculaba entera y el panel se
+        // quedaba con el cartel de carga cada vez.
+        if (!correlaciones || correlaciones.dataset_id !== s.datasetId) {
+          panels.appendChild(el('div', { class: 'row' }, el('span', { class: 'spinner' })));
+          const corr = await api.get(`/api/datasets/${s.datasetId}/correlations`);
+          correlaciones = { dataset_id: s.datasetId, corr };
+        }
+        clear(panels).appendChild(correlationsPanel(correlaciones.corr));
       } else if (key === 'sql') {
         panels.appendChild(sqlPanel(s.datasetId));
       }
