@@ -27,10 +27,35 @@ function frame(width, height, title) {
     preserveAspectRatio: 'xMidYMid meet', role: 'img',
   });
   box.appendChild(svg);
+  encuadrar(box, svg, width);
   return { box, svg };
 }
 
+/* Hasta dónde puede estirarse y encogerse el dibujo.
+ *
+ * `.chart { width: 100% }` estira el SVG a lo que mida el panel, y el dibujo
+ * está pensado sobre `width` unidades. Sin límites, en un monitor ancho se
+ * escala al doble —etiquetas de 21 px, más grandes que los títulos de la
+ * aplicación— y en un teléfono baja a 0,6×, donde el eje queda en 6 px y no se
+ * lee. Achicar el cuerpo de letra no sirve: la posición de cada etiqueta está
+ * calculada en unidades del dibujo, así que tocar el tamaño después las
+ * descoloca y las saca del lienzo.
+ *
+ * Se acota la escala. Cuando el panel es más angosto que el mínimo, el marco
+ * ofrece desplazamiento lateral: un gráfico que se corre es incómodo, uno
+ * ilegible no sirve para nada.
+ */
+function encuadrar(box, svg, width) {
+  box.style.maxWidth = `${Math.round(width * 1.5)}px`;
+  box.style.overflowX = 'auto';
+  svg.style.minWidth = `${Math.round(width * 0.86)}px`;
+}
+
 const PAD = { t: 12, r: 16, b: 30, l: 48 };
+// Ancho aproximado de un carácter con la tipografía de los gráficos a 11 px.
+// Sirve para saber si un texto entra antes de dibujarlo: medirlo de verdad
+// obliga a insertarlo en el documento y volver a leer el layout.
+const CHAR = 6.1;
 
 function scales(xs, ys, w, h, pad = PAD, opts = {}) {
   const xmin = opts.xmin ?? Math.min(...xs);
@@ -102,14 +127,31 @@ export function bars(items, { title, width = 520, height = 240, fmtY, valueKey =
   axes(svg, s, width, height, { xTicks: Math.min(items.length, 10), fmtX: () => '', fmtY: fmtY || ((v) => v.toFixed(1)) });
   const bw = (width - PAD.l - PAD.r) / items.length;
   const inner = second ? bw * 0.36 : bw * 0.66;
+
+  // Cuántas etiquetas entran abajo sin pisarse.
+  //
+  // Se dibujaba una por barra. Con doce va bien; con treinta y seis meses —una
+  // serie de tres años, que es de lo más común— cada barra tiene doce unidades
+  // de ancho y la etiqueta «2023-01» ocupa cuarenta: el eje se convierte en una
+  // mancha ilegible donde no se distingue ningún mes. Se dibuja una cada tantas
+  // según lo que realmente mide el texto, y las que se saltean no se pierden:
+  // están en el globo de cada barra.
+  const etiquetas = items.map((d) => String(d[labelKey]));
+  const corto = (s) => (s.length > 10 ? `${s.slice(0, 9)}…` : s);
+  const anchoTexto = Math.max(...etiquetas.map((t) => corto(t).length), 1) * CHAR;
+  const paso = Math.max(1, Math.ceil((anchoTexto + 6) / Math.max(bw, 1)));
+
   items.forEach((d, i) => {
     const v = Number(d[valueKey]) || 0;
     const x = s.x(i) + (bw - (second ? inner * 2 + 3 : inner)) / 2;
     const y = s.y(Math.max(v, s.ymin));
-    svg.appendChild(svgEl('rect', {
+    const barra = svgEl('rect', {
       class: 'bar', x, y: Math.min(y, s.y(0)), width: inner,
       height: Math.max(Math.abs(s.y(0) - y), 1), rx: 2,
-    }));
+    });
+    barra.appendChild(svgEl('title')).textContent =
+      `${etiquetas[i]}: ${(fmtY || ((z) => z.toFixed(1)))(v)}`;
+    svg.appendChild(barra);
     if (second) {
       const v2 = Number(d[second]) || 0;
       const y2 = s.y(Math.max(v2, s.ymin));
@@ -118,9 +160,14 @@ export function bars(items, { title, width = 520, height = 240, fmtY, valueKey =
         height: Math.max(Math.abs(s.y(0) - y2), 1), rx: 2, opacity: 0.65,
       }));
     }
-    const lbl = svgEl('text', { x: s.x(i) + bw / 2, y: height - PAD.b + 15, 'text-anchor': 'middle' });
-    lbl.textContent = String(d[labelKey]).slice(0, 8);
-    svg.appendChild(lbl);
+    // El conteo arranca por el final, no por el principio: en una serie de
+    // tiempo el período que importa es el último, y contando desde el primero
+    // la última etiqueta caía a destiempo y se pisaba con la anterior.
+    if ((items.length - 1 - i) % paso === 0) {
+      const lbl = svgEl('text', { x: s.x(i) + bw / 2, y: height - PAD.b + 15, 'text-anchor': 'middle' });
+      lbl.textContent = corto(etiquetas[i]);
+      svg.appendChild(lbl);
+    }
   });
   return box;
 }
@@ -133,13 +180,22 @@ export function hbars(items, { title, width = 520, rowHeight = 24, fmt = (v) => 
   const { box, svg } = frame(width, height, title);
   if (!data.length) return box;
   const max = Math.max(...data.map((d) => Math.abs(Number(d[valueKey]) || 0)), 1e-9);
-  const labelW = 150;
+
+  // La columna de nombres se mide contra los nombres. Con los 150 fijos que
+  // había, un `PromesasCumplidas_ultimos_3m` se cortaba a la mitad de una
+  // palabra y encima se salía del lienzo por la izquierda: el texto se ancla
+  // por el final, así que lo que sobra se dibuja fuera del SVG y se recorta.
+  const corto = (t) => (t.length > 26 ? `${t.slice(0, 25)}…` : t);
+  const textos = data.map((d) => corto(String(d[labelKey])));
+  const labelW = Math.min(210, Math.max(90, Math.max(...textos.map((t) => t.length), 1) * CHAR + 12));
+
   data.forEach((d, i) => {
     const y = i * rowHeight + 8;
     const v = Math.abs(Number(d[valueKey]) || 0);
     const w = ((width - labelW - 62) * v) / max;
     const lbl = svgEl('text', { x: labelW - 8, y: y + rowHeight * 0.62, 'text-anchor': 'end' });
-    lbl.textContent = String(d[labelKey]).slice(0, 24);
+    lbl.textContent = textos[i];
+    lbl.appendChild(svgEl('title')).textContent = String(d[labelKey]);
     svg.appendChild(lbl);
     svg.appendChild(svgEl('rect', {
       class: 'bar', x: labelW, y: y + 4, width: Math.max(w, 1),
@@ -188,7 +244,6 @@ export function scatter(points, { title, width = 520, height = 260, fmtX, fmtY, 
 /* ── matriz de correlación ───────────────────────────────────────────────── */
 export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) {
   const n = labels.length;
-  const CHAR = 6.1;                       // ancho aproximado de carácter a 11 px
   const corto = (s) => (String(s).length > 20 ? `${String(s).slice(0, 19)}…` : String(s));
   const largoMax = Math.max(...labels.map((l) => corto(l).length), 1);
 
@@ -245,13 +300,12 @@ export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) 
 
   labels.forEach((lb, i) => {
     const y = topH + i * size;
-    // El cuerpo va por `style` y no por el atributo `font-size`: app.css tiene
-    // `.chart text { font-size: 10.5px }`, y una regla CSS le gana SIEMPRE a un
-    // atributo de presentación. Con el atributo, todo el cálculo de arriba se
-    // hacía contra un tamaño que después no era el que se dibujaba.
+    // El cuerpo va por `style` y en `em`: el atributo `font-size` pierde contra
+    // la regla de app.css, y en unidades fijas se quedaría afuera del ajuste
+    // que mantiene el texto del mismo tamaño en pantalla.
     const izq = svgEl('text', {
       x: labelW - 7, y: y + size * 0.68, 'text-anchor': 'end',
-      style: `font-size:${fs.toFixed(2)}px`,
+      style: `font-size:${(fs / 10.5).toFixed(3)}em`,
     });
     izq.textContent = corto(lb);
     izq.appendChild(svgEl('title')).textContent = String(lb);
@@ -263,7 +317,7 @@ export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) 
     const cx = labelW + i * size + size / 2;
     const arriba = svgEl('text', {
       x: cx, y: topH - 5, 'text-anchor': 'start',
-      style: `font-size:${fs.toFixed(2)}px`,
+      style: `font-size:${(fs / 10.5).toFixed(3)}em`,
       transform: `rotate(${-ang} ${cx} ${topH - 5})`,
     });
     arriba.textContent = corto(lb);
@@ -282,7 +336,7 @@ export function heatmap(labels, matrix, { title, width = 520, cell = 26 } = {}) 
       if (size >= 30 && i !== j) {           // el número entra sólo si hay lugar
         const num = svgEl('text', {
           x: labelW + j * size + (size - 1.5) / 2, y: y + size * 0.63,
-          'text-anchor': 'middle', 'font-size': 9.5,
+          'text-anchor': 'middle', style: 'font-size:0.905em',
           fill: a > 0.55 ? '#fff' : 'var(--text-3)',
         });
         num.textContent = v.toFixed(2).replace('0.', '.').replace('-.', '−.');

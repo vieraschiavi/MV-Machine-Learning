@@ -1,5 +1,5 @@
 /**
- * Graba el video «recorrido» del sitio, recorriendo el programa de verdad.
+ * Graba los videos del sitio recorriendo el programa de verdad.
  *
  * Existe porque la primera versión de estos videos se hizo a mano y no quedó
  * guión: cuando se corrigió el mapa de correlaciones en el programa, el video
@@ -15,7 +15,8 @@
  *      y el webm en `web/video/`.
  *
  * Uso:
- *   MV_PORT=8912 MV_API_TOKEN=... node scripts/grabar_recorrido.cjs es
+ *   MV_PORT=8912 MV_API_TOKEN=... node scripts/grabar_video.cjs recorrido es
+ *   MV_PORT=8912 MV_API_TOKEN=... node scripts/grabar_video.cjs tablero en
  *
  * El audio NO se sintetiza acá: eso lo hace `web/video/generar_voz.py`. Si se
  * cambia el texto de la narración hay que correr ese primero.
@@ -36,12 +37,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const RAIZ = path.resolve(__dirname, '..');
-const VIDEO = path.join(RAIZ, 'web', 'video');
-const AUDIO = path.join(VIDEO, '.audio');
+const DIR_VIDEO = path.join(RAIZ, 'web', 'video');
+const AUDIO = path.join(DIR_VIDEO, '.audio');
 const PORT = process.env.MV_PORT || '8912';
 const TOKEN = process.env.MV_API_TOKEN || 'tok-video';
 const BASE = `http://127.0.0.1:${PORT}`;
-const IDIOMA = (process.argv[2] || 'es').toLowerCase();
+const NOMBRE = (process.argv[2] || 'recorrido').toLowerCase();
+const IDIOMA = (process.argv[3] || 'es').toLowerCase();
 const ANCHO = 1440;
 const ALTO = 810;
 
@@ -81,7 +83,7 @@ const FFMPEG = ffmpegCompleto();
 
 /** Los tiempos de la narración salen del guión, no de números sueltos acá. */
 function guion(video, idioma) {
-  const src = fs.readFileSync(path.join(VIDEO, 'guiones.js'), 'utf8');
+  const src = fs.readFileSync(path.join(DIR_VIDEO, 'guiones.js'), 'utf8');
   const window = {};
   new Function('window', src)(window);
   const tramos = window.NARRACION?.[video]?.[idioma];
@@ -98,25 +100,56 @@ const api = async (ruta, opciones = {}) => {
   return r.json();
 };
 
+// El dataset del video también habla el idioma del video.
+//
+// Los KPIs y los ejes se llaman como las columnas: filmando el archivo en
+// castellano, el video en inglés mostraba `MontoDeuda` y `PromesasCumplidas`
+// mientras la voz hablaba en inglés. Los números son los mismos en los tres
+// —`examples/traducir.py` sólo renombra— así que los videos se pueden comparar
+// cuadro a cuadro.
+const DATOS = {
+  es: { archivo: 'gestiones_con_texto.csv', nombre: 'gestiones_con_texto',
+        objetivo: 'Pago30d', clave: 'IdGestion',
+        panel: 'cobranzas_panel.xlsx', panelNombre: 'cobranzas_panel',
+        pregunta: 'cual es el total cobrado' },
+  en: { archivo: 'gestiones_con_texto-en.csv', nombre: 'collection_actions',
+        objetivo: 'PaidIn30d', clave: 'ActionId',
+        panel: 'cobranzas_panel-en.xlsx', panelNombre: 'collections_panel',
+        pregunta: 'what is the total collected' },
+  pt: { archivo: 'gestiones_con_texto-pt.csv', nombre: 'acoes_de_cobranca',
+        objetivo: 'Pagou30d', clave: 'IdAcao',
+        panel: 'cobranzas_panel-pt.xlsx', panelNombre: 'painel_de_cobrancas',
+        pregunta: 'qual e o total recebido' },
+};
+
+/** Sube un archivo de `examples/` si ese dataset todavía no está cargado. */
+async function dataset(archivo, nombre) {
+  const { datasets = [] } = await api('/api/datasets');
+  // Por nombre exacto: con una coincidencia parcial los tres idiomas se
+  // quedaban con el primero que se hubiera cargado, y el video en inglés
+  // terminaba filmando el dataset en castellano.
+  const ya = datasets.find((d) => d.name === nombre);
+  if (ya) return ya;
+  const cuerpo = fs.readFileSync(path.join(RAIZ, 'examples', archivo));
+  const q = new URLSearchParams({ filename: archivo, name: nombre });
+  const r = await api(`/api/datasets/upload-stream?${q}`, { method: 'POST', body: cuerpo });
+  console.log(`dataset cargado: ${r.dataset.id} (${nombre})`);
+  return r.dataset;
+}
+
 /** Deja el programa con un dataset y un modelo entrenado para poder filmarlo. */
 async function preparar() {
-  const { datasets = [] } = await api('/api/datasets');
-  let ds = datasets.find((d) => d.name?.includes('gestiones'));
-  if (!ds) {
-    const csv = fs.readFileSync(path.join(RAIZ, 'examples', 'gestiones_con_texto.csv'));
-    const q = new URLSearchParams({ filename: 'gestiones_con_texto.csv', name: 'gestiones_con_texto' });
-    const r = await api(`/api/datasets/upload-stream?${q}`, { method: 'POST', body: csv });
-    ds = r.dataset;
-    console.log(`dataset cargado: ${ds.id}`);
-  }
+  const cfg = DATOS[IDIOMA] || DATOS.es;
+  if (NOMBRE === 'tablero') return dataset(cfg.panel, cfg.panelNombre);
+  const ds = await dataset(cfg.archivo, cfg.nombre);
   const { models = [] } = await api('/api/automl/models').catch(() => ({ models: [] }));
-  if (!models.length) {
+  if (!models.some((m) => m.dataset_id === ds.id)) {
     const job = await api('/api/automl/train', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        dataset_id: ds.id, target: 'Pago30d', budget_seconds: 45, max_models: 3,
-        shap: true, permutation_importance: true, exclude: ['IdGestion'],
+        dataset_id: ds.id, target: cfg.objetivo, budget_seconds: 45, max_models: 3,
+        shap: true, permutation_importance: true, exclude: [cfg.clave],
       }),
     });
     process.stdout.write('entrenando');
@@ -131,8 +164,52 @@ async function preparar() {
   return ds;
 }
 
-/** El recorrido, atado a los segundos en que habla cada tramo. */
+/** Qué se hace en pantalla en cada video, atado a los segundos del guion. */
 function escenas(tramos) {
+  return (NOMBRE === 'tablero' ? escenasTablero : escenasRecorrido)(tramos);
+}
+
+/** El tablero: se arma solo, se filtra, se exporta y se le pregunta. */
+function escenasTablero(tramos) {
+  const seg = (i) => tramos[i].t;
+  const cfg = DATOS[IDIOMA] || DATOS.es;
+  return [
+    { en: 0, hacer: async (p) => {
+        await p.evaluate(() => { location.hash = '#/dashboard'; });
+        // El tablero se calcula al entrar: sin esperar a que aparezca un KPI,
+        // los primeros segundos del video son un cartel de «Cargando».
+        await p.waitForSelector('.stat-value, .kpi-value', { timeout: 30000 }).catch(() => {});
+      } },
+    { en: seg(2), hacer: async (p) => { await p.mouse.wheel(0, 300); } },
+    { en: seg(3), hacer: async (p) => { await p.mouse.wheel(0, 320); } },
+    { en: Math.max(0, seg(4) - 3), hacer: async (p) => {
+        // Los filtros están arriba de todo: se vuelve a subir para que se vea
+        // el clic y después el recálculo de los indicadores.
+        await p.evaluate(() => window.scrollTo({ top: 0 }));
+        const select = p.locator('.view.active select').nth(2);
+        if (await select.count()) {
+          const opciones = await select.locator('option').allTextContents();
+          if (opciones.length > 1) await select.selectOption({ index: 1 });
+        }
+        const aplicar = p.locator('.view.active .btn-primary').first();
+        if (await aplicar.count()) await aplicar.click({ timeout: 5000 }).catch(() => {});
+      } },
+    { en: seg(5), hacer: async (p) => { await p.mouse.wheel(0, 1400); } },
+    { en: Math.max(0, seg(6) - 4), hacer: async (p) => {
+        const caja = p.locator('.view.active input[type="text"]').last();
+        if (!(await caja.count())) return;
+        await caja.scrollIntoViewIfNeeded();
+        await caja.click();
+        // Se escribe con pausas: una pregunta que aparece de golpe no se lee
+        // como alguien preguntando.
+        await caja.type(cfg.pregunta, { delay: 55 });
+        await p.keyboard.press('Enter');
+      } },
+  ];
+}
+
+/** El recorrido, atado a los segundos en que habla cada tramo. */
+function escenasRecorrido(tramos) {
   const seg = (i) => tramos[i].t;
   return [
     { en: 0,      hacer: async (p) => { await p.evaluate(() => { location.hash = '#/overview'; }); } },
@@ -167,7 +244,7 @@ function escenas(tramos) {
 /** Une los tramos de audio en una sola pista, cada uno en su segundo. */
 function pistaDeAudio(tramos, duracion, salida) {
   const partes = tramos
-    .map((tr, i) => ({ tr, i, f: path.join(AUDIO, `recorrido-${IDIOMA}-${String(i).padStart(2, '0')}.mp3`) }))
+    .map((tr, i) => ({ tr, i, f: path.join(AUDIO, `${NOMBRE}-${IDIOMA}-${String(i).padStart(2, '0')}.mp3`) }))
     .filter((x) => fs.existsSync(x.f));
   if (!partes.length) throw new Error(`no hay audio en ${AUDIO} para ${IDIOMA}`);
 
@@ -188,11 +265,11 @@ function pistaDeAudio(tramos, duracion, salida) {
 (async () => {
   if (!fs.existsSync(CHROME)) throw new Error(`no encuentro Chromium en ${CHROME}`);
   console.log(`ffmpeg: ${FFMPEG}`);
-  const tramos = guion('recorrido', IDIOMA);
+  const tramos = guion(NOMBRE, IDIOMA);
   const duracion = Math.ceil(tramos[tramos.length - 1].t) + 11;   // cola para leer la última pantalla
-  console.log(`recorrido-${IDIOMA}: ${tramos.length} tramos, ${duracion} s`);
+  console.log(`${NOMBRE}-${IDIOMA}: ${tramos.length} tramos, ${duracion} s`);
 
-  await preparar();
+  const ds = await preparar();
 
   const tmp = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'mv-video-'));
   const navegador = await chromium.launch({ executablePath: CHROME });
@@ -206,11 +283,15 @@ function pistaDeAudio(tramos, duracion, salida) {
   // El token viaja como lo inyecta Electron (`window.mvDesktop`), que es de
   // donde lo lee el cliente HTTP del programa. El idioma se fija antes de
   // cargar para que la interfaz ya arranque en el idioma del video.
-  await p.addInitScript(([tok, idioma]) => {
+  await p.addInitScript(([tok, idioma, dsId]) => {
     window.mvDesktop = { token: tok };
     localStorage.setItem('mv.lang', idioma);
     localStorage.setItem('mv.theme', 'dark');
-  }, [TOKEN, IDIOMA]);
+    // El dataset del video queda elegido de entrada. Si no, el tablero abre en
+    // «elegí un dataset» durante los primeros segundos, que son justo los que
+    // la narración usa para decir que se arma solo.
+    if (dsId) localStorage.setItem('mv.dataset', dsId);
+  }, [TOKEN, IDIOMA, ds?.id || '']);
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
   await p.waitForTimeout(1500);
 
@@ -233,8 +314,8 @@ function pistaDeAudio(tramos, duracion, salida) {
   const mudo = path.join(tmp, crudo);
   const voz = pistaDeAudio(tramos, duracion, path.join(tmp, 'voz.m4a'));
 
-  const mp4 = path.join(VIDEO, `recorrido-${IDIOMA}.mp4`);
-  const webm = path.join(VIDEO, `recorrido-${IDIOMA}.webm`);
+  const mp4 = path.join(DIR_VIDEO, `${NOMBRE}-${IDIOMA}.mp4`);
+  const webm = path.join(DIR_VIDEO, `${NOMBRE}-${IDIOMA}.webm`);
   // `-shortest` con `apad` acotado: sin el tope, el silencio de relleno es
   // infinito y la codificación no termina nunca.
   const comun = ['-y', '-i', mudo, '-i', voz,

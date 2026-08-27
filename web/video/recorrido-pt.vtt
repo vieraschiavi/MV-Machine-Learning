@@ -1,0 +1,74 @@
+WEBVTT
+
+00:00:00.500 --> 00:00:04.751 line:-1 align:center size:84%
+MV AutoML Studio. De qualquer
+conjunto de dados a um modelo
+
+00:00:04.751 --> 00:00:07.850 line:-1 align:center size:84%
+validado, sem escrever uma linha de
+código.
+
+00:00:08.000 --> 00:00:12.187 line:-1 align:center size:84%
+Você arrasta o arquivo e a
+plataforma faz o perfil sozinha:
+
+00:00:12.187 --> 00:00:17.083 line:-1 align:center size:84%
+detecta o tipo de cada coluna, a
+qualidade dos dados e o texto livre,
+
+00:00:17.083 --> 00:00:19.850 line:-1 align:center size:84%
+que vetoriza para competir com o
+resto.
+
+00:00:20.000 --> 00:00:25.450 line:-1 align:center size:84%
+O mapa de correlações mostra de
+imediato quais variáveis andam
+
+00:00:25.450 --> 00:00:26.850 line:-1 align:center size:84%
+juntas.
+
+00:00:27.000 --> 00:00:32.775 line:-1 align:center size:84%
+O objetivo é escrito em linguagem
+comum. A plataforma identifica a
+
+00:00:32.775 --> 00:00:37.850 line:-1 align:center size:84%
+coluna, reconhece que é uma
+classificação e monta o plano.
+
+00:00:38.000 --> 00:00:42.925 line:-1 align:center size:84%
+Antes de treinar, audita o vazamento
+de informação e descarta o que
+
+00:00:42.925 --> 00:00:47.850 line:-1 align:center size:84%
+memoriza em vez de generalizar, como
+o identificador de cada linha.
+
+00:00:48.000 --> 00:00:54.533 line:-1 align:center size:84%
+Então os modelos competem: ajusta
+hiperparâmetros, testa famílias
+
+00:00:54.533 --> 00:00:57.850 line:-1 align:center size:84%
+diferentes e combina as melhores.
+
+00:00:58.000 --> 00:01:02.661 line:-1 align:center size:84%
+O número reportado vem do holdout
+cego, a janela que não foi tocada em
+
+00:01:02.661 --> 00:01:06.389 line:-1 align:center size:84%
+nenhuma decisão. Zero vírgula
+oitenta e oito de AUC, com
+
+00:01:06.389 --> 00:01:10.850 line:-1 align:center size:84%
+degradação mínima contra a janela de
+seleção: o modelo se sustenta.
+
+00:01:11.000 --> 00:01:14.196 line:-1 align:center size:84%
+E explica o porquê: cada variável
+com seu peso real e para onde
+
+00:01:14.196 --> 00:01:16.600 line:-1 align:center size:84%
+empurra. O contato efetivo aumenta o
+pagamento; os dias de atraso o
+
+00:01:16.600 --> 00:01:18.000 line:-1 align:center size:84%
+reduzem.

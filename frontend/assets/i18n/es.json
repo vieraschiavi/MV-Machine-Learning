@@ -139,7 +139,11 @@
     "delete_confirm": "¿Eliminar este dataset del workspace?",
     "select_dataset": "Seleccionar",
     "selected": "Seleccionado",
-    "read_only_note": "El conector es de sólo lectura: cualquier sentencia que escriba se rechaza."
+    "read_only_note": "El conector es de sólo lectura: cualquier sentencia que escriba se rechaza.",
+    "ph_label": "Producción",
+    "ph_host": "servidor-sql.miempresa.com",
+    "ph_file": "/ruta/al/archivo.db",
+    "ph_url": "oracle+oracledb://usuario:clave@servidor:1521/?service_name=orcl"
   },
   "explore": {
     "title": "Exploración",
