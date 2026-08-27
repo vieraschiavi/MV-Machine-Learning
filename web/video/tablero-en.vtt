@@ -1,53 +1,53 @@
 WEBVTT
 
-00:00:00.500 --> 00:00:04.890 line:-1 align:center size:84%
+00:00:00.600 --> 00:00:04.990 line:-1 align:center size:84%
 The dashboard builds itself from any
 dataset or SQL query.
 
-00:00:06.000 --> 00:00:10.127 line:-1 align:center size:84%
+00:00:05.800 --> 00:00:09.980 line:-1 align:center size:84%
 The platform detects the metrics,
 the dimensions and the time column,
 
-00:00:10.127 --> 00:00:12.160 line:-1 align:center size:84%
+00:00:09.980 --> 00:00:12.040 line:-1 align:center size:84%
 and decides what is worth showing.
 
-00:00:14.000 --> 00:00:18.533 line:-1 align:center size:84%
+00:00:12.800 --> 00:00:17.122 line:-1 align:center size:84%
 Every indicator compares against the
 previous month, against the same
 
-00:00:18.533 --> 00:00:23.131 line:-1 align:center size:84%
+00:00:17.122 --> 00:00:21.506 line:-1 align:center size:84%
 month last year, and year to date
 against the previous one. Green when
 
-00:00:23.131 --> 00:00:24.970 line:-1 align:center size:84%
+00:00:21.506 --> 00:00:23.260 line:-1 align:center size:84%
 it grows, red when it falls.
 
-00:00:26.000 --> 00:00:30.597 line:-1 align:center size:84%
+00:00:24.100 --> 00:00:28.477 line:-1 align:center size:84%
 And it respects the unit: amounts
 vary in percent, and what already is
 
-00:00:30.597 --> 00:00:33.290 line:-1 align:center size:84%
+00:00:28.477 --> 00:00:31.040 line:-1 align:center size:84%
 a percentage varies in percentage
 points.
 
-00:00:35.000 --> 00:00:39.850 line:-1 align:center size:84%
+00:00:31.800 --> 00:00:37.030 line:-1 align:center size:84%
 Filters recalculate everything:
 indicators, series, bars and table.
 
-00:00:40.000 --> 00:00:44.870 line:-1 align:center size:84%
+00:00:37.900 --> 00:00:42.400 line:-1 align:center size:84%
 The whole dashboard exports to Excel
 or CSV with the filters applied, one
 
-00:00:44.870 --> 00:00:46.270 line:-1 align:center size:84%
+00:00:42.400 --> 00:00:43.800 line:-1 align:center size:84%
 sheet per chart.
 
-00:00:47.000 --> 00:00:49.854 line:-1 align:center size:84%
+00:00:44.600 --> 00:00:47.454 line:-1 align:center size:84%
 And you can ask it in plain
 language. It translates the question
 
-00:00:49.854 --> 00:00:52.600 line:-1 align:center size:84%
+00:00:47.454 --> 00:00:50.200 line:-1 align:center size:84%
 into SQL, actually runs it against
 the data and answers from the real
 
-00:00:52.600 --> 00:00:54.000 line:-1 align:center size:84%
+00:00:50.200 --> 00:00:51.600 line:-1 align:center size:84%
 result, not from memory.

@@ -37,7 +37,8 @@ function objectiveCard(onTarget) {
   targetSel.onchange = () => { store.set({ target: targetSel.value || null }); onTarget(); };
 
   const result = el('div', { class: 'mt-1' });
-  const idBtn = el('button', { class: 'btn btn-primary' }, t('model.identify'));
+  const idBtn = el('button', { class: 'btn btn-primary', dataset: { rol: 'identificar' } },
+    t('model.identify'));
   const micBtn = el('button', { class: 'btn btn-icon', 'data-i18n-title': 'topbar.voice_input' }, icon('mic'));
 
   micBtn.onclick = () => {
@@ -87,7 +88,15 @@ function objectiveCard(onTarget) {
             }, c))));
         }
       }
-      if (r.ai_error) result.appendChild(note(r.ai_error, 'warn'));
+      if (r.ai_error) {
+        // El programa contestó igual, con la coincidencia de nombres: eso es lo
+        // que hay que decir. Volcar «Error HTTP 413» del proveedor hace pensar
+        // que falló algo propio, y el detalle técnico queda a un paso de todas
+        // formas.
+        const aviso = note(t('model.ai_fallback'), 'warn');
+        aviso.title = r.ai_error;
+        result.appendChild(aviso);
+      }
     } catch (err) { clear(result); fail(err); } finally { idBtn.disabled = false; }
   };
 
@@ -296,7 +305,11 @@ export default {
       clear(runHost);
       const job = jobPanel();
       job.root.classList.add('hidden');
-      const btn = el('button', { class: 'btn btn-primary' }, t('model.train'));
+      // `data-rol` es el punto de agarre estable para las pruebas y para el
+      // grabador de los videos: buscar «el último botón primario» se rompe
+      // en cuanto la pantalla suma otro botón.
+      const btn = el('button', { class: 'btn btn-primary', dataset: { rol: 'entrenar' } },
+        t('model.train'));
       btn.onclick = async () => {
         const st = store.get();
         if (!st.target) { toast(t('errors.no_target'), 'warn'); return; }

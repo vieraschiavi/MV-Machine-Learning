@@ -279,6 +279,10 @@ export default {
   refresh() { this.render(); },
   async render() {
     const host = this.host;
+    // Dos renders que se solapan se pisan: los dos limpian, los dos esperan a
+    // las conexiones guardadas y los dos agregan su lista, así que «Datasets
+    // del workspace» aparecía dos veces. Gana el último que arrancó.
+    const mio = (this.generacion = (this.generacion || 0) + 1);
     clear(host);
     host.appendChild(el('div', { class: 'page-head' },
       el('h1', { text: t('data.title') }),
@@ -286,6 +290,7 @@ export default {
     host.appendChild(uploadCard());
     host.appendChild(sqlCard(() => this.render()));
     const saved = await savedConnections(() => this.render());
+    if (mio !== this.generacion) return;
     if (saved) host.appendChild(saved);
     this.listCard = el('div', { class: 'card' },
       el('div', { class: 'card-head' }, el('h2', { text: t('data.datasets_title') })),

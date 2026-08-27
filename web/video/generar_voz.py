@@ -5,8 +5,8 @@ que todo suene igual. Tres motores, en este orden:
 
 1. **edge-tts** con `es-UY-MateoNeural`, `en-US-GuyNeural` y `pt-BR-AntonioNeural`
    — las de los videos y Reels de MV Cliente IA, familia rioplatense. Gratis y
-   sin clave, pero habla por WebSocket: detrás de un proxy que no lo permita
-   falla y se pasa al motor siguiente.
+   sin clave. Habla por WebSocket y sale por el proxy del entorno si lo hay;
+   si aun así no puede, se pasa al motor siguiente.
 2. **Piper**, local y offline, con `es_AR-daniela-high` — la voz de los videos
    de MV Agéndate IA y Project Management MV.
 3. **ElevenLabs** (`eleven_multilingual_v2`), la de las demos de Kobra, cuando
@@ -89,7 +89,13 @@ def voz_elevenlabs(texto: str, destino: Path, api_key: str, voice_id: str) -> bo
 
 
 def voz_edge(texto: str, destino: Path, lang: str) -> bool:
-    """La voz de los videos de MV Cliente IA. Habla por WebSocket."""
+    """La voz de los videos de MV Cliente IA. Habla por WebSocket.
+
+    El proxy sale del entorno. Sin eso, detrás de un proxy que intercepta el
+    tráfico la conexión se intenta directa, la corta el intermediario y el error
+    llega como «certificado inválido» — que hace buscar el problema en los
+    certificados cuando lo único que faltaba era decirle por dónde salir.
+    """
     import asyncio
     import ssl
 
@@ -99,9 +105,12 @@ def voz_edge(texto: str, destino: Path, lang: str) -> bool:
     except ImportError:
         return False
 
+    proxy = (os.getenv("HTTPS_PROXY") or os.getenv("https_proxy")
+             or os.getenv("HTTP_PROXY") or os.getenv("http_proxy") or None)
+
     async def hablar() -> None:
         ctx = ssl.create_default_context(cafile=os.getenv("SSL_CERT_FILE") or None)
-        com = edge_tts.Communicate(texto, EDGE[lang],
+        com = edge_tts.Communicate(texto, EDGE[lang], proxy=proxy,
                                    connector=aiohttp.TCPConnector(ssl=ctx))
         await com.save(str(destino))
 
@@ -147,6 +156,38 @@ def voz_piper(texto: str, destino: Path, lang: str) -> bool:
     return True
 
 
+def motores() -> tuple[bool, str, str]:
+    """Si hay clave de ElevenLabs, se usa primero: es la de mejor calidad."""
+    key = os.getenv("ELEVENLABS_API_KEY", "")
+    voice = (os.getenv("ELEVENLABS_VOICE_ID", "")
+             or os.getenv("ELEVENLABS_VOICE_ID_GESTOR", ""))
+    return len(key) > 10 and bool(voice), key, voice
+
+
+def clip(nombre: str, lang: str, i: int, texto: str) -> Path:
+    """El mp3 de un tramo, sintetizado si hace falta.
+
+    Al lado del audio queda el texto que lo generó. Sin eso, cambiar una frase
+    del guion dejaba el audio viejo en su lugar —el nombre del archivo sólo
+    depende del número de tramo— y el video seguía diciendo lo de antes,
+    mientras el subtítulo mostraba lo nuevo.
+    """
+    carpeta = AQUI / ".audio"
+    carpeta.mkdir(exist_ok=True)
+    mp3 = carpeta / f"{nombre}-{lang}-{i:02d}.mp3"
+    marca = mp3.with_suffix(".txt")
+    if mp3.exists() and marca.exists() and marca.read_text(encoding="utf-8") == texto:
+        return mp3
+    premium, key, voice = motores()
+    ok = ((voz_elevenlabs(texto, mp3, key, voice) if premium else False)
+          or voz_edge(texto, mp3, lang)
+          or voz_piper(texto, mp3, lang))
+    if not ok:
+        raise SystemExit(f"no se pudo sintetizar: {texto[:60]}…")
+    marca.write_text(texto, encoding="utf-8")
+    return mp3
+
+
 def duracion(archivo: Path) -> float:
     """Segundos del archivo. Se lee del propio ffmpeg: ffprobe puede no estar
     (el binario que trae imageio-ffmpeg viene solo)."""
@@ -188,14 +229,10 @@ def montar(video: Path, tramos: list[tuple[float, Path]], salida: Path,
 
 def main(idiomas: tuple[str, ...]) -> None:
     guiones = leer_guiones()
-    key = os.getenv("ELEVENLABS_API_KEY", "")
-    voice = os.getenv("ELEVENLABS_VOICE_ID", "") or os.getenv("ELEVENLABS_VOICE_ID_GESTOR", "")
-    premium = len(key) > 10 and bool(voice)
+    premium, _, _ = motores()
     print("voz:", "ElevenLabs, la de las demos de Kobra" if premium
           else "edge-tts (es-UY-MateoNeural), con Piper local de respaldo")
 
-    tmp = AQUI / ".audio"
-    tmp.mkdir(exist_ok=True)
     for nombre in VIDEOS:
         for lang in idiomas:
             mudo = AQUI / f"{nombre}-{lang}.mp4"
@@ -203,16 +240,8 @@ def main(idiomas: tuple[str, ...]) -> None:
                 print(f"· falta {mudo.name}, se saltea")
                 continue
             print(f"· {nombre} [{lang}]")
-            tramos = []
-            for i, tramo in enumerate(guiones[nombre][lang]):
-                mp3 = tmp / f"{nombre}-{lang}-{i:02d}.mp3"
-                if not mp3.exists():
-                    ok = ((voz_elevenlabs(tramo["text"], mp3, key, voice) if premium else False)
-                          or voz_edge(tramo["text"], mp3, lang)
-                          or voz_piper(tramo["text"], mp3, lang))
-                    if not ok:
-                        raise SystemExit("no se pudo sintetizar la narración")
-                tramos.append((tramo["t"], mp3))
+            tramos = [(tramo["t"], clip(nombre, lang, i, tramo["text"]))
+                      for i, tramo in enumerate(guiones[nombre][lang])]
             largo = duracion(mudo)
             # Los subtítulos se escriben acá porque acá se sabe cuánto dura
             # realmente cada frase: mirando sólo el guion habría que suponerlo.

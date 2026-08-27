@@ -314,7 +314,8 @@
     "protocol_text": "The data is split three ways: training to fit, selection to choose, and a blind holdout that no decision ever touches. The number reported is the holdout one, because reporting the window used to choose the model always looks better than the model really is.",
     "families": "Model families",
     "families_auto": "Automatic selection by priority",
-    "families_hint": "With nothing selected, the best available families for the dataset size compete. The catalog is extensible: each family is one file under backend/app/core/zoo."
+    "families_hint": "With nothing selected, the best available families for the dataset size compete. The catalog is extensible: each family is one file under backend/app/core/zoo.",
+    "ai_fallback": "The AI provider didn't respond. The column was identified anyway, by matching the dataset's column names."
   },
   "results": {
     "title": "Results",

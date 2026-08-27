@@ -109,15 +109,18 @@ const api = async (ruta, opciones = {}) => {
 // cuadro a cuadro.
 const DATOS = {
   es: { archivo: 'gestiones_con_texto.csv', nombre: 'gestiones_con_texto',
-        objetivo: 'Pago30d', clave: 'IdGestion',
+        objetivo: 'Pago30d', clave: 'IdGestion', texto: 'NotaGestor',
+        escribir: 'si el cliente va a pagar en los proximos 30 dias',
         panel: 'cobranzas_panel.xlsx', panelNombre: 'cobranzas_panel',
         pregunta: 'cual es el total cobrado' },
   en: { archivo: 'gestiones_con_texto-en.csv', nombre: 'collection_actions',
-        objetivo: 'PaidIn30d', clave: 'ActionId',
+        objetivo: 'PaidIn30d', clave: 'ActionId', texto: 'AgentNote',
+        escribir: 'whether the customer will pay in the next 30 days',
         panel: 'cobranzas_panel-en.xlsx', panelNombre: 'collections_panel',
         pregunta: 'what is the total collected' },
   pt: { archivo: 'gestiones_con_texto-pt.csv', nombre: 'acoes_de_cobranca',
-        objetivo: 'Pagou30d', clave: 'IdAcao',
+        objetivo: 'Pagou30d', clave: 'IdAcao', texto: 'NotaOperador',
+        escribir: 'se o cliente vai pagar nos proximos 30 dias',
         panel: 'cobranzas_panel-pt.xlsx', panelNombre: 'painel_de_cobrancas',
         pregunta: 'qual e o total recebido' },
 };
@@ -178,7 +181,7 @@ function escenasTablero(tramos) {
         await p.evaluate(() => { location.hash = '#/dashboard'; });
         // El tablero se calcula al entrar: sin esperar a que aparezca un KPI,
         // los primeros segundos del video son un cartel de «Cargando».
-        await p.waitForSelector('.stat-value, .kpi-value', { timeout: 30000 }).catch(() => {});
+        await p.waitForSelector('.view.active .stat-value', { timeout: 30000 }).catch(() => {});
       } },
     { en: seg(2), hacer: async (p) => { await p.mouse.wheel(0, 300); } },
     { en: seg(3), hacer: async (p) => { await p.mouse.wheel(0, 320); } },
@@ -208,36 +211,124 @@ function escenasTablero(tramos) {
   ];
 }
 
-/** El recorrido, atado a los segundos en que habla cada tramo. */
+/** El recorrido: una pantalla por frase, en el segundo en que se dice.
+ *
+ * Antes eran ocho frases largas para ocho pantallas: la voz seguía hablando
+ * treinta segundos de algo que la imagen ya había dejado atrás. Ahora hay una
+ * escena por tramo del guion, y los segundos de cada tramo los calculó
+ * `cronometrar.py` midiendo el audio de verdad, no a ojo.
+ */
 function escenasRecorrido(tramos) {
   const seg = (i) => tramos[i].t;
+  const cfg = DATOS[IDIOMA] || DATOS.es;
+  const ir = (hash) => async (p) => { await p.evaluate((h) => { location.hash = h; }, hash); };
+  const bajar = (px) => async (p) => { await p.mouse.wheel(0, px); };
+  const arriba = async (p) => { await p.evaluate(() => window.scrollTo({ top: 0 })); };
+  // Las pestañas de Exploración: calidad, columnas, datos, correlaciones.
+  //
+  // Todos los selectores van colgados de `.view.active`: las vistas que ya se
+  // visitaron quedan en el documento, ocultas. Un `.tab` suelto podía ser el de
+  // Resultados y un `.stat-value` suelto era el del Panel —oculto, así que la
+  // espera se agotaba entera antes de seguir.
+  const pestania = (n, espera) => async (p) => {
+    await p.waitForSelector('.view.active .tab', { timeout: 8000 });
+    await p.locator('.view.active .tab').nth(n).click();
+    if (espera) await p.waitForSelector(espera, { timeout: 30000 });
+  };
+
   return [
-    { en: 0,      hacer: async (p) => { await p.evaluate(() => { location.hash = '#/overview'; }); } },
-    { en: seg(1), hacer: async (p) => { await p.evaluate(() => { location.hash = '#/data'; }); } },
-    { en: seg(1) + 5, hacer: async (p) => { await p.mouse.wheel(0, 320); } },
-    // El mapa de correlaciones: la pantalla que motivó rehacer este video.
-    //
-    // Se abre ANTES de que la narración lo mencione y se espera a que el gráfico
-    // exista de verdad. La primera vez que se pide, el backend tiene que
-    // calcular la matriz, y eso tarda: sin esta espera el video mostraba un
-    // panel vacío con un spinner justo mientras la voz decía «el mapa de
-    // correlaciones muestra de una qué variables se mueven juntas».
-    { en: Math.max(0, seg(2) - 4), hacer: async (p) => {
-        await p.evaluate(() => { location.hash = '#/explore'; });
-        await p.waitForSelector('.tab', { timeout: 15000 });
-        await p.locator('.tab').nth(3).click();
-        await p.waitForSelector('svg rect', { timeout: 30000 });
+    { en: 0,       hacer: ir('#/overview') },
+    { en: seg(1),  hacer: ir('#/data') },
+    // «tres mil filas leídas»: se lleva a la vista la ficha del dataset, que es
+    // donde está ese número. Bajando una cantidad fija de píxeles la voz decía
+    // las filas sobre la mitad del formulario de conexión SQL.
+    { en: seg(2),  hacer: async (p) => {
+        const ficha = p.locator('.view.active .item').first();
+        await ficha.scrollIntoViewIfNeeded({ timeout: 4000 })
+          .catch(() => p.mouse.wheel(0, 420));
       } },
-    { en: seg(3), hacer: async (p) => { await p.evaluate(() => { location.hash = '#/model'; }); } },
-    { en: seg(4), hacer: async (p) => { await p.mouse.wheel(0, 380); } },
-    { en: seg(5), hacer: async (p) => { await p.mouse.wheel(0, 380); } },
-    { en: Math.max(0, seg(6) - 2), hacer: async (p) => {
-        await p.evaluate(() => { location.hash = '#/results'; });
-        // Mismo motivo: que el número del holdout esté en pantalla cuando la
-        // voz lo dice, no dos segundos después.
-        await p.waitForSelector('text=/0[.,]8/', { timeout: 20000 }).catch(() => {});
+    // Un segundo de adelanto alcanza: el perfil viene calculado del
+    // precalentamiento. Con dos, en inglés y portugués —donde la frase anterior
+    // dura menos— la pantalla se iba mientras la voz todavía contaba las filas.
+    { en: seg(3) - 1, hacer: async (p) => {
+        await ir('#/explore')(p);
+        await pestania(0)(p);
       } },
-    { en: seg(7), hacer: async (p) => { await p.mouse.wheel(0, 700); } },
+    { en: seg(4),  hacer: bajar(360) },
+    { en: seg(5) - 1, hacer: async (p) => { await arriba(p); await pestania(1)(p); } },
+    // «las notas escritas a mano»: la tarjeta de esa columna, buscada por su
+    // nombre. Con un scroll a ciegas la voz hablaba de las notas mientras en
+    // pantalla estaba el importe adeudado.
+    { en: seg(6),  hacer: async (p) => {
+        const tarjeta = p.locator(`.view.active .card:has(h3.mono:text-is("${cfg.texto}"))`);
+        await tarjeta.scrollIntoViewIfNeeded({ timeout: 4000 })
+          .catch(() => p.mouse.wheel(0, 420));
+      } },
+    // El mapa ya viene calculado del precalentamiento, así que no hace falta
+    // adelantarse tres segundos: adelantarse tanto se comía el final del tramo
+    // anterior, que hablaba de otra pantalla. Igual se espera al dibujo.
+    { en: seg(7) - 1, hacer: async (p) => {
+        await arriba(p);
+        await pestania(3, '.view.active svg rect')(p);
+      } },
+    { en: seg(8) - 2, hacer: async (p) => {
+        await ir('#/ingenieria')(p);
+        await p.waitForSelector('.view.active .card', { timeout: 6000 });
+      } },
+    // Se escribe el objetivo con pausas entre letras: un texto que aparece de
+    // golpe no se lee como alguien escribiendo.
+    { en: seg(9),  hacer: async (p) => {
+        await ir('#/model')(p);
+        const caja = p.locator('.view.active textarea').first();
+        await caja.waitFor({ timeout: 20000 });
+        await caja.click();
+        await caja.fill('');
+        await caja.type(cfg.escribir, { delay: 45 });
+      } },
+    { en: seg(10), hacer: async (p) => {
+        await p.locator('[data-rol="identificar"]').click({ timeout: 5000 });
+        await p.waitForSelector('.view.active .badge', { timeout: 6000 }).catch(() => {});
+      } },
+    { en: seg(11), hacer: bajar(120) },
+    // El plan de ETL se propone con un clic y tarda un poco: se pide antes de
+    // que la voz lo nombre y se espera a que estén los pasos en pantalla.
+    { en: seg(12), hacer: async (p) => {
+        await ir('#/etl')(p);
+        await p.mouse.wheel(0, 200);
+      } },
+    // Las familias de modelos y el botón de entrenar están al final de la
+    // pantalla: hay que bajar de verdad, no un scroll simbólico.
+    { en: seg(13), hacer: async (p) => {
+        await ir('#/model')(p);
+        // La vista se rearma al entrar y termina subiendo al tope: sin esperar
+        // a que ese render acabe, el scroll de abajo no llega a ningún lado.
+        await p.waitForTimeout(900);
+        // Se lleva el botón de entrenar a la vista en vez de bajar a ciegas: la
+        // pantalla de modelado cambia de alto según el dataset, y con un scroll
+        // de tantos píxeles la voz decía «entrena» sobre otra cosa. El botón se
+        // busca por su rol y no por «el último primario», que cambiaba de
+        // elemento según lo que hubiera en pantalla y fallaba en silencio.
+        const entrenar = p.locator('[data-rol="entrenar"]');
+        await entrenar.scrollIntoViewIfNeeded({ timeout: 4000 });
+        await p.waitForTimeout(400);
+        await entrenar.click({ timeout: 4000 });
+      } },
+    { en: seg(14) - 2, hacer: async (p) => {
+        await ir('#/results')(p);
+        // Con el número en pantalla cuando la voz lo menciona, no dos segundos
+        // después: se espera al valor, no a un tiempo fijo.
+        await p.waitForSelector('.view.active >> text=/0[.,]8/', { timeout: 6000 }).catch(() => {});
+      } },
+    { en: seg(15), hacer: bajar(260) },
+    // Resultados también tiene pestañas: el peso de cada variable vive en la
+    // tercera. Haciendo scroll nomás, la voz explicaba las variables sobre la
+    // tabla de métricas.
+    { en: seg(16) - 1, hacer: async (p) => {
+        await arriba(p);
+        await p.locator('.view.active .tab').nth(2).click({ timeout: 8000 }).catch(() => {});
+      } },
+    { en: seg(17), hacer: bajar(320) },
+    { en: seg(18) - 1, hacer: ir('#/export') },
   ];
 }
 
@@ -273,6 +364,13 @@ function pistaDeAudio(tramos, duracion, salida) {
 
   const tmp = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'mv-video-'));
   const navegador = await chromium.launch({ executablePath: CHROME });
+  // Playwright empieza a grabar cuando se crea el contexto, pero el recorrido
+  // empieza recién cuando la aplicación cargó. Esos segundos de diferencia son
+  // los que descolocaban todo el video: el audio se monta contando desde el
+  // primer cuadro y las escenas se movían contando desde que la app estuvo
+  // lista, así que la imagen iba varios segundos atrás de la voz durante todo
+  // el recorrido. Se mide la diferencia y se recorta.
+  const nacimiento = Date.now();
   const ctx = await navegador.newContext({
     viewport: { width: ANCHO, height: ALTO },
     deviceScaleFactor: 1,
@@ -283,7 +381,7 @@ function pistaDeAudio(tramos, duracion, salida) {
   // El token viaja como lo inyecta Electron (`window.mvDesktop`), que es de
   // donde lo lee el cliente HTTP del programa. El idioma se fija antes de
   // cargar para que la interfaz ya arranque en el idioma del video.
-  await p.addInitScript(([tok, idioma, dsId]) => {
+  await p.addInitScript(([tok, idioma, dsId, objetivo]) => {
     window.mvDesktop = { token: tok };
     localStorage.setItem('mv.lang', idioma);
     localStorage.setItem('mv.theme', 'dark');
@@ -291,18 +389,75 @@ function pistaDeAudio(tramos, duracion, salida) {
     // «elegí un dataset» durante los primeros segundos, que son justo los que
     // la narración usa para decir que se arma solo.
     if (dsId) localStorage.setItem('mv.dataset', dsId);
-  }, [TOKEN, IDIOMA, ds?.id || '']);
+    // El plan de ETL audita contra la variable objetivo: sin ella, la pantalla
+    // que muestra qué columnas se descartan sale vacía.
+    if (objetivo) localStorage.setItem('mv.target', objetivo);
+  }, [TOKEN, IDIOMA, ds?.id || '', NOMBRE === 'recorrido' ? (DATOS[IDIOMA] || DATOS.es).objetivo : '']);
   await p.goto(`${BASE}/`, { waitUntil: 'networkidle' });
   await p.waitForTimeout(1500);
 
+  // Precalentamiento, fuera de cámara.
+  //
+  // El perfil, el mapa de correlaciones y los informes se calculan la primera
+  // vez que se abre la pantalla, y eso tarda unos segundos. Filmando en frío,
+  // la voz decía «la plataforma te dice qué tiene adentro» sobre un cartel de
+  // «Cargando». Se visitan antes de arrancar el reloj y el recorte de arriba
+  // los deja fuera del video: cuando el recorrido empieza, todo está pintado.
+  const precalentar = [
+    ['#/explore', '.view.active .tab'],
+    ['#/ingenieria', '.view.active .card'],
+    ['#/model', '.view.active textarea'],
+    ['#/results', '.view.active .card'],
+  ];
+  for (const [hash, listo] of precalentar) {
+    await p.evaluate((h) => { location.hash = h; }, hash);
+    await p.waitForSelector(listo, { timeout: 40000 }).catch(() => {});
+    await p.waitForTimeout(2500);
+  }
+  // El plan de ETL es lo más caro de todo: audita columna por columna contra el
+  // objetivo y tarda más de veinte segundos. Se pide acá, y la vista lo vuelve
+  // a mostrar sola cuando se entra de nuevo, así que en cámara es instantáneo.
+  await p.evaluate(() => { location.hash = '#/etl'; });
+  await p.locator('.view.active .btn-primary').first().click({ timeout: 10000 })
+    .catch(() => {});
+  await p.waitForSelector('.view.active .step-row', { timeout: 90000 }).catch(() => {});
+  // Las correlaciones son el cálculo más caro: se pide una vez acá.
+  await p.evaluate(() => { location.hash = '#/explore'; });
+  await p.waitForSelector('.view.active .tab', { timeout: 20000 }).catch(() => {});
+  await p.locator('.view.active .tab').nth(3).click().catch(() => {});
+  await p.waitForSelector('.view.active svg rect', { timeout: 40000 }).catch(() => {});
+  // Se vuelve a la primera pestaña: si Exploración queda abierta en
+  // Correlaciones, la escena que debía mostrar la calidad de los datos mostraba
+  // el mapa —la vista recuerda la pestaña— y el recorrido arrancaba corrido.
+  await p.locator('.view.active .tab').first().click().catch(() => {});
+  await p.waitForTimeout(600);
+  await p.evaluate(() => { location.hash = '#/overview'; window.scrollTo({ top: 0 }); });
+  await p.waitForTimeout(1200);
+
   const arranque = Date.now();
+  const recorte = (arranque - nacimiento) / 1000;
+  console.log(`la app estuvo lista a los ${recorte.toFixed(1)} s de grabación: se recorta`);
   const esperarHasta = async (s) => {
     const falta = arranque + s * 1000 - Date.now();
     if (falta > 0) await p.waitForTimeout(falta);
   };
+  // Las escenas NO se esperan.
+  //
+  // Esperándolas, una que tardaba en encontrar un elemento corría a todas las
+  // que venían atrás: el plan de ETL tardaba veinte segundos y el final del
+  // recorrido entero quedaba desfasado de la voz. Cada escena arranca en su
+  // segundo exacto y lo que tarde es problema de ella; el reloj no la espera.
+  // Es el mismo criterio que hace que el audio quede sincronizado: manda el
+  // guion, no lo que tarde la aplicación.
   for (const escena of escenas(tramos)) {
     await esperarHasta(escena.en);
-    try { await escena.hacer(p); } catch (e) { console.warn(`escena en ${escena.en}s: ${e.message}`); }
+    const t0 = Date.now();
+    escena.hacer(p)
+      .then(() => {
+        const tardo = (Date.now() - t0) / 1000;
+        if (tardo > 1.5) console.warn(`  escena de ${escena.en.toFixed(1)}s: tardó ${tardo.toFixed(1)}s`);
+      })
+      .catch((e) => console.warn(`escena en ${escena.en}s: ${e.message}`));
   }
   await esperarHasta(duracion);
 
@@ -318,7 +473,7 @@ function pistaDeAudio(tramos, duracion, salida) {
   const webm = path.join(DIR_VIDEO, `${NOMBRE}-${IDIOMA}.webm`);
   // `-shortest` con `apad` acotado: sin el tope, el silencio de relleno es
   // infinito y la codificación no termina nunca.
-  const comun = ['-y', '-i', mudo, '-i', voz,
+  const comun = ['-y', '-ss', recorte.toFixed(3), '-i', mudo, '-i', voz,
     '-filter_complex', `[1:a]apad=whole_dur=${duracion}[a]`,
     '-map', '0:v', '-map', '[a]', '-t', String(duracion)];
   ffmpeg([...comun, '-c:v', 'libx264', '-preset', 'medium', '-crf', '23',
