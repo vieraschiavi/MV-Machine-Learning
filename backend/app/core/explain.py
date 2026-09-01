@@ -152,6 +152,24 @@ def _niveles(pre, name: str, col: str) -> dict[float, str] | None:
     return None
 
 
+def _sin_direccion(x: np.ndarray, aporte: np.ndarray) -> bool:
+    """Si esta variable no tiene una dirección que contarle al usuario.
+
+    Falta de los dos lados. Una columna constante no distingue un caso de otro,
+    y un aporte SHAP idénticamente cero es una variable que el modelo terminó
+    ignorando: ningún árbol del campeón la usa para partir, así que no empuja el
+    resultado ni para arriba ni para abajo.
+
+    El segundo caso es el habitual —sobra una columna en casi todo dataset— y
+    llegaba igual a la correlación, que divide por un desvío cero y devuelve
+    NaN. Ese NaN se descartaba unas líneas más abajo, así que la explicación
+    salía bien de casualidad: alcanza con que alguien promedie antes de
+    filtrarlo para que el informe del cliente diga «nan» sobre una variable que
+    el modelo ni miró.
+    """
+    return len(x) <= 30 or np.std(x) == 0 or np.std(aporte) == 0
+
+
 def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) -> dict[str, Any]:
     import shap  # import perezoso: sólo si se pide
 
@@ -185,7 +203,8 @@ def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) 
             continue
         x = pd.to_numeric(X.iloc[:, j], errors="coerce").to_numpy(dtype=float)
         ok = np.isfinite(x)
-        if ok.sum() <= 30 or np.std(x[ok]) == 0:
+        aporte = signed[ok, j]
+        if _sin_direccion(x[ok], aporte):
             continue
         # Una categórica llega como código ordinal (o como indicadora por
         # valor). Decir «sube» o «baja» sobre ese código es engañoso: el
@@ -198,7 +217,7 @@ def _shap(task, champion, fitted, ens_members, pre, data, max_rows: int = 2000) 
                 if marcadas.sum() > 30:
                     e["cats"].append((etiqueta, float(np.mean(signed[marcadas, j]))))
         else:
-            c = float(np.corrcoef(x[ok], signed[ok, j])[0, 1])
+            c = float(np.corrcoef(x[ok], aporte)[0, 1])
             if np.isfinite(c):
                 e["corr"].append(c)
     for e in by_col.values():

@@ -28,6 +28,18 @@ catboost>=1.2
 statsmodels>=0.14
 joblib>=1.3
 
+# matplotlib no se pide directo: la trae catboost, sin techo. shap arma su
+# paleta mutando un colormap (set_bad/set_over/set_under) con métodos que
+# matplotlib ya viene avisando como deprecados desde 3.9; el día que ese aviso
+# pase de PendingDeprecationWarning a error, `import shap` se cae entero y el
+# informe se queda sin explicación de variables. El código roto está adentro
+# de shap, no acá, así que no hay parche de este lado — sólo contener el daño:
+# techo en la versión más nueva ya probada, para no subir a una que rompa sola
+# en un `pip install` de rutina. `backend/tests/test_dependencias.py` vigila
+# el día que shap salga una versión que ya no mute el colormap, para sacar
+# este techo.
+matplotlib<3.12
+
 # Conectores SQL
 sqlalchemy>=2.0
 pymysql>=1.1

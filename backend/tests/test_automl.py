@@ -1,10 +1,13 @@
 """AutoML: partición honesta, entrenamiento, registro y scoring."""
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import pytest
 from app.core import automl as A
+from app.core import explain as E
 from app.core import registry
 
 
@@ -156,10 +159,46 @@ def test_shap_nombra_la_categoria_no_el_codigo_interno():
         "ruido": ruido,
         "paga": ((contacto == "si") * 2.5 + ruido * 0.3 > 1.0).astype(int),
     })
-    rep = A.train(df, A.TrainConfig(target="paga", budget_seconds=10, max_models=2,
-                                    shap=True, permutation_importance=False))["report"]
+    with warnings.catch_warnings(record=True) as avisos:
+        warnings.simplefilter("always")
+        rep = A.train(df, A.TrainConfig(target="paga", budget_seconds=10, max_models=2,
+                                        shap=True, permutation_importance=False))["report"]
+    # Este escenario es el que sacaba a la luz la división por un desvío cero:
+    # el modelo ignora «ruido» y su aporte queda en cero. Si vuelve, se ve acá.
+    dividio = [str(a.message) for a in avisos
+               if issubclass(a.category, RuntimeWarning) and "divide" in str(a.message)]
+    assert not dividio, f"la explicación dividió por un desvío cero: {dividio}"
+
     fila = next(v for v in rep["features"]["ranking"] if v["column"] == "ContactoEfectivo")
     direccion = fila.get("shap_direction") or ""
     assert "«si»" in direccion and "«no»" in direccion, direccion
     assert direccion.index("«si»") < direccion.index("«no»"), (
         f"contactar sube el pago, pero la explicación dice: {direccion}")
+
+
+def test_una_variable_que_el_modelo_ignora_no_tiene_direccion():
+    """Su aporte SHAP es cero en todas las filas, y cero no es una dirección.
+
+    Correlacionar la columna contra un aporte constante divide por un desvío
+    cero: sale NaN y numpy avisa. El NaN se descartaba después, así que el
+    informe salía bien de casualidad — hasta que alguien promedie antes de
+    filtrarlo y el cliente lea «nan» sobre una variable que el modelo ni miró.
+
+    Se prueba la guarda y no un entrenamiento entero a propósito: que el modelo
+    ignore una columna depende de cómo caigan los árboles, y una prueba que
+    necesita esa suerte no falla cuando la guarda se rompe.
+    """
+    r = np.random.default_rng(3)
+    x = r.normal(0, 1, 500)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error", RuntimeWarning)
+        # el caso que avisaba: la columna varía, el aporte del modelo no
+        assert E._sin_direccion(x, np.zeros(500))
+        # y una columna constante tampoco tiene nada que contar
+        assert E._sin_direccion(np.ones(500), r.normal(0, 1, 500))
+        # con pocas filas, cualquier correlación es ruido
+        assert E._sin_direccion(x[:30], r.normal(0, 1, 30))
+        # el caso normal sí se mide
+        assert not E._sin_direccion(x, x * 0.4 + r.normal(0, 0.1, 500))
+
