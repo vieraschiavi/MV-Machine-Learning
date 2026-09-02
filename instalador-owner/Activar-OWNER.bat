@@ -10,6 +10,15 @@ REM
 REM La licencia es un token firmado con Ed25519: escribir el archivo a mano no
 REM sirve de nada, el programa verifica la firma contra la clave publica que
 REM lleva embebida (backend/app/core/licensing.py).
+REM
+REM El que se baja del release viene con la licencia YA ADENTRO (la pone el paso
+REM "Activador OWNER" del workflow, firmada con el par de ese mismo build): se
+REM abre con doble clic y no pregunta nada. La copia que vive en el repositorio
+REM tiene el hueco vacio a proposito, porque una licencia fija ahi dejaria de
+REM valer apenas cambien las claves.
+
+REM --- la licencia de este build; la rellena el CI ---
+set "LIC_EMBEBIDA="
 
 set "LICFILE=%~dp0mi-licencia.txt"
 set "DATOS=%APPDATA%\MV AutoML Studio\data"
@@ -21,13 +30,19 @@ echo  ============================================
 echo.
 
 set "LIC="
-if exist "%LICFILE%" (
+if defined LIC_EMBEBIDA (
+  set "LIC=!LIC_EMBEBIDA!"
+  echo  Licencia de dueno incluida en este activador.
+)
+if not defined LIC if exist "%LICFILE%" (
   set /p LIC=<"%LICFILE%"
   echo  Licencia leida de mi-licencia.txt
 )
 if not defined LIC (
-  echo  Pega tu licencia de dueno. Se emite en tu sitio, /panel,
-  echo  seccion "Emitir licencia", nivel Owner, sin vencimiento.
+  echo  Este activador vino sin licencia adentro. Bajate el del release
+  echo  ("Activador OWNER", al lado del instalador owner) y no te pide nada,
+  echo  o pega la tuya aca: se emite en tu sitio, /panel, seccion
+  echo  "Emitir licencia", nivel Owner, sin vencimiento.
   echo.
   set /p LIC=  Licencia: 
   if not defined LIC (
