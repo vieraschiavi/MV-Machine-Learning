@@ -42,6 +42,16 @@ def _leidas_por_el_sitio() -> set[str]:
     return nombres - NO_SON_CONFIGURACION
 
 
+def _declaradas_en_el_diagnostico() -> set[str]:
+    """Las variables que `/api/estado` declara, leídas de su propio código.
+
+    Se sacan del texto y no de una corrida, porque son justo las que hay que
+    vaciar del entorno *antes* de poder correrlo.
+    """
+    return set(re.findall(r"nombre:\s*'([A-Z_][A-Z0-9_]*)'",
+                          ESTADO.read_text(encoding="utf-8")))
+
+
 def _estado(env: dict[str, str] | None = None, query: dict | None = None) -> dict:
     guion = (
         f"const mod = await import({json.dumps(ESTADO.as_uri())});\n"
@@ -49,11 +59,22 @@ def _estado(env: dict[str, str] | None = None, query: dict | None = None) -> dic
         "json(b){ console.log(JSON.stringify(b)) } };\n"
         f"await mod.default({{ query: {json.dumps(query or {})}, headers: {{}} }}, res);\n"
     )
-    # El entorno se pasa limpio: heredar el del que corre las pruebas hacía que
-    # el resultado dependiera de la máquina.
+    # Se hereda el entorno y se vacían UNA POR UNA las variables que el
+    # diagnóstico mira, en vez de arrancar de la nada.
+    #
+    # Arrancar de la nada era más prolijo de leer y rompió el build de Windows
+    # durante seis días: sin `SystemRoot`, Node no puede inicializar su
+    # generador de aleatorios —`Assertion failed: ncrypto::CSPRNG`— y se muere
+    # antes de ejecutar una línea. En Linux no pasa, así que la suite quedaba
+    # verde acá y el instalador no se compilaba allá.
+    limpio = dict(subprocess.os.environ)
+    for v in _declaradas_en_el_diagnostico():
+        limpio.pop(v, None)
+    limpio.update(env or {})
+
     r = subprocess.run(["node", "--input-type=module", "-e", guion],
                        capture_output=True, encoding="utf-8", timeout=60,
-                       env={"PATH": subprocess.os.environ["PATH"], **(env or {})})
+                       env=limpio)
     assert r.returncode == 0, r.stderr[-600:]
     return json.loads(r.stdout)
 

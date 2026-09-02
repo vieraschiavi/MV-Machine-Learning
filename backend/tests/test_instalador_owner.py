@@ -24,6 +24,7 @@ import pytest
 from app.core import licensing as L
 
 RAIZ = Path(__file__).resolve().parents[2]
+BATS = sorted((RAIZ / "instalador-owner").glob("*.bat"))
 WORKFLOW = RAIZ / ".github" / "workflows" / "desktop.yml"
 BUILDER = RAIZ / "desktop" / "electron-builder.yml"
 MAIN = RAIZ / "desktop" / "electron" / "main.cjs"
@@ -116,3 +117,49 @@ def test_el_activador_del_repositorio_viaja_sin_licencia():
     assert not pegadas, (
         "hay una licencia pegada en el activador versionado: la pone el CI en "
         "la copia que se publica, nunca el repositorio")
+
+
+def _lineas_con_parentesis_sueltos(texto: str) -> list[str]:
+    """Líneas que rompen un bloque `( … )` de cmd.exe desde adentro.
+
+    En batch, un paréntesis suelto dentro de un bloque lo cierra ahí mismo,
+    aunque esté en medio de un mensaje entre comillas: el resto de las líneas
+    quedan sueltas y el script se rompe entero. cmd.exe no avisa nada — abre la
+    ventana, escupe errores y se cierra.
+    """
+    malas, dentro = [], False
+    for cruda in texto.splitlines():
+        linea = cruda.strip()
+        if not dentro:
+            if linea.endswith("(") and not linea.startswith("REM"):
+                dentro = True
+            continue
+        if linea == ")":
+            dentro = False
+            continue
+        if re.fullmatch(r"\)\s*else\s*\(", linea):    # cierra y vuelve a abrir
+            continue
+        # `^(` y `^)` van escapados y son seguros
+        suelto = re.sub(r"\^[()]", "", linea)
+        if "(" in suelto or ")" in suelto:
+            malas.append(cruda)
+    return malas
+
+
+@pytest.mark.parametrize("bat", BATS, ids=lambda p: p.name)
+def test_ningun_bat_se_corta_solo_por_un_parentesis(bat: Path):
+    malas = _lineas_con_parentesis_sueltos(bat.read_text(encoding="ascii"))
+    assert not malas, (
+        f"{bat.name} tiene un paréntesis sin escapar adentro de un bloque, que "
+        f"se lo cierra a cmd.exe antes de tiempo: {malas}")
+
+
+@pytest.mark.parametrize("bat", BATS, ids=lambda p: p.name)
+def test_los_bat_son_ascii_con_finales_de_windows(bat: Path):
+    """Un acento rompe el mensaje según la página de códigos del equipo, y con
+    finales de línea de Unix cmd.exe se come la última orden."""
+    crudo = bat.read_bytes()
+    crudo.decode("ascii")                       # revienta si hay un acento
+    assert b"\r\n" in crudo, f"{bat.name} no tiene finales de línea CRLF"
+    sueltos = crudo.replace(b"\r\n", b"").count(b"\n")
+    assert sueltos == 0, f"{bat.name} mezcla finales de línea"
