@@ -53,13 +53,24 @@ jobs:
       # Con secrets configurados se usan las claves estables de producción.
       # Sin secrets, se genera un par efímero y se avisa: las licencias que se
       # vendan sólo validan contra builds hechos con la MISMA clave pública.
+      #
+      # Los dos archivos van a `desktop/owner/`, que es la ÚNICA carpeta que
+      # `electron-builder.yml` empaqueta (`extraResources`) y de la que
+      # `main.cjs` los lee (`resources/owner/`). La clave pública estuvo yendo a
+      # `desktop/keys/`, que no se empaqueta: no viajaba en ningún instalador,
+      # así que `licensing.py` caía a su marcador —33 bytes, cuando Ed25519 pide
+      # 32— y rechazaba TODAS las licencias. El owner arrancaba en demo con su
+      # licencia adentro, y al cliente que pagaba le rebotaba la suya.
+      #
+      # `public.key` viaja en los dos canales (es pública, y sin ella el cliente
+      # no puede activar lo que compró); `license.key`, sólo en el owner.
       - name: Claves y licencia owner
         shell: bash
         env:
           PRIV: ${{ secrets.MV_LICENSE_PRIVATE_KEY }}
           PUB: ${{ secrets.MV_LICENSE_PUBLIC_KEY }}
         run: |
-          mkdir -p desktop/keys desktop/owner
+          mkdir -p desktop/owner
           python - <<'PY'
           import os, sys
           sys.path.insert(0, "backend")
@@ -72,7 +83,7 @@ jobs:
               print("::warning::Sin secrets MV_LICENSE_*: par de claves efímero. "
                     "Configurá los secrets para que las licencias vendidas "
                     "validen contra futuros builds.")
-          open("desktop/keys/public.key", "w").write(pub)
+          open("desktop/owner/public.key", "w").write(pub)
           token = L.issue("owner", "Owner build (CI)", days=None, private_key_b64=priv)
           open("desktop/owner/license.key", "w").write(token)
           # se valida acá mismo: un owner.exe con licencia rota no debe publicarse
@@ -166,6 +177,33 @@ jobs:
           mkdir -p ../entrega
           mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Owner-Setup.exe
 
+      # El activador, con la licencia de ESTE build ya adentro.
+      #
+      # El instalador owner arranca solo en nivel Owner —lleva la licencia y la
+      # clave que la valida—, así que esto es para el otro caso: convertir una
+      # instalación de cliente que ya esté hecha, sin bajar el instalador de
+      # nuevo. Se genera acá y no se versiona porque la licencia sólo vale
+      # contra la clave pública de este build: un archivo fijo en el repositorio
+      # quedaría viejo en cuanto cambien las claves, y encima pidiendo pegarla a
+      # mano es justo lo que no queremos.
+      - name: Activador OWNER (sin preguntas)
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          token = Path("desktop/owner/license.key").read_text(encoding="utf-8").strip()
+          plantilla = Path("instalador-owner/Activar-OWNER.bat").read_text(encoding="utf-8")
+          # Se rellena el hueco que el script deja para la licencia: con esto
+          # deja de preguntar y escribe el sello directo.
+          salida = plantilla.replace('set "LIC_EMBEBIDA="',
+                                     f'set "LIC_EMBEBIDA={token}"', 1)
+          assert token in salida, "no se pudo embeber la licencia en el activador"
+          Path("entrega/Activar-OWNER.bat").write_bytes(
+              salida.replace("\r\n", "\n").replace("\n", "\r\n").encode("ascii"))
+          print("activador owner listo, con licencia adentro")
+          PY
+
       - name: Instalador CLIENTE (sin licencia; misma clave pública)
         working-directory: desktop
         shell: bash
@@ -235,13 +273,33 @@ jobs:
           tag_name: owner-${{ github.run_number }}
           name: "Owner build ${{ github.run_number }} (privado)"
           draft: true
-          files: entrega/MV-AutoML-Studio-Owner-Setup.exe
+          files: |
+            entrega/MV-AutoML-Studio-Owner-Setup.exe
+            entrega/Activar-OWNER.bat
           body: |
             Compilación con licencia OWNER embebida: todas las funciones
             habilitadas, incluida la emisión de licencias. Este release es
             un borrador: no es visible públicamente.
 
-            No hace falta bajarlo desde acá: `instalador-owner/Bajar-OWNER.bat`
-            lo pide al sitio con la licencia de dueño, sin token ni cuenta de
-            GitHub. `/api/descargar` entrega esta compilación cuando la licencia
-            es de nivel `owner`.
+            El instalador arranca **solo** en nivel Owner: lleva adentro la
+            licencia y la clave que la valida. No hay nada que pegar ni activar.
+
+            `Activar-OWNER.bat` es para el otro caso: convertir a Owner una
+            instalación de cliente que ya tengas, sin bajar de nuevo el
+            instalador. También viene con la licencia adentro y no pregunta
+            nada. Sólo sirve con instaladores de **esta misma** compilación:
+            la licencia se valida contra la clave pública de este build.
+
+      # Los dos archivos, bajables desde la pestaña Actions con la sesión del
+      # navegador: sin token, sin licencia y sin entrar al release borrador.
+      # El repositorio es privado, así que el artefacto lo ven los
+      # colaboradores y nadie más.
+      - name: Dejar el owner a mano en Actions
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalador-owner-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            entrega/MV-AutoML-Studio-Owner-Setup.exe
+            entrega/Activar-OWNER.bat

@@ -1,65 +1,65 @@
 # Instalador OWNER — la versión completa, para probarla vos
 
-La compilación **Owner** trae la licencia de dueño adentro: arranca con todas
-las funciones abiertas —conectores SQL, proveedores de IA, variables de texto,
-informe sin marca de agua, scoring, panel de diagnóstico— sin activar nada y
-sin vencimiento. Es la misma que recibe un cliente que paga la versión completa,
-con el agregado del panel interno.
+La compilación **Owner** trae la licencia adentro y la clave que la valida:
+arranca con todo abierto —conectores SQL, proveedores de IA, variables de texto,
+informe sin marca de agua, scoring, panel de diagnóstico— sin activar nada, sin
+vencimiento y **sin pedirte ninguna clave**. Es la misma que recibe un cliente
+que paga la versión completa, con el agregado del panel interno.
 
-## Por qué el `.exe` no está en esta carpeta
+## Camino 1 — bajarlo de Actions (el más corto)
 
-Pesa unos 375 MB: lleva adentro Python, scikit-learn, LightGBM, XGBoost,
-CatBoost y SHAP. **GitHub rechaza cualquier archivo de más de 100 MB en el
-repositorio**, así que no hay forma de dejarlo acá aunque quisiéramos. Vive
-donde sí entra: como archivo de un *release* en borrador, que no es público.
+GitHub → pestaña **Actions** → *Escritorio Windows* → **Run workflow**. Cuando
+termina (unos quince minutos), en la misma página de esa ejecución, abajo de
+todo, aparece **Artifacts** → `instalador-owner-<número>`.
 
-Lo que sí está acá son las dos formas de conseguirlo sin entrar a GitHub.
+Doble clic al `.exe` que viene adentro y listo. **No pide licencia, ni token, ni
+cuenta de nada**: el artefacto se baja con la sesión del navegador con la que ya
+estás logueado, y el repositorio es privado, así que lo ven los colaboradores y
+nadie más.
 
-## Camino 1 — bajarlo con tu licencia (recomendado)
+En ese mismo zip viene `Activar-OWNER.bat`, que también trae la licencia adentro
+y tampoco pregunta nada. Sirve para el otro caso: convertir a Owner una
+instalación de cliente que ya tengas, sin bajar el instalador de nuevo.
 
-`Bajar-OWNER.bat`. Doble clic. La primera vez te pide tu licencia de dueño y la
-guarda al lado, en `mi-licencia.txt`; las veces siguientes no pregunta nada.
+## Camino 2 — pedírselo al sitio con tu licencia
 
-De dónde sale esa licencia: entrás a `https://tu-sitio/panel` con tu
-`PANEL_CLAVE`, sección **Emitir licencia**, nivel *Owner*, sin vencimiento. Se
-emite una vez y sirve para siempre.
+`Bajar-OWNER.bat`. Sirve cuando el sitio ya está configurado y no querés entrar
+a GitHub. Te pide una vez tu licencia de dueño y la guarda al lado, en
+`mi-licencia.txt`; de ahí en más no pregunta nada.
 
-El sitio verifica la firma y responde con un enlace temporal de GitHub. No hace
-falta token, ni cuenta, ni entrar a la interfaz de GitHub: la misma puerta que
-usa un cliente que pagó, con la diferencia de que a una licencia de nivel
-`owner` le entrega la compilación de dueño.
+Esa licencia se emite en `https://tu-sitio/panel` con tu `PANEL_CLAVE`, sección
+**Emitir licencia**, nivel *Owner*, sin vencimiento. `/api/descargar` entrega la
+compilación de dueño cuando la licencia es de nivel `owner`, y la del cliente
+cuando es de nivel pago: la misma puerta, la misma verificación de firma.
 
-## Camino 2 — convertir una instalación que ya tenés
+Para que este camino funcione tienen que estar cargadas en Vercel
+`MV_LICENSE_PUBLIC_KEY`, `GITHUB_TOKEN` y `PANEL_CLAVE`. Cuáles faltan lo dice
+`https://tu-sitio/api/estado`, y `docs/PRODUCCION.md` las explica una por una.
 
-`Activar-OWNER.bat`. Si ya instalaste la versión de cliente y no querés bajar
-375 MB otra vez, este script escribe tu licencia en la carpeta de datos del
-programa instalado y al reabrirlo arranca en nivel Owner. Busca solo dónde está
-instalado; no hay que copiarlo a ninguna parte.
+## Por qué el `.exe` no está versionado acá
 
-Es reversible: `Desactivar-OWNER.bat` borra la licencia y el programa vuelve a
-como estaba.
+Pesa unos 375 MB —lleva Python, scikit-learn, LightGBM, XGBoost, CatBoost y SHAP
+adentro— y **GitHub rechaza cualquier archivo de más de 100 MB**, así que no hay
+forma de dejarlo en el repositorio aunque el repositorio sea privado. Vive donde
+sí entra: como artefacto de la ejecución de Actions y como archivo de un
+*release* en borrador.
 
-## Qué necesita cada camino
+Tampoco viaja versionada la licencia. `Activar-OWNER.bat` tiene el hueco vacío a
+propósito y lo rellena el CI en la copia que publica: una licencia fija en el
+repositorio dejaría de valer apenas cambien las claves, y mientras tanto sería
+una llave del producto guardada en el historial, que no se puede borrar de los
+clones que ya se hicieron. Hay una prueba que rechaza el commit si aparece una
+(`backend/tests/test_instalador_owner.py`).
 
-| | Bajar-OWNER | Activar-OWNER |
-|---|---|---|
-| Licencia owner emitida en `/panel` | sí | sí |
-| El sitio desplegado y con sus variables cargadas | sí | no |
-| El programa ya instalado | no | sí |
-| Cuenta de GitHub, token o release a mano | no | no |
+## Volver atrás
 
-## Si el sitio todavía no está configurado
+`Desactivar-OWNER.bat` borra la licencia activada en el equipo. No toca los
+datasets, los modelos ni los informes.
 
-`Bajar-OWNER.bat` te lo va a decir con todas las letras: sin
-`MV_LICENSE_PUBLIC_KEY` y `GITHUB_TOKEN` cargadas en Vercel, la descarga no
-tiene de dónde sacar el archivo. La lista completa de lo que falta la da
-`https://tu-sitio/api/estado` (o `docs/PRODUCCION.md`, que la explica una por
-una). Mientras tanto queda el camino 2, que no depende del sitio.
+## Si el programa arranca en Demo teniendo la compilación Owner
 
-## Cómo se genera el instalador
-
-GitHub → pestaña **Actions** → *Escritorio Windows* → **Run workflow**. En unos
-quince minutos quedan publicados los dos instaladores, los dos como release en
-borrador: el del cliente —que entrega `/api/descargar` a quien compró— y el
-Owner. El workflow no publica nada abierto a propósito: un instalador público es
-el producto regalado a cualquiera que pase.
+Era un bug, y está arreglado: el workflow dejaba la clave pública en una carpeta
+que el instalador no empaquetaba, así que el programa no podía verificar ni su
+propia licencia embebida y caía a Demo —y a un cliente que pagaba le rebotaba la
+suya—. Si te pasa con un instalador viejo, recompilá: *Actions* → *Escritorio
+Windows* → *Run workflow*.
