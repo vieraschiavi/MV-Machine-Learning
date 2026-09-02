@@ -14,14 +14,23 @@ permissions:
   contents: read
 
 jobs:
+  # Windows también, aunque el servidor corra en Linux: el producto que se
+  # vende es un instalador de Windows, y la suite es el portón que lo deja
+  # empaquetar. Una prueba que sólo falla ahí dejó el build roto seis días sin
+  # que nadie lo viera —vaciar el entorno para correr Node mata a Node en
+  # Windows, que sin `SystemRoot` no puede inicializar su generador de
+  # aleatorios—, y con la matriz en Linux la CI del PR seguía en verde.
   backend:
-    name: Backend · Python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    name: Backend · Python ${{ matrix.python }} · ${{ matrix.so }}
+    runs-on: ${{ matrix.so }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11", "3.12"]
+        include:
+          - { so: ubuntu-latest, python: "3.11" }
+          - { so: ubuntu-latest, python: "3.12" }
+          - { so: windows-latest, python: "3.11" }
 
     steps:
       - uses: actions/checkout@v4
