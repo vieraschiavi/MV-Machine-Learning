@@ -267,19 +267,30 @@ jobs:
             Este release es un borrador a propósito: el archivo se entrega por
             `/api/descargar`, que primero verifica la licencia del comprador.
 
-      - name: Publicar OWNER (release borrador, sólo colaboradores)
+      # Publicado, no borrador, y a propósito.
+      #
+      # El borrador existía para que el instalador no quedara a la vista cuando
+      # el repositorio era público. Ahora el repositorio es privado, así que lo
+      # que protege el archivo es el repositorio mismo: un release publicado acá
+      # lo ven los colaboradores y nadie más, igual que el borrador.
+      #
+      # Lo que sí cambia es poder llegar: un borrador no tiene URL estable —la
+      # que devuelve la API es `untagged-<hash>` y da 404 en el navegador—, así
+      # que había que entrar a Releases y buscarlo a ojo. Publicado, el link es
+      # siempre `/releases/tag/owner-<número>`.
+      - name: Publicar OWNER (privado, sólo colaboradores del repositorio)
         uses: softprops/action-gh-release@v2
         with:
           tag_name: owner-${{ github.run_number }}
           name: "Owner build ${{ github.run_number }} (privado)"
-          draft: true
+          draft: false
           files: |
             entrega/MV-AutoML-Studio-Owner-Setup.exe
             entrega/Activar-OWNER.bat
           body: |
             Compilación con licencia OWNER embebida: todas las funciones
-            habilitadas, incluida la emisión de licencias. Este release es
-            un borrador: no es visible públicamente.
+            habilitadas, incluida la emisión de licencias. Visible sólo para
+            los colaboradores del repositorio, que es privado.
 
             El instalador arranca **solo** en nivel Owner: lleva adentro la
             licencia y la clave que la valida. No hay nada que pegar ni activar.
@@ -290,16 +301,22 @@ jobs:
             nada. Sólo sirve con instaladores de **esta misma** compilación:
             la licencia se valida contra la clave pública de este build.
 
-      # Los dos archivos, bajables desde la pestaña Actions con la sesión del
-      # navegador: sin token, sin licencia y sin entrar al release borrador.
-      # El repositorio es privado, así que el artefacto lo ven los
-      # colaboradores y nadie más.
-      - name: Dejar el owner a mano en Actions
+      # Sólo el activador, que pesa unos 3 KB.
+      #
+      # Acá iba también el instalador, y fue un error caro: 375 MB por
+      # compilación llenaron la cuota de artefactos de la cuenta, y el paso
+      # empezó a fallar —`Artifact storage quota has been hit`— dando por
+      # perdido un build que ya había compilado y subido todo. El instalador
+      # vive en el release, que no consume esa cuota.
+      #
+      # `continue-on-error` porque esto es una comodidad: que un build entero
+      # figure en rojo por no poder guardar una copia de más es peor que no
+      # tener la copia.
+      - name: Dejar el activador a mano en Actions
         uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
-          name: instalador-owner-${{ github.run_number }}
-          retention-days: 30
+          name: activador-owner-${{ github.run_number }}
+          retention-days: 7
           if-no-files-found: error
-          path: |
-            entrega/MV-AutoML-Studio-Owner-Setup.exe
-            entrega/Activar-OWNER.bat
+          path: entrega/Activar-OWNER.bat

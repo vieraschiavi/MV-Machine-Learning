@@ -163,3 +163,18 @@ def test_los_bat_son_ascii_con_finales_de_windows(bat: Path):
     assert b"\r\n" in crudo, f"{bat.name} no tiene finales de línea CRLF"
     sueltos = crudo.replace(b"\r\n", b"").count(b"\n")
     assert sueltos == 0, f"{bat.name} mezcla finales de línea"
+
+
+@pytest.mark.parametrize("wf", sorted((RAIZ / ".github" / "workflows").glob("*.yml")),
+                         ids=lambda p: p.name)
+def test_los_workflows_parsean(wf: Path):
+    """Un YAML roto no falla: directamente no corre, y no avisa por qué.
+
+    Pasó con un `name:` de paso que llevaba dos puntos sin comillas —
+    `Publicar OWNER (sólo colaboradores: el repositorio es privado)` — y YAML
+    lee eso como el arranque de otra clave. Es gratis comprobarlo acá.
+    """
+    yaml = pytest.importorskip("yaml")
+    d = yaml.safe_load(wf.read_text(encoding="utf-8"))
+    assert d, f"{wf.name} quedó vacío"
+    assert "jobs" in d and d["jobs"], f"{wf.name} no declara ningún job"

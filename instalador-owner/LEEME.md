@@ -6,20 +6,43 @@ informe sin marca de agua, scoring, panel de diagnóstico— sin activar nada, s
 vencimiento y **sin pedirte ninguna clave**. Es la misma que recibe un cliente
 que paga la versión completa, con el agregado del panel interno.
 
-## Camino 1 — bajarlo de Actions (el más corto)
+## Camino 1 — bajarlo del release (el más corto)
 
-GitHub → pestaña **Actions** → *Escritorio Windows* → **Run workflow**. Cuando
-termina (unos quince minutos), en la misma página de esa ejecución, abajo de
-todo, aparece **Artifacts** → `instalador-owner-<número>`.
+Cada compilación publica el instalador owner en su propio release, con link
+fijo:
 
-Doble clic al `.exe` que viene adentro y listo. **No pide licencia, ni token, ni
-cuenta de nada**: el artefacto se baja con la sesión del navegador con la que ya
-estás logueado, y el repositorio es privado, así que lo ven los colaboradores y
-nadie más.
+> `https://github.com/vieraschiavi/MV-Machine-Learning/releases/tag/owner-<número>`
 
-En ese mismo zip viene `Activar-OWNER.bat`, que también trae la licencia adentro
-y tampoco pregunta nada. Sirve para el otro caso: convertir a Owner una
-instalación de cliente que ya tengas, sin bajar el instalador de nuevo.
+El número es el de la ejecución del workflow. Si no lo tenés a mano, entrá a
+**Releases** en el repo: el más nuevo está arriba de todo.
+
+Doble clic al `.exe` y listo. **No pide licencia, ni token, ni pegar nada**: la
+compilación owner lleva adentro la licencia y la clave que la valida. El
+repositorio es privado, así que el release lo ven los colaboradores y nadie más.
+
+Al lado viene `Activar-OWNER.bat`, que también trae la licencia adentro y
+tampoco pregunta nada. Sirve para el otro caso: convertir a Owner una
+instalación de cliente que ya tengas, sin bajar el instalador de nuevo. (De ese
+archivo, por ser chico, queda además una copia en los *Artifacts* de la
+ejecución.)
+
+Para generar una compilación nueva: GitHub → **Actions** → *Escritorio Windows*
+→ **Run workflow**. Tarda unos quince minutos.
+
+### Por qué el release ya no es borrador
+
+Lo era para que el instalador no quedara a la vista mientras el repositorio era
+público. Ahora que el repositorio es privado, el archivo lo protege el
+repositorio mismo. Y el borrador tenía un costo concreto: **no tiene URL
+estable** —la que devuelve la API es `untagged-<hash>` y da 404 en el
+navegador—, así que había que entrar a Releases y buscarlo a ojo.
+
+### Por qué el `.exe` ya no va como artefacto de Actions
+
+Estuvo, y salió mal: 375 MB por compilación llenaron la cuota de artefactos de
+la cuenta (`Artifact storage quota has been hit`) y el paso empezó a fallar,
+dando por perdido un build que ya había compilado y subido todo. Los releases no
+consumen esa cuota.
 
 ## Camino 2 — pedírselo al sitio con tu licencia
 
