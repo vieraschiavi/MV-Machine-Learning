@@ -197,6 +197,11 @@ jobs:
         working-directory: desktop
         shell: bash
         run: |
+          # El .zip no instala, así que nadie le crea el icono: el creador de
+          # accesos directos viaja adentro y lo resuelve sin convertirlo en
+          # una instalación. En el instalador NSIS no hace falta —ya los deja
+          # solo—, y por eso no se agrega a `extraFiles`.
+          cp ../instalador-owner/Crear-accesos-directos.bat dist/win-unpacked/
           mkdir -p dist/win-unpacked/datos
           cat > dist/win-unpacked/datos/LEEME.txt <<'TXT'
           Los datasets, los modelos y los informes se guardan en esta carpeta.
@@ -221,7 +226,29 @@ jobs:
             || { echo "::error::el .zip portable no trae el ejecutable"; exit 1; }
           grep -q "datos" /tmp/contenido.txt \
             || { echo "::error::el .zip portable no trae la carpeta datos"; exit 1; }
-          echo "portable: $(du -h "$ZIP" | cut -f1), con ejecutable y carpeta datos"
+          grep -q "Crear-accesos-directos.bat" /tmp/contenido.txt \
+            || { echo "::error::el .zip portable no trae el creador de accesos"; exit 1; }
+          echo "portable: $(du -h "$ZIP" | cut -f1), con ejecutable, datos y accesos"
+
+      # Se ejecuta de verdad, porque este runner ES Windows.
+      #
+      # El script crea accesos directos por COM (WScript.Shell) desde un
+      # comando de PowerShell embebido en un .bat, con una ruta que tiene
+      # espacios: «MV AutoML Studio». Ahí es donde se rompen las comillas, y se
+      # rompen en silencio — el .bat termina con éxito y el icono no aparece.
+      # Comprobarlo acá cuesta dos segundos; descubrirlo en la máquina de un
+      # cliente cuesta una versión.
+      - name: Probar el creador de accesos directos (Windows de verdad)
+        shell: cmd
+        env:
+          MV_SIN_PAUSA: "1"
+        run: |
+          mkdir "%RUNNER_TEMP%\accesos"
+          copy "instalador-owner\Crear-accesos-directos.bat" "%RUNNER_TEMP%\accesos\" >nul
+          echo. > "%RUNNER_TEMP%\accesos\MV AutoML Studio.exe"
+          call "%RUNNER_TEMP%\accesos\Crear-accesos-directos.bat"
+          if errorlevel 1 exit /b 1
+          powershell -NoProfile -Command "$fallo = $false; foreach ($c in @('Desktop','Programs')) { $l = Join-Path ([Environment]::GetFolderPath($c)) 'MV AutoML Studio.lnk'; if (Test-Path $l) { $t = (New-Object -ComObject WScript.Shell).CreateShortcut($l).TargetPath; Write-Host ('  ' + $c + ' -> ' + $t); if (-not $t.EndsWith('MV AutoML Studio.exe')) { Write-Host '::error::el acceso apunta a otra cosa'; $fallo = $true } } else { Write-Host ('::error::no se creo el acceso en ' + $c); $fallo = $true } }; if ($fallo) { exit 1 }; Write-Host 'los dos accesos directos se crearon y apuntan al ejecutable'"
 
       # El activador, con la licencia de ESTE build ya adentro.
       #
@@ -367,6 +394,11 @@ jobs:
           los datasets, los modelos y los informes quedan en la carpeta `datos`
           que viene adentro. Una copia en `D:\\MV` no toca `C:` en ningún
           momento. Es la vía recomendada para probar.
+
+          Como no instala, tampoco te deja el icono: para eso viene
+          `Crear-accesos-directos.bat` adentro del .zip. Ejecutalo una vez y
+          quedan el acceso en el Escritorio y la entrada en el Menú de inicio.
+          Si después movés la carpeta, volvé a ejecutarlo.
 
           **`MV-AutoML-Studio-Owner-Setup.exe`** — el instalador de siempre,
           con acceso directo y entrada en el menú. Ojo: NSIS descomprime su

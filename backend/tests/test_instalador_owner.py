@@ -203,6 +203,34 @@ def test_la_copia_portable_trae_la_carpeta_que_la_hace_portable():
     assert "Portable.zip" in bloque
 
 
+def test_la_copia_portable_trae_como_hacerse_un_acceso_directo():
+    """El .zip no instala nada, así que nadie le crea el icono.
+
+    El instalador NSIS deja el acceso en el escritorio y en el menú; la copia
+    portable, por no instalar, no deja ninguno — y queda un ejecutable perdido
+    en una carpeta, que hay que ir a buscar cada vez. El `.bat` lo resuelve sin
+    convertir el portable en una instalación.
+    """
+    texto = WORKFLOW.read_text(encoding="utf-8")
+    bloque = texto[texto.index("Copia portable OWNER"):]
+    bloque = bloque[:bloque.index("- name:", 10)]
+    assert "Crear-accesos-directos.bat" in bloque, (
+        "el .zip portable sale sin el creador de accesos directos: el "
+        "ejecutable queda sin icono en el escritorio ni en el menú")
+
+
+def test_el_instalador_sigue_creando_los_accesos_directos():
+    """Lo que el portable resuelve con un .bat, el instalador ya lo hace solo.
+
+    Se vigila porque son dos caminos para lo mismo: si alguien apagara estas
+    opciones, el instalador quedaría igual de mudo que el portable y no habría
+    nada que lo delatara hasta que un cliente pregunte dónde quedó el programa.
+    """
+    builder = BUILDER.read_text(encoding="utf-8")
+    for opcion in ("createDesktopShortcut: true", "createStartMenuShortcut: true"):
+        assert opcion in builder, f"el instalador dejó de traer {opcion}"
+
+
 def test_la_carpeta_datos_no_viaja_en_el_instalador():
     """En una instalación normal es dañina: el desinstalador borra el
     directorio del programa, y se llevaría los datasets del cliente."""
