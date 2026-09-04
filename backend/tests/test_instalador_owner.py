@@ -165,6 +165,70 @@ def test_los_bat_son_ascii_con_finales_de_windows(bat: Path):
     assert sueltos == 0, f"{bat.name} mezcla finales de línea"
 
 
+def _publicacion_owner() -> dict:
+    """El paso que sube los archivos del release owner."""
+    yaml = pytest.importorskip("yaml")
+    d = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+    pasos = next(iter(d["jobs"].values()))["steps"]
+    return next(p for p in pasos if p.get("name", "").startswith("Publicar OWNER"))
+
+
+def test_el_release_owner_lleva_una_copia_que_no_pasa_por_el_instalador():
+    """La vía que no depende del disco del sistema.
+
+    NSIS descomprime su paquete en `%TEMP%` antes de copiarlo al destino: pide
+    el espacio dos veces y la primera siempre en C:, aunque instales en D:.
+    Cuando no entra, muere con «error escribiendo al archivo ...\\app-64.7z».
+    La copia portable no pasa por ahí.
+    """
+    archivos = _publicacion_owner()["with"]["files"]
+    assert "MV-AutoML-Studio-Owner-Portable.zip" in archivos, (
+        "el release owner dejó de publicar la copia portable: sin ella, la "
+        "única forma de instalar vuelve a necesitar espacio en C:")
+    assert "Instalar-en-otro-disco.bat" in archivos
+
+
+def test_la_copia_portable_trae_la_carpeta_que_la_hace_portable():
+    """Sin `datos/` adentro, el .zip escribe en el perfil del usuario igual.
+
+    Es la señal que `carpeta-datos.cjs` busca para no tocar el disco del
+    sistema; si el paso deja de crearla, el .zip sigue armándose y nadie se
+    entera hasta ver dónde quedaron los datasets.
+    """
+    texto = WORKFLOW.read_text(encoding="utf-8")
+    bloque = texto[texto.index("Copia portable OWNER"):]
+    bloque = bloque[:bloque.index("- name:", 10)]
+    assert "win-unpacked/datos" in bloque, (
+        "el paso portable no crea la carpeta `datos` dentro del .zip")
+    assert "Portable.zip" in bloque
+
+
+def test_la_carpeta_datos_no_viaja_en_el_instalador():
+    """En una instalación normal es dañina: el desinstalador borra el
+    directorio del programa, y se llevaría los datasets del cliente."""
+    builder = BUILDER.read_text(encoding="utf-8")
+    assert "extraFiles" not in builder, (
+        "`extraFiles` mete archivos en la raíz del programa y también en el "
+        "instalador: si por ahí entrara `datos/`, desinstalar borraría los "
+        "datasets del cliente")
+
+
+def test_el_release_publica_las_huellas_de_lo_que_entrega():
+    """Una descarga cortada de 371 MB falla recién a mitad de la instalación,
+    con un error de extracción que no menciona la descarga. El SHA-256 a la
+    vista convierte eso en diez segundos de verificación."""
+    with_ = _publicacion_owner()["with"]
+    assert "body_path" in with_, "el cuerpo del release volvió a ser fijo"
+
+    texto = WORKFLOW.read_text(encoding="utf-8")
+    bloque = texto[texto.index("Texto del release"):texto.index("Publicar OWNER")]
+    assert "sha256" in bloque, "no se calcula ninguna huella"
+    for archivo in ("MV-AutoML-Studio-Owner-Setup.exe",
+                    "MV-AutoML-Studio-Owner-Portable.zip",
+                    "Activar-OWNER.bat"):
+        assert archivo in bloque, f"{archivo} se publica sin huella"
+
+
 @pytest.mark.parametrize("wf", sorted((RAIZ / ".github" / "workflows").glob("*.yml")),
                          ids=lambda p: p.name)
 def test_los_workflows_parsean(wf: Path):

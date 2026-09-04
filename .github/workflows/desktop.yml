@@ -177,6 +177,52 @@ jobs:
           mkdir -p ../entrega
           mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Owner-Setup.exe
 
+      # ── copia portable, sin instalador ──────────────────────────────────────
+      # El instalador NSIS extrae su paquete interno a `%TEMP%` y recién
+      # después lo descomprime al destino: necesita el espacio dos veces, y el
+      # `%TEMP%` está en el disco del sistema aunque instales en otro. Cuando
+      # ahí no entra, la instalación muere con «error escribiendo al archivo
+      # ...\app-64.7z», que no dice nada de espacio.
+      #
+      # Esta copia no pasa por NSIS: se descomprime donde sea y se ejecuta. Con
+      # la carpeta `datos` adentro, además, el programa guarda todo al lado
+      # suyo (ver `carpeta-datos.cjs`), así que una copia en D: no toca C: en
+      # ningún momento.
+      #
+      # La carpeta va acá y no en `extraFiles` a propósito: `extraFiles` la
+      # metería también en el instalador, y ahí es dañina —el desinstalador
+      # borra el directorio del programa, y se llevaría los datasets del
+      # cliente—. Portable la trae; instalado, no.
+      - name: Copia portable OWNER (sin instalador, sin %TEMP%)
+        working-directory: desktop
+        shell: bash
+        run: |
+          mkdir -p dist/win-unpacked/datos
+          cat > dist/win-unpacked/datos/LEEME.txt <<'TXT'
+          Los datasets, los modelos y los informes se guardan en esta carpeta.
+
+          Existe a proposito: mientras este aca, el programa guarda todo al
+          lado suyo y no escribe nada en el disco del sistema. Si la borras,
+          vuelve a usar el perfil del usuario (en Windows, dentro de C:).
+
+          Para mover todo a otro lado, copia la carpeta entera del programa
+          donde quieras: los datos viajan con ella.
+          TXT
+          command -v 7z > /dev/null || { echo "::error::falta 7z en el runner"; exit 1; }
+          # Absoluta: el `cd` de la línea siguiente cambia el punto de partida.
+          ZIP="$PWD/../entrega/MV-AutoML-Studio-Owner-Portable.zip"
+          cd dist/win-unpacked
+          7z a -tzip -mx=5 "$ZIP" . > /dev/null
+          # Que el .zip exista no alcanza: lo que lo hace utilizable es traer el
+          # ejecutable y la carpeta `datos`. Si faltara alguno, se publica una
+          # copia que arranca mal o escribe en C:, y eso se descubre usándola.
+          7z l "$ZIP" > /tmp/contenido.txt
+          grep -q "MV AutoML Studio.exe" /tmp/contenido.txt \
+            || { echo "::error::el .zip portable no trae el ejecutable"; exit 1; }
+          grep -q "datos" /tmp/contenido.txt \
+            || { echo "::error::el .zip portable no trae la carpeta datos"; exit 1; }
+          echo "portable: $(du -h "$ZIP" | cut -f1), con ejecutable y carpeta datos"
+
       # El activador, con la licencia de ESTE build ya adentro.
       #
       # El instalador owner arranca solo en nivel Owner —lleva la licencia y la
@@ -278,6 +324,83 @@ jobs:
       # que devuelve la API es `untagged-<hash>` y da 404 en el navegador—, así
       # que había que entrar a Releases y buscarlo a ojo. Publicado, el link es
       # siempre `/releases/tag/owner-<número>`.
+      # Las huellas van en el cuerpo del release, no en un archivo aparte:
+      # sirven para descartar en diez segundos la causa más común de que un
+      # archivo de cientos de MB falle al instalar —que la descarga se haya
+      # cortado—, y sólo sirven si están a la vista de quien baja.
+      - name: Texto del release, con las huellas de cada archivo
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          from pathlib import Path
+
+          def huella(p: Path) -> str:
+              h = hashlib.sha256()
+              with p.open("rb") as f:
+                  for bloque in iter(lambda: f.read(1 << 20), b""):
+                      h.update(bloque)
+              return h.hexdigest()
+
+          archivos = ["MV-AutoML-Studio-Owner-Setup.exe",
+                      "MV-AutoML-Studio-Owner-Portable.zip",
+                      "Activar-OWNER.bat"]
+          def tamano(n: int) -> str:
+              # el activador pesa 3 KB y en MB se veía «0 MB»
+              return f"{n / (1 << 20):,.0f} MB" if n >= (1 << 20) else f"{n / 1024:,.0f} KB"
+
+          filas = []
+          for nombre in archivos:
+              p = Path("entrega") / nombre
+              filas.append(f"| `{nombre}` | {tamano(p.stat().st_size)} | `{huella(p)}` |")
+
+          Path("entrega/CUERPO.md").write_text("""\
+          Compilación con licencia OWNER embebida: todas las funciones
+          habilitadas, incluida la emisión de licencias. Visible sólo para los
+          colaboradores del repositorio, que es privado.
+
+          ## Cuál bajar
+
+          **`MV-AutoML-Studio-Owner-Portable.zip`** — descomprimilo donde
+          quieras y ejecutá `MV AutoML Studio.exe`. No instala nada, no pide
+          permisos de administrador y **no escribe en el disco del sistema**:
+          los datasets, los modelos y los informes quedan en la carpeta `datos`
+          que viene adentro. Una copia en `D:\\MV` no toca `C:` en ningún
+          momento. Es la vía recomendada para probar.
+
+          **`MV-AutoML-Studio-Owner-Setup.exe`** — el instalador de siempre,
+          con acceso directo y entrada en el menú. Ojo: NSIS descomprime su
+          paquete interno en `%TEMP%` antes de copiarlo al destino, así que
+          necesita ~2,5 GB libres en el disco del sistema aunque elijas instalar
+          en otro. Si no los hay, falla con «error escribiendo al archivo
+          ...\\app-64.7z». Para eso está `Instalar-en-otro-disco.bat`, que mueve
+          el `%TEMP%` al disco que le digas y lanza el instalador.
+
+          Los dos arrancan **solos** en nivel Owner: llevan adentro la licencia
+          y la clave que la valida. No hay nada que pegar ni activar.
+
+          `Activar-OWNER.bat` es para el otro caso: convertir a Owner una
+          instalación de cliente que ya tengas, sin bajar de nuevo el
+          instalador. También viene con la licencia adentro y no pregunta nada.
+          Sólo sirve con instaladores de **esta misma** compilación: la licencia
+          se valida contra la clave pública de este build.
+
+          ## Verificar la descarga
+
+          Un archivo de cientos de MB se corta más seguido de lo que parece, y
+          el síntoma es un error de extracción a mitad de la instalación. En
+          PowerShell:
+
+          ```powershell
+          Get-FileHash .\\<archivo> -Algorithm SHA256 | Select-Object -ExpandProperty Hash
+          ```
+
+          | archivo | tamaño | SHA-256 |
+          |---|---|---|
+          """ + "\n".join(filas) + "\n", encoding="utf-8")
+          print(Path("entrega/CUERPO.md").read_text(encoding="utf-8"))
+          PY
+
       - name: Publicar OWNER (privado, sólo colaboradores del repositorio)
         uses: softprops/action-gh-release@v2
         with:
@@ -286,20 +409,10 @@ jobs:
           draft: false
           files: |
             entrega/MV-AutoML-Studio-Owner-Setup.exe
+            entrega/MV-AutoML-Studio-Owner-Portable.zip
             entrega/Activar-OWNER.bat
-          body: |
-            Compilación con licencia OWNER embebida: todas las funciones
-            habilitadas, incluida la emisión de licencias. Visible sólo para
-            los colaboradores del repositorio, que es privado.
-
-            El instalador arranca **solo** en nivel Owner: lleva adentro la
-            licencia y la clave que la valida. No hay nada que pegar ni activar.
-
-            `Activar-OWNER.bat` es para el otro caso: convertir a Owner una
-            instalación de cliente que ya tengas, sin bajar de nuevo el
-            instalador. También viene con la licencia adentro y no pregunta
-            nada. Sólo sirve con instaladores de **esta misma** compilación:
-            la licencia se valida contra la clave pública de este build.
+            instalador-owner/Instalar-en-otro-disco.bat
+          body_path: entrega/CUERPO.md
 
       # Sólo el activador, que pesa unos 3 KB.
       #

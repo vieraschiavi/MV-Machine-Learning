@@ -18,6 +18,8 @@ const fs = require('fs');
 const http = require('http');
 const path = require('path');
 
+const { carpetaDeDatos } = require('./carpeta-datos.cjs');
+
 const PORT = 8474;                       // puerto propio, lejos de los típicos
 const TOKEN = crypto.randomBytes(32).toString('base64url');
 
@@ -72,7 +74,13 @@ function licenciaEmbebida() {
 /* ── backend ─────────────────────────────────────────────────────────────── */
 function lanzarBackend() {
   const { cmd, args } = rutaBackend();
-  const datos = path.join(app.getPath('userData'), 'data');
+  // Puede terminar fuera del disco del sistema: ver `carpeta-datos.cjs`.
+  const datos = carpetaDeDatos({
+    entorno: process.env.MV_DATA_DIR,
+    empaquetado: app.isPackaged,
+    raizDelPrograma: app.isPackaged ? path.dirname(process.resourcesPath) : '',
+    perfilDelUsuario: app.getPath('userData'),
+  });
   fs.mkdirSync(datos, { recursive: true });
 
   backend = spawn(cmd, args, {
