@@ -6,10 +6,26 @@ informe sin marca de agua, scoring, panel de diagnóstico— sin activar nada, s
 vencimiento y **sin pedirte ninguna clave**. Es la misma que recibe un cliente
 que paga la versión completa, con el agregado del panel interno.
 
-## Camino 1 — bajarlo del release (el más corto)
+## Camino 1 — la copia portable (la más corta, y no toca C:)
 
-Cada compilación publica el instalador owner en su propio release, con link
-fijo:
+En el release, junto al instalador, está
+**`MV-AutoML-Studio-Owner-Portable.zip`**. Descomprimilo donde quieras —`D:\MV`,
+un disco externo, lo que sea— y ejecutá `MV AutoML Studio.exe`. No instala nada,
+no pide administrador y **no escribe en el disco del sistema**: los datasets,
+los modelos y los informes quedan en la carpeta `datos` que viene adentro.
+
+Para mudar todo a otro lado, copiá la carpeta entera: los datos van con ella.
+
+> Esa carpeta `datos` no es decorativa: es la señal. Mientras exista al lado del
+> ejecutable, el programa guarda ahí. Si la borrás, vuelve a usar el perfil del
+> usuario. Y al revés: si tenés una instalación normal y querés sacarle los
+> datos de C:, creá una carpeta `datos` al lado del `.exe` instalado.
+>
+> No se crea sola a propósito. Una instalación normal también puede escribir en
+> su directorio, así que crearla al vuelo convertiría toda instalación en
+> portable — y el desinstalador borra ese directorio, con los datasets adentro.
+
+## Camino 2 — el instalador de siempre
 
 > `https://github.com/vieraschiavi/MV-Machine-Learning/releases/tag/owner-<número>`
 
@@ -20,11 +36,42 @@ Doble clic al `.exe` y listo. **No pide licencia, ni token, ni pegar nada**: la
 compilación owner lleva adentro la licencia y la clave que la valida. El
 repositorio es privado, así que el release lo ven los colaboradores y nadie más.
 
-Al lado viene `Activar-OWNER.bat`, que también trae la licencia adentro y
-tampoco pregunta nada. Sirve para el otro caso: convertir a Owner una
-instalación de cliente que ya tengas, sin bajar el instalador de nuevo. (De ese
-archivo, por ser chico, queda además una copia en los *Artifacts* de la
-ejecución.)
+### Si falla con «error escribiendo al archivo …\app-64.7z»
+
+No es la instalación: es el paso previo. NSIS descomprime su paquete interno en
+`%TEMP%` y **recién después** lo copia al destino, así que necesita el espacio
+dos veces — y la primera vez siempre en el disco del sistema, aunque elijas
+instalar en otro. Hacen falta unos **2,5 GB libres en C:**.
+
+Dos salidas, las dos en el release:
+
+- `Instalar-en-otro-disco.bat` — te pregunta una letra de disco, mueve el
+  `%TEMP%` ahí y lanza el instalador. Al terminar, limpia.
+- la copia portable del camino 1, que no pasa por NSIS en absoluto.
+
+### Antes de eso, descartá lo barato
+
+Un archivo de 371 MB se corta al bajar más seguido de lo que parece, y el
+síntoma es exactamente ese error de extracción. El release publica el SHA-256 de
+cada archivo; comparalo:
+
+```powershell
+Get-FileHash .\MV-AutoML-Studio-Owner-Setup.exe -Algorithm SHA256 |
+  Select-Object -ExpandProperty Hash
+```
+
+Si no coincide, bajalo de nuevo y listo.
+
+## Convertir una instalación que ya tenés
+
+`Activar-OWNER.bat`, también en el release, trae la licencia adentro y no
+pregunta nada. Sirve cuando ya tenés instalada la versión de cliente y la querés
+pasar a Owner sin bajar el instalador de nuevo.
+
+Cuidado con cuál usás: **el que está en este directorio del repositorio viaja
+vacío a propósito** y te va a decir «este activador vino sin licencia adentro».
+El que sirve es el del release, que pesa unos 300 bytes más — esa diferencia es
+la licencia. La copia versionada es la plantilla que el CI rellena.
 
 Para generar una compilación nueva: GitHub → **Actions** → *Escritorio Windows*
 → **Run workflow**. Tarda unos quince minutos.
@@ -44,7 +91,7 @@ la cuenta (`Artifact storage quota has been hit`) y el paso empezó a fallar,
 dando por perdido un build que ya había compilado y subido todo. Los releases no
 consumen esa cuota.
 
-## Camino 2 — pedírselo al sitio con tu licencia
+## Camino 3 — pedírselo al sitio con tu licencia
 
 `Bajar-OWNER.bat`. Sirve cuando el sitio ya está configurado y no querés entrar
 a GitHub. Te pide una vez tu licencia de dueño y la guarda al lado, en
@@ -64,8 +111,8 @@ Para que este camino funcione tienen que estar cargadas en Vercel
 Pesa unos 375 MB —lleva Python, scikit-learn, LightGBM, XGBoost, CatBoost y SHAP
 adentro— y **GitHub rechaza cualquier archivo de más de 100 MB**, así que no hay
 forma de dejarlo en el repositorio aunque el repositorio sea privado. Vive donde
-sí entra: como artefacto de la ejecución de Actions y como archivo de un
-*release* en borrador.
+sí entra: como archivo de un *release*. Lo mismo la copia portable, que pesa
+parecido.
 
 Tampoco viaja versionada la licencia. `Activar-OWNER.bat` tiene el hueco vacío a
 propósito y lo rellena el CI en la copia que publica: una licencia fija en el
