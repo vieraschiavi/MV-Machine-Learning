@@ -57,6 +57,28 @@ jobs:
           MV_CHUNK_ROWS: "1500"
         run: pytest backend/tests -v --durations=10
 
+      # Se ejecuta de verdad, y acá y no en el build de escritorio: ese corre
+      # después del merge, así que un script roto se descubriría cuando ya
+      # está en main. Acá cuesta dos segundos y corta antes.
+      #
+      # Vale la pena ejecutarlo porque crea accesos directos por COM
+      # (WScript.Shell) desde un comando de PowerShell embebido en un .bat,
+      # con una ruta que tiene espacios: «MV AutoML Studio». Ahí es donde se
+      # rompen las comillas, y se rompen en silencio — el .bat termina con
+      # éxito y el icono no aparece.
+      - name: El portable se crea su acceso directo
+        if: runner.os == 'Windows'
+        shell: cmd
+        env:
+          MV_SIN_PAUSA: "1"
+        run: |
+          mkdir "%RUNNER_TEMP%\accesos"
+          copy "instalador-owner\Crear-accesos-directos.bat" "%RUNNER_TEMP%\accesos\" >nul
+          echo. > "%RUNNER_TEMP%\accesos\MV AutoML Studio.exe"
+          call "%RUNNER_TEMP%\accesos\Crear-accesos-directos.bat"
+          if errorlevel 1 exit /b 1
+          powershell -NoProfile -Command "$fallo = $false; foreach ($c in @('Desktop','Programs')) { $l = Join-Path ([Environment]::GetFolderPath($c)) 'MV AutoML Studio.lnk'; if (Test-Path $l) { $t = (New-Object -ComObject WScript.Shell).CreateShortcut($l).TargetPath; Write-Host ('  ' + $c + ' -> ' + $t); if (-not $t.EndsWith('MV AutoML Studio.exe')) { Write-Host '::error::el acceso apunta a otra cosa'; $fallo = $true } } else { Write-Host ('::error::no se creo el acceso en ' + $c); $fallo = $true } }; if ($fallo) { exit 1 }; Write-Host 'los dos accesos directos se crearon y apuntan al ejecutable'"
+
   frontend:
     name: Frontend · sintaxis e idiomas
     runs-on: ubuntu-latest

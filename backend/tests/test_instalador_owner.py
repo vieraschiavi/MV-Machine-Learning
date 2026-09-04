@@ -219,6 +219,23 @@ def test_la_copia_portable_trae_como_hacerse_un_acceso_directo():
         "ejecutable queda sin icono en el escritorio ni en el menú")
 
 
+def test_el_creador_de_accesos_se_ejecuta_en_la_ci_y_no_solo_en_el_build():
+    """Crear accesos por COM desde PowerShell embebido en un .bat, con una
+    ruta que tiene espacios, se rompe en silencio: el .bat termina bien y el
+    icono no aparece. Sólo ejecutarlo lo detecta.
+
+    Y tiene que ser en la CI, que corre en cada PR: el build de escritorio
+    dispara después del merge, así que ahí un script roto se descubre cuando
+    ya está en main.
+    """
+    ci = (RAIZ / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert "Crear-accesos-directos.bat" in ci, (
+        "la CI dejó de ejecutar el creador de accesos: vuelve a ser un "
+        "script que nadie prueba hasta que un cliente lo corre")
+    assert "MV_SIN_PAUSA" in ci, (
+        "sin MV_SIN_PAUSA el .bat se queda esperando una tecla y cuelga la CI")
+
+
 def test_el_instalador_sigue_creando_los_accesos_directos():
     """Lo que el portable resuelve con un .bat, el instalador ya lo hace solo.
 

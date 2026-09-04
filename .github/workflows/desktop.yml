@@ -230,26 +230,6 @@ jobs:
             || { echo "::error::el .zip portable no trae el creador de accesos"; exit 1; }
           echo "portable: $(du -h "$ZIP" | cut -f1), con ejecutable, datos y accesos"
 
-      # Se ejecuta de verdad, porque este runner ES Windows.
-      #
-      # El script crea accesos directos por COM (WScript.Shell) desde un
-      # comando de PowerShell embebido en un .bat, con una ruta que tiene
-      # espacios: «MV AutoML Studio». Ahí es donde se rompen las comillas, y se
-      # rompen en silencio — el .bat termina con éxito y el icono no aparece.
-      # Comprobarlo acá cuesta dos segundos; descubrirlo en la máquina de un
-      # cliente cuesta una versión.
-      - name: Probar el creador de accesos directos (Windows de verdad)
-        shell: cmd
-        env:
-          MV_SIN_PAUSA: "1"
-        run: |
-          mkdir "%RUNNER_TEMP%\accesos"
-          copy "instalador-owner\Crear-accesos-directos.bat" "%RUNNER_TEMP%\accesos\" >nul
-          echo. > "%RUNNER_TEMP%\accesos\MV AutoML Studio.exe"
-          call "%RUNNER_TEMP%\accesos\Crear-accesos-directos.bat"
-          if errorlevel 1 exit /b 1
-          powershell -NoProfile -Command "$fallo = $false; foreach ($c in @('Desktop','Programs')) { $l = Join-Path ([Environment]::GetFolderPath($c)) 'MV AutoML Studio.lnk'; if (Test-Path $l) { $t = (New-Object -ComObject WScript.Shell).CreateShortcut($l).TargetPath; Write-Host ('  ' + $c + ' -> ' + $t); if (-not $t.EndsWith('MV AutoML Studio.exe')) { Write-Host '::error::el acceso apunta a otra cosa'; $fallo = $true } } else { Write-Host ('::error::no se creo el acceso en ' + $c); $fallo = $true } }; if ($fallo) { exit 1 }; Write-Host 'los dos accesos directos se crearon y apuntan al ejecutable'"
-
       # El activador, con la licencia de ESTE build ya adentro.
       #
       # El instalador owner arranca solo en nivel Owner —lleva la licencia y la
