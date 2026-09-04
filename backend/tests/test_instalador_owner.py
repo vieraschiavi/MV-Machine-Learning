@@ -337,3 +337,86 @@ def test_los_workflows_parsean(wf: Path):
     d = yaml.safe_load(wf.read_text(encoding="utf-8"))
     assert d, f"{wf.name} quedó vacío"
     assert "jobs" in d and d["jobs"], f"{wf.name} no declara ningún job"
+
+
+NSH = RAIZ / "desktop" / "build" / "installer.nsh"
+
+
+def test_el_instalador_avisa_del_espacio_antes_de_empezar():
+    """El error que veía el usuario no menciona el espacio por ningún lado.
+
+    NSIS descomprime su paquete en `%TEMP%` y recién después lo copia al
+    destino: pide el espacio dos veces, y la primera siempre en el disco del
+    sistema, aunque el usuario elija instalar en otro. Cuando no entra, muere
+    a mitad de la barra con «error escribiendo al archivo ...\\app-64.7z» —
+    un mensaje que no dice qué hacer.
+
+    El chequeo corre ANTES de extraer y nombra las tres salidas: liberar
+    espacio, `Instalar-en-otro-disco.bat`, o la copia portable.
+    """
+    assert NSH.exists(), "no hay script de instalador propio"
+    texto = NSH.read_text(encoding="ascii")
+
+    assert "customInit" in texto, (
+        "el chequeo tiene que colgar de customInit, que corre antes de extraer")
+    assert "DriveSpace" in texto and "$TEMP" in texto, (
+        "no mide el espacio libre en el disco donde NSIS descomprime")
+    for salida in ("Instalar-en-otro-disco.bat", "portable"):
+        assert salida in texto, f"el mensaje no ofrece la salida: {salida}"
+
+
+def test_electron_builder_incluye_ese_script():
+    """Un .nsh que nadie referencia no se compila y no hace nada."""
+    builder = BUILDER.read_text(encoding="utf-8")
+    m = re.search(r"^\s*include:\s*(\S+)", builder, re.M)
+    assert m, "electron-builder.yml no incluye ningún script de instalador"
+    assert (RAIZ / "desktop" / m.group(1)).exists(), (
+        f"electron-builder.yml apunta a {m.group(1)}, que no existe")
+
+
+def test_el_instalador_deja_elegir_la_carpeta():
+    """Ya se podía, y conviene que siga: el error de espacio no tiene nada que
+    ver con esto —ocurre antes, al descomprimir en %TEMP%— y es fácil
+    confundir las dos cosas."""
+    builder = BUILDER.read_text(encoding="utf-8")
+    assert "allowToChangeInstallationDirectory: true" in builder
+    assert "oneClick: false" in builder
+
+
+def test_el_script_del_instalador_es_ascii():
+    """NSIS compila con la página de códigos del sistema: un acento en el
+    mensaje sale como basura en la pantalla del cliente."""
+    NSH.read_bytes().decode("ascii")
+
+
+def test_el_mensaje_del_instalador_tiene_las_comillas_balanceadas():
+    """Lo único de NSIS que se puede comprobar sin compilarlo.
+
+    El mensaje es largo y va partido en varias líneas con `\\` al final. Una
+    comilla de más o de menos ahí no se nota leyendo, y el precio de
+    descubrirlo es un build de veinte minutos que termina en rojo.
+    """
+    lineas, acumulada = [], ""
+    for cruda in NSH.read_text(encoding="ascii").splitlines():
+        linea = cruda.rstrip()
+        if linea.lstrip().startswith(";"):
+            continue
+        if linea.endswith("\\"):
+            acumulada += linea[:-1]
+            continue
+        lineas.append(acumulada + linea)
+        acumulada = ""
+    assert not acumulada, "el archivo termina con una línea continuada sin cerrar"
+
+    for linea in lineas:
+        assert linea.count('"') % 2 == 0, (
+            f"comillas sin cerrar en NSIS: {linea[:90]}")
+
+
+def test_el_instalador_no_bloquea_si_no_puede_medir_el_espacio():
+    """Si `DriveSpace` falla, la variable queda vacía. Comparar eso como número
+    es impredecible, y equivocarse acá deja a un cliente sin poder instalar por
+    una comprobación que ni siquiera pudo hacerse."""
+    texto = NSH.read_text(encoding="ascii")
+    assert '$R1 != ""' in texto, (
+        "el chequeo no contempla que la medición del espacio falle")
