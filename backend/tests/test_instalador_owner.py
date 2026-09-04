@@ -39,6 +39,20 @@ def _carpetas_empaquetadas() -> set[str]:
     return set(re.findall(r"^\s*-\s*from:\s*(?!\.\.)(\S+)", bloque, re.M))
 
 
+def _destinos_empaquetados() -> set[str]:
+    """Los `to:` de `extraResources`: las carpetas tal como quedan bajo
+    `resources/` en el instalador, que es lo que `main.cjs` ve.
+
+    Distinto de `_carpetas_empaquetadas()`, que mira los `from:` que salen de
+    `desktop/` para cruzarlos con lo que el workflow escribe. La interfaz viene
+    de `../frontend`, fuera de `desktop/`, así que sólo aparece acá.
+    """
+    texto = BUILDER.read_text(encoding="utf-8")
+    bloque = texto[texto.index("extraResources:"):]
+    bloque = bloque[:bloque.index("\nwin:")]
+    return set(re.findall(r"^\s*to:\s*(\S+)", bloque, re.M))
+
+
 @pytest.mark.parametrize("archivo", ["license.key", "public.key"])
 def test_las_credenciales_se_escriben_donde_se_empaquetan(archivo: str):
     escritos = re.findall(rf'open\("desktop/(\S+)/{archivo}"',
@@ -62,6 +76,42 @@ def test_el_programa_las_lee_de_esa_misma_carpeta(archivo: str):
     assert set(leidas) == set(escritos), (
         f"main.cjs lee {archivo} de resources/{leidas} y el workflow la deja "
         f"en desktop/{escritos}: no se encuentran")
+
+
+def test_el_programa_le_dice_al_backend_donde_quedo_la_interfaz():
+    """Sin `MV_FRONTEND_DIR`, el instalador abre una ventana con un JSON.
+
+    El backend monta la interfaz sólo si `settings.frontend_dir` existe, y por
+    omisión la busca junto al código fuente. Dentro del .exe congelado esa ruta
+    no existe: no se monta ni `/assets` ni la raíz, y **toda** URL contesta
+    `{"detail": "Not Found"}` — que es exactamente lo que ve el usuario, en una
+    ventana de Electron, en vez del programa.
+
+    `electron-builder.yml` sí empaqueta la interfaz. Lo que faltaba era que el
+    lanzador le dijera dónde quedó. Mismo patrón que el de `public.key`: tres
+    piezas correctas por separado que no se encuentran entre sí.
+    """
+    main = MAIN.read_text(encoding="utf-8")
+    m = re.search(r"MV_FRONTEND_DIR:\s*recursos\('(\w+)'\)", main)
+    assert m, ("main.cjs no le pasa MV_FRONTEND_DIR al backend: el programa "
+               "arranca mostrando {\"detail\": \"Not Found\"}")
+    assert m.group(1) in _destinos_empaquetados(), (
+        f"main.cjs apunta la interfaz a resources/{m.group(1)}/, que "
+        f"electron-builder no empaqueta ({sorted(_destinos_empaquetados())})")
+
+
+def test_el_smoke_del_instalador_comprueba_que_la_interfaz_se_sirve():
+    """La prueba del .exe pedía sólo endpoints de `/api`, así que un backend
+    que no monta la interfaz la pasaba entera. Peor: le exportaba
+    `MV_FRONTEND_DIR` a mano —la variable que el programa real no le pasaba—,
+    con lo que la prueba medía una configuración que no existía en el producto.
+    """
+    wf = WORKFLOW.read_text(encoding="utf-8")
+    bloque = wf[wf.index("Probar el .exe del backend"):]
+    bloque = bloque[:bloque.index("- name:", 10)]
+    assert 'C.get(f"{B}/")' in bloque, (
+        "el smoke del .exe no pide la raíz: un backend que no monta la "
+        "interfaz vuelve a pasar la prueba y a fallar en la máquina del cliente")
 
 
 def test_sin_la_clave_publica_al_lado_no_valida_ni_la_licencia_del_owner():

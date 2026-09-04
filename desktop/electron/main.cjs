@@ -90,7 +90,12 @@ function lanzarBackend() {
       MV_HOST: '127.0.0.1',
       MV_PORT: String(PORT),
       MV_API_TOKEN: TOKEN,
-      MV_DATA_DIR: datos,               // datos en el perfil del usuario, nunca en C:\ fijo
+      MV_DATA_DIR: datos,               // ver `carpeta-datos.cjs`
+      // Sin esto el backend busca la interfaz junto al código fuente, que
+      // dentro del .exe no existe: no monta ni `/assets` ni la raíz, y la
+      // ventana abre mostrando {"detail": "Not Found"} en vez del programa.
+      // `electron-builder.yml` la empaqueta en `resources/frontend`.
+      MV_FRONTEND_DIR: recursos('frontend'),
       ...licenciaEmbebida(),
     },
     stdio: ['ignore', 'pipe', 'pipe'],
