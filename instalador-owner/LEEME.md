@@ -16,6 +16,15 @@ los modelos y los informes quedan en la carpeta `datos` que viene adentro.
 
 Para mudar todo a otro lado, copiá la carpeta entera: los datos van con ella.
 
+Como no instala, tampoco te deja el icono. Adentro del `.zip` viene
+`Crear-accesos-directos.bat`: ejecutalo una vez y quedan el acceso en el
+Escritorio y la entrada en el Menú de inicio, apuntando al ejecutable donde
+esté. Si movés la carpeta, volvé a ejecutarlo — el acceso guarda la ruta vieja.
+
+El instalador del camino 2 no lo necesita: NSIS ya crea los dos accesos solo
+(`createDesktopShortcut` y `createStartMenuShortcut` en `electron-builder.yml`,
+con una prueba que avisa si alguien los apaga).
+
 > Esa carpeta `datos` no es decorativa: es la señal. Mientras exista al lado del
 > ejecutable, el programa guarda ahí. Si la borrás, vuelve a usar el perfil del
 > usuario. Y al revés: si tenés una instalación normal y querés sacarle los
