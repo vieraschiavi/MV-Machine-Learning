@@ -99,6 +99,13 @@ jobs:
           export MV_DATA_DIR="$RUNNER_TEMP/mvdata"
           export MV_PORT=8475
           export MV_API_TOKEN=tok-ci
+          # La misma que le pasa `main.cjs` apuntando a `resources/frontend`.
+          # Durante mucho tiempo esta línea estuvo acá y NO en el programa: la
+          # prueba le daba al backend una configuración que el producto no
+          # tenía, así que pasaba en verde mientras el instalador abría una
+          # ventana con {"detail": "Not Found"}. Que exista acá sólo vale si
+          # `main.cjs` la pasa también, y eso lo vigila
+          # `test_el_programa_le_dice_al_backend_donde_quedo_la_interfaz`.
           export MV_FRONTEND_DIR="$PWD/frontend"
           # La salida del binario se guarda: si no levanta, lo único que
           # explica por qué es su propio error, y en background se perdía.
@@ -126,6 +133,19 @@ jobs:
           C = httpx.Client(timeout=60)
           assert C.get(f"{B}/api/datasets").status_code == 401, "la auth no corta"
           assert C.get(f"{B}/api/datasets", headers=H).status_code == 200
+          # La interfaz, que es lo único que el usuario ve al abrir el programa.
+          # Esta prueba pedía sólo endpoints de /api, así que un backend que no
+          # montaba la interfaz la pasaba entera y el instalador abría una
+          # ventana con {"detail": "Not Found"}.
+          raiz = C.get(f"{B}/")
+          assert raiz.status_code == 200, (
+              f"la raíz devolvió {raiz.status_code}: {raiz.text[:200]}")
+          # El index.html es HTML5 sin etiqueta <html>: se busca su título,
+          # que además confirma que es LA página del producto y no otra cosa.
+          assert "<title>MV AutoML Studio</title>" in raiz.text, (
+              f"la raíz no devuelve la interfaz sino: {raiz.text[:200]}")
+          assert C.get(f"{B}/assets/js/app.js").status_code == 200, "no sirve /assets"
+          print("la interfaz se sirve desde el .exe")
           data = open("examples/gestiones_con_texto.csv", "rb").read()
           r = C.post(f"{B}/api/datasets/upload-stream",
                      params={"filename": "g.csv", "name": "ci"},

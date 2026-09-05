@@ -39,6 +39,20 @@ def _carpetas_empaquetadas() -> set[str]:
     return set(re.findall(r"^\s*-\s*from:\s*(?!\.\.)(\S+)", bloque, re.M))
 
 
+def _destinos_empaquetados() -> set[str]:
+    """Los `to:` de `extraResources`: las carpetas tal como quedan bajo
+    `resources/` en el instalador, que es lo que `main.cjs` ve.
+
+    Distinto de `_carpetas_empaquetadas()`, que mira los `from:` que salen de
+    `desktop/` para cruzarlos con lo que el workflow escribe. La interfaz viene
+    de `../frontend`, fuera de `desktop/`, así que sólo aparece acá.
+    """
+    texto = BUILDER.read_text(encoding="utf-8")
+    bloque = texto[texto.index("extraResources:"):]
+    bloque = bloque[:bloque.index("\nwin:")]
+    return set(re.findall(r"^\s*to:\s*(\S+)", bloque, re.M))
+
+
 @pytest.mark.parametrize("archivo", ["license.key", "public.key"])
 def test_las_credenciales_se_escriben_donde_se_empaquetan(archivo: str):
     escritos = re.findall(rf'open\("desktop/(\S+)/{archivo}"',
@@ -62,6 +76,42 @@ def test_el_programa_las_lee_de_esa_misma_carpeta(archivo: str):
     assert set(leidas) == set(escritos), (
         f"main.cjs lee {archivo} de resources/{leidas} y el workflow la deja "
         f"en desktop/{escritos}: no se encuentran")
+
+
+def test_el_programa_le_dice_al_backend_donde_quedo_la_interfaz():
+    """Sin `MV_FRONTEND_DIR`, el instalador abre una ventana con un JSON.
+
+    El backend monta la interfaz sólo si `settings.frontend_dir` existe, y por
+    omisión la busca junto al código fuente. Dentro del .exe congelado esa ruta
+    no existe: no se monta ni `/assets` ni la raíz, y **toda** URL contesta
+    `{"detail": "Not Found"}` — que es exactamente lo que ve el usuario, en una
+    ventana de Electron, en vez del programa.
+
+    `electron-builder.yml` sí empaqueta la interfaz. Lo que faltaba era que el
+    lanzador le dijera dónde quedó. Mismo patrón que el de `public.key`: tres
+    piezas correctas por separado que no se encuentran entre sí.
+    """
+    main = MAIN.read_text(encoding="utf-8")
+    m = re.search(r"MV_FRONTEND_DIR:\s*recursos\('(\w+)'\)", main)
+    assert m, ("main.cjs no le pasa MV_FRONTEND_DIR al backend: el programa "
+               "arranca mostrando {\"detail\": \"Not Found\"}")
+    assert m.group(1) in _destinos_empaquetados(), (
+        f"main.cjs apunta la interfaz a resources/{m.group(1)}/, que "
+        f"electron-builder no empaqueta ({sorted(_destinos_empaquetados())})")
+
+
+def test_el_smoke_del_instalador_comprueba_que_la_interfaz_se_sirve():
+    """La prueba del .exe pedía sólo endpoints de `/api`, así que un backend
+    que no monta la interfaz la pasaba entera. Peor: le exportaba
+    `MV_FRONTEND_DIR` a mano —la variable que el programa real no le pasaba—,
+    con lo que la prueba medía una configuración que no existía en el producto.
+    """
+    wf = WORKFLOW.read_text(encoding="utf-8")
+    bloque = wf[wf.index("Probar el .exe del backend"):]
+    bloque = bloque[:bloque.index("- name:", 10)]
+    assert 'C.get(f"{B}/")' in bloque, (
+        "el smoke del .exe no pide la raíz: un backend que no monta la "
+        "interfaz vuelve a pasar la prueba y a fallar en la máquina del cliente")
 
 
 def test_sin_la_clave_publica_al_lado_no_valida_ni_la_licencia_del_owner():
@@ -287,3 +337,86 @@ def test_los_workflows_parsean(wf: Path):
     d = yaml.safe_load(wf.read_text(encoding="utf-8"))
     assert d, f"{wf.name} quedó vacío"
     assert "jobs" in d and d["jobs"], f"{wf.name} no declara ningún job"
+
+
+NSH = RAIZ / "desktop" / "build" / "installer.nsh"
+
+
+def test_el_instalador_avisa_del_espacio_antes_de_empezar():
+    """El error que veía el usuario no menciona el espacio por ningún lado.
+
+    NSIS descomprime su paquete en `%TEMP%` y recién después lo copia al
+    destino: pide el espacio dos veces, y la primera siempre en el disco del
+    sistema, aunque el usuario elija instalar en otro. Cuando no entra, muere
+    a mitad de la barra con «error escribiendo al archivo ...\\app-64.7z» —
+    un mensaje que no dice qué hacer.
+
+    El chequeo corre ANTES de extraer y nombra las tres salidas: liberar
+    espacio, `Instalar-en-otro-disco.bat`, o la copia portable.
+    """
+    assert NSH.exists(), "no hay script de instalador propio"
+    texto = NSH.read_text(encoding="ascii")
+
+    assert "customInit" in texto, (
+        "el chequeo tiene que colgar de customInit, que corre antes de extraer")
+    assert "DriveSpace" in texto and "$TEMP" in texto, (
+        "no mide el espacio libre en el disco donde NSIS descomprime")
+    for salida in ("Instalar-en-otro-disco.bat", "portable"):
+        assert salida in texto, f"el mensaje no ofrece la salida: {salida}"
+
+
+def test_electron_builder_incluye_ese_script():
+    """Un .nsh que nadie referencia no se compila y no hace nada."""
+    builder = BUILDER.read_text(encoding="utf-8")
+    m = re.search(r"^\s*include:\s*(\S+)", builder, re.M)
+    assert m, "electron-builder.yml no incluye ningún script de instalador"
+    assert (RAIZ / "desktop" / m.group(1)).exists(), (
+        f"electron-builder.yml apunta a {m.group(1)}, que no existe")
+
+
+def test_el_instalador_deja_elegir_la_carpeta():
+    """Ya se podía, y conviene que siga: el error de espacio no tiene nada que
+    ver con esto —ocurre antes, al descomprimir en %TEMP%— y es fácil
+    confundir las dos cosas."""
+    builder = BUILDER.read_text(encoding="utf-8")
+    assert "allowToChangeInstallationDirectory: true" in builder
+    assert "oneClick: false" in builder
+
+
+def test_el_script_del_instalador_es_ascii():
+    """NSIS compila con la página de códigos del sistema: un acento en el
+    mensaje sale como basura en la pantalla del cliente."""
+    NSH.read_bytes().decode("ascii")
+
+
+def test_el_mensaje_del_instalador_tiene_las_comillas_balanceadas():
+    """Lo único de NSIS que se puede comprobar sin compilarlo.
+
+    El mensaje es largo y va partido en varias líneas con `\\` al final. Una
+    comilla de más o de menos ahí no se nota leyendo, y el precio de
+    descubrirlo es un build de veinte minutos que termina en rojo.
+    """
+    lineas, acumulada = [], ""
+    for cruda in NSH.read_text(encoding="ascii").splitlines():
+        linea = cruda.rstrip()
+        if linea.lstrip().startswith(";"):
+            continue
+        if linea.endswith("\\"):
+            acumulada += linea[:-1]
+            continue
+        lineas.append(acumulada + linea)
+        acumulada = ""
+    assert not acumulada, "el archivo termina con una línea continuada sin cerrar"
+
+    for linea in lineas:
+        assert linea.count('"') % 2 == 0, (
+            f"comillas sin cerrar en NSIS: {linea[:90]}")
+
+
+def test_el_instalador_no_bloquea_si_no_puede_medir_el_espacio():
+    """Si `DriveSpace` falla, la variable queda vacía. Comparar eso como número
+    es impredecible, y equivocarse acá deja a un cliente sin poder instalar por
+    una comprobación que ni siquiera pudo hacerse."""
+    texto = NSH.read_text(encoding="ascii")
+    assert '$R1 != ""' in texto, (
+        "el chequeo no contempla que la medición del espacio falle")

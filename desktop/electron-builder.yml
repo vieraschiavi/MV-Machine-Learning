@@ -39,6 +39,10 @@ win:
   artifactName: "MV-AutoML-Studio-${channel}-${version}-Setup.${ext}"
 
 nsis:
+  # Comprueba el espacio en el disco de %TEMP% ANTES de extraer: sin él, la
+  # instalación muere a mitad de la barra con «error escribiendo al archivo
+  # ...\app-64.7z», que no menciona el espacio ni dice qué hacer.
+  include: build/installer.nsh
   oneClick: false                              # instalador asistido
   perMachine: false                            # por usuario: sin admin, sin C:\ fijo
   allowToChangeInstallationDirectory: true     # el usuario elige la carpeta
