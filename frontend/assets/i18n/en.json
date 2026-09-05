@@ -23,7 +23,8 @@
     "section_data": "Data",
     "section_ml": "Modelling",
     "section_system": "System",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "bitacora": "Data log"
   },
   "common": {
     "loading": "Loading",
@@ -498,5 +499,43 @@
     "token_placeholder": "Paste your license here (MVAS.…)",
     "trial_left": "Trial",
     "trial_over": "The trial is over. Activate a licence to keep working: your data and models are still here, nothing was deleted."
+  },
+  "bit": {
+    "title": "Pipeline log",
+    "lead": "Everything that was done to the data, in the order it happened, told twice: in technical terms and in plain language.",
+    "reading": "Reading",
+    "reading_both": "Both",
+    "reading_tech": "Technical only",
+    "reading_plain": "Plain only",
+    "tech": "Technical reading",
+    "plain": "In plain language",
+    "why": "Why it was done",
+    "impact": "How it carries over",
+    "detail": "Show what ran",
+    "steps": "Steps",
+    "transformations": "Transformations",
+    "rows_start": "Rows at start",
+    "rows_end": "Rows at end",
+    "cols_start": "Columns at start",
+    "cols_end": "Columns at end",
+    "how_to_read_title": "How to read this.",
+    "how_to_read": "Each step is told twice and says the same thing: on the left, the operation and its parameters, for whoever audits the process; on the right, jargon-free, for whoever needs to understand what happened to their data. Below, the reason and how it carries over.",
+    "export_html": "HTML",
+    "export_word": "Word",
+    "save_pdf": "Save PDF",
+    "pick_source": "Pick a dataset or a model to build the log.",
+    "empty": "Nothing recorded yet for this source.",
+    "print_hint": "The print dialog is open: choose «Save as PDF».",
+    "etapa_ingesta": "Ingestion",
+    "etapa_etl": "Transformation",
+    "etapa_objetivo": "Target",
+    "etapa_particion": "Split",
+    "etapa_preparacion": "Preparation",
+    "etapa_entrenamiento": "Training",
+    "etapa_seleccion": "Feature selection",
+    "etapa_calibracion": "Calibration",
+    "etapa_evaluacion": "Evaluation",
+    "etapa_explicacion": "Explainability",
+    "etapa_veredicto": "Verdict"
   }
 }

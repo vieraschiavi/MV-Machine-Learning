@@ -117,3 +117,51 @@ def test_el_css_define_los_dos_temas():
 def test_el_sistema_de_audio_cubre_los_tres_idiomas():
     for lang in IDIOMAS:
         assert _dic(lang)["meta"]["speech"].split("-")[0] == lang
+
+
+# ══════════════════════════════════════════════════════════ pestaña Bitácora ══
+# La bitácora es la pestaña que le explica el pipeline a alguien que no lo
+# programó. Lo que se cuida acá es que esté enchufada de punta a punta —una
+# vista que no figura en el router es un archivo muerto— y que la promesa del
+# PDF tenga las dos vías: el escritorio y el navegador.
+def test_la_bitacora_esta_enchufada_como_pestana():
+    app = (FRONT / "assets" / "js" / "app.js").read_text(encoding="utf-8")
+    html = (FRONT / "index.html").read_text(encoding="utf-8")
+
+    assert (FRONT / "assets" / "js" / "views" / "bitacora.js").exists()
+    assert "import bitacora from './views/bitacora.js';" in app
+    assert "bitacora: { icon:" in app, "sin entrada en VIEWS no aparece en el menú"
+    assert 'id="view-bitacora"' in html, "sin contenedor, la vista se monta en la nada"
+
+
+def test_la_bitacora_ofrece_los_tres_formatos_que_se_prometen():
+    js = (FRONT / "assets" / "js" / "views" / "bitacora.js").read_text(encoding="utf-8")
+
+    assert "'html'" in js and "'docx'" in js
+    assert "guardarPDF" in js, "en el escritorio el PDF lo guarda Electron"
+    assert ".print()" in js, "en el navegador, el mismo HTML se manda a imprimir"
+
+
+def test_el_pdf_sale_del_mismo_html_que_se_exporta():
+    """Si el PDF se armara aparte, los formatos se irían separando con el tiempo."""
+    js = (FRONT / "assets" / "js" / "views" / "bitacora.js").read_text(encoding="utf-8")
+    pdf = js.split("async pdf()")[1]
+
+    assert "formato: 'html'" in pdf
+
+
+def test_las_dos_lecturas_se_muestran_y_se_pueden_filtrar():
+    css = (FRONT / "assets" / "css" / "app.css").read_text(encoding="utf-8")
+
+    for clase in [".bit-tec", ".bit-cri", ".bit-paso", ".bit-evidencia"]:
+        assert clase in css, f"falta el estilo {clase}"
+    assert '[data-lectura="tecnica"] .bit-cri' in css
+    assert '[data-lectura="criolla"] .bit-tec' in css
+
+
+def test_el_marco_de_impresion_no_se_ve_en_pantalla():
+    """Queda en el documento para poder imprimirlo; si se viera, sería un bug."""
+    css = (FRONT / "assets" / "css" / "app.css").read_text(encoding="utf-8")
+    bloque = css.split(".bit-impresion")[1].split("}")[0]
+
+    assert "visibility: hidden" in bloque or "display: none" in bloque

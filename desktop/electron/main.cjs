@@ -11,7 +11,7 @@
  * En una compilación owner, `resources/owner/license.key` viaja embebida y se
  * pasa al backend por entorno: la aplicación arranca con el nivel completo.
  */
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron');
 const { spawn } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
@@ -160,6 +160,56 @@ function crearVentana() {
   });
   ventana.on('closed', () => { ventana = null; });
 }
+
+/* ── guardar un documento del backend como PDF ───────────────────────────── */
+/**
+ * La bitácora se exporta en HTML y ese mismo HTML es el PDF: se imprime acá,
+ * sin diálogo de impresora y sin sumarle al instalador una biblioteca de PDF
+ * —Chromium ya sabe hacerlo—. Que los dos formatos salgan del mismo documento
+ * es lo que evita que con el tiempo digan cosas distintas.
+ *
+ * La dirección llega desde la interfaz, así que se valida antes de abrirla:
+ * sólo se imprime lo que sirve el backend local, en su puerto. Sin ese
+ * control, esto dejaría de ser un exportador y pasaría a ser una forma de
+ * cargar cualquier página adentro del programa.
+ */
+ipcMain.handle('mv:guardar-pdf', async (_evento, { url, nombre } = {}) => {
+  const permitido = `http://127.0.0.1:${PORT}/`;
+  if (typeof url !== 'string' || !url.startsWith(permitido)) {
+    return { ok: false, error: 'Dirección no permitida.' };
+  }
+
+  // `ventana` es null si el usuario ya la cerró: showSaveDialog con null
+  // revienta, y sin padre abre igual, suelto.
+  const destino = await dialog.showSaveDialog(ventana || undefined, {
+    title: 'Guardar la bitácora en PDF',
+    defaultPath: nombre || 'MV-Bitacora.pdf',
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  });
+  if (destino.canceled || !destino.filePath) return { ok: false, cancelado: true };
+
+  // Ventana propia y oculta: imprimir la ventana visible saldría con el menú
+  // lateral y el documento cortado por el alto de la pantalla.
+  const oculta = new BrowserWindow({
+    show: false,
+    webPreferences: { sandbox: true, nodeIntegration: false, contextIsolation: true },
+  });
+  try {
+    await oculta.loadURL(url);
+    const pdf = await oculta.webContents.printToPDF({
+      printBackground: true,           // sin esto las cajas de color salen en blanco
+      pageSize: 'A4',
+      margins: { marginType: 'custom', top: 0.4, bottom: 0.4, left: 0.4, right: 0.4 },
+    });
+    fs.writeFileSync(destino.filePath, pdf);
+    return { ok: true, path: destino.filePath };
+  } catch (err) {
+    return { ok: false, error: String((err && err.message) || err) };
+  } finally {
+    // Una ventana huérfana deja el proceso vivo y la aplicación no cierra.
+    if (!oculta.isDestroyed()) oculta.destroy();
+  }
+});
 
 const plantillaMenu = [
   ...(process.platform === 'darwin' ? [{ role: 'appMenu' }] : []),

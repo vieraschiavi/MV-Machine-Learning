@@ -23,7 +23,8 @@
     "section_data": "Dados",
     "section_ml": "Modelagem",
     "section_system": "Sistema",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "bitacora": "Registro"
   },
   "common": {
     "loading": "Carregando",
@@ -498,5 +499,43 @@
     "token_placeholder": "Cole sua licença aqui (MVAS.…)",
     "trial_left": "Teste",
     "trial_over": "O teste terminou. Ative uma licença para continuar: seus dados e modelos continuam aqui, nada foi apagado."
+  },
+  "bit": {
+    "title": "Registro do pipeline",
+    "lead": "Tudo o que foi feito com os dados, na ordem em que aconteceu e contado duas vezes: em técnico e em linguagem simples.",
+    "reading": "Leitura",
+    "reading_both": "As duas",
+    "reading_tech": "Só técnica",
+    "reading_plain": "Só simples",
+    "tech": "Leitura técnica",
+    "plain": "Em linguagem simples",
+    "why": "Por que foi feito",
+    "impact": "Como repercute",
+    "detail": "Ver o que foi executado",
+    "steps": "Passos",
+    "transformations": "Transformações",
+    "rows_start": "Linhas no início",
+    "rows_end": "Linhas no final",
+    "cols_start": "Colunas no início",
+    "cols_end": "Colunas no final",
+    "how_to_read_title": "Como ler isto.",
+    "how_to_read": "Cada passo é contado duas vezes e diz a mesma coisa: à esquerda, a operação e seus parâmetros, para quem audita o processo; à direita, sem jargão, para quem precisa entender o que aconteceu com seus dados. Abaixo, o motivo e como repercute no que vem depois.",
+    "export_html": "HTML",
+    "export_word": "Word",
+    "save_pdf": "Salvar PDF",
+    "pick_source": "Escolha um dataset ou um modelo para montar o registro.",
+    "empty": "Ainda não há nada registrado para esta fonte.",
+    "print_hint": "A caixa de impressão foi aberta: escolha «Salvar como PDF».",
+    "etapa_ingesta": "Ingestão",
+    "etapa_etl": "Transformação",
+    "etapa_objetivo": "Alvo",
+    "etapa_particion": "Partição",
+    "etapa_preparacion": "Preparação",
+    "etapa_entrenamiento": "Treinamento",
+    "etapa_seleccion": "Seleção de variáveis",
+    "etapa_calibracion": "Calibração",
+    "etapa_evaluacion": "Avaliação",
+    "etapa_explicacion": "Explicabilidade",
+    "etapa_veredicto": "Veredito"
   }
 }
