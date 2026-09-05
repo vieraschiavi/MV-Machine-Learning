@@ -10,6 +10,7 @@ import dataView from './views/data.js';
 import explore from './views/explore.js';
 import etl from './views/etl.js';
 import ingenieria from './views/ingenieria.js';
+import bitacora from './views/bitacora.js';
 import model from './views/model.js';
 import results from './views/results.js';
 import aiView from './views/ai.js';
@@ -23,6 +24,7 @@ const VIEWS = {
   dashboard: { icon: 'overview', section: null, mod: dashboard },
   etl: { icon: 'etl', section: null, mod: etl },
   ingenieria: { icon: 'db', section: null, mod: ingenieria },
+  bitacora: { icon: 'bitacora', section: null, mod: bitacora },
   model: { icon: 'model', section: 'section_ml', mod: model },
   results: { icon: 'results', section: null, mod: results },
   ai: { icon: 'ai', section: 'section_system', mod: aiView },

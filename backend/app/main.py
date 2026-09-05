@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from .api import (
     ai,
     automl,
+    bitacora,
     connectors,
     dashboards,
     datasets,
@@ -54,7 +55,7 @@ app.add_middleware(
 
 for r in (datasets.router, connectors.router, etl.router, automl.router,
           ai.router, exports.router, jobs.router, workspaces.router, licenses.router,
-          dashboards.router, ingenieria.router):
+          dashboards.router, ingenieria.router, bitacora.router):
     app.include_router(r)
 
 
