@@ -24,7 +24,8 @@
     "section_ml": "Modelagem",
     "section_system": "Sistema",
     "dashboard": "Dashboard",
-    "bitacora": "Registro"
+    "bitacora": "Registro",
+    "proyeccion": "Projeções"
   },
   "common": {
     "loading": "Carregando",
@@ -537,5 +538,42 @@
     "etapa_evaluacion": "Avaliação",
     "etapa_explicacion": "Explicabilidade",
     "etapa_veredicto": "Veredito"
+  },
+  "proy": {
+    "title": "Projeções",
+    "lead": "Quanto vai acontecer no próximo período, e quanto acreditar. Antes de projetar, o programa mede cada método contra o passado e mostra o resultado.",
+    "columna_tiempo": "Coluna de data",
+    "columna_valor": "O que projetar",
+    "grano": "Período",
+    "agregacion": "Como agrupar",
+    "horizonte": "Períodos a projetar",
+    "calcular": "Medir e projetar",
+    "grafico": "História e projeção",
+    "tabla": "Projeção período a período",
+    "periodo": "Período",
+    "valor": "Projetado",
+    "inferior": "Mínimo esperado",
+    "superior": "Máximo esperado",
+    "backtest": "Quanto cada método errou no passado",
+    "backtest_sub": "Teste retroativo sobre {n} cortes: em cada um o método viu só o passado e foi avaliado pelo que veio depois.",
+    "modelo": "Método",
+    "origenes": "Cortes",
+    "historico": "História",
+    "proyectado": "Projeção",
+    "mase_hint": "MASE 1,00 = errar o mesmo que repetir o período anterior. Abaixo de 1 é melhor; acima de 1 é pior. O tique marca os métodos combinados para projetar.",
+    "nivel_ok": "Confiável",
+    "nivel_revisar": "Com ressalvas",
+    "nivel_alerta": "Pouco confiável",
+    "sin_fecha": "Este dataset não tem uma coluna de data e uma numérica, que é o mínimo para projetar.",
+    "grano_day": "Diário",
+    "grano_week": "Semanal",
+    "grano_month": "Mensal",
+    "grano_quarter": "Trimestral",
+    "grano_year": "Anual",
+    "agg_sum": "Somar",
+    "agg_avg": "Média",
+    "agg_count": "Contar",
+    "agg_min": "Mínimo",
+    "agg_max": "Máximo"
   }
 }
