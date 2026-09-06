@@ -24,7 +24,8 @@
     "section_ml": "Modelling",
     "section_system": "System",
     "dashboard": "Dashboard",
-    "bitacora": "Data log"
+    "bitacora": "Data log",
+    "proyeccion": "Forecasts"
   },
   "common": {
     "loading": "Loading",
@@ -537,5 +538,42 @@
     "etapa_evaluacion": "Evaluation",
     "etapa_explicacion": "Explainability",
     "etapa_veredicto": "Verdict"
+  },
+  "proy": {
+    "title": "Forecasts",
+    "lead": "What is coming next period, and how much to trust it. Before forecasting, the program scores every method against the past and shows the result.",
+    "columna_tiempo": "Date column",
+    "columna_valor": "What to forecast",
+    "grano": "Period",
+    "agregacion": "How to group",
+    "horizonte": "Periods ahead",
+    "calcular": "Score and forecast",
+    "grafico": "History and forecast",
+    "tabla": "Forecast period by period",
+    "periodo": "Period",
+    "valor": "Forecast",
+    "inferior": "Low end",
+    "superior": "High end",
+    "backtest": "How much each method missed in the past",
+    "backtest_sub": "Backtest over {n} cutoffs: at each one the method saw only the past and was scored on what came next.",
+    "modelo": "Method",
+    "origenes": "Cutoffs",
+    "historico": "History",
+    "proyectado": "Forecast",
+    "mase_hint": "MASE 1.00 = missing as much as repeating the previous period. Below 1 is better than that; above 1 is worse. The check marks the methods combined for the forecast.",
+    "nivel_ok": "Trustworthy",
+    "nivel_revisar": "With reservations",
+    "nivel_alerta": "Not trustworthy",
+    "sin_fecha": "This dataset has no date column plus a numeric one, which is the minimum to forecast.",
+    "grano_day": "Daily",
+    "grano_week": "Weekly",
+    "grano_month": "Monthly",
+    "grano_quarter": "Quarterly",
+    "grano_year": "Yearly",
+    "agg_sum": "Sum",
+    "agg_avg": "Average",
+    "agg_count": "Count",
+    "agg_min": "Minimum",
+    "agg_max": "Maximum"
   }
 }

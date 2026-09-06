@@ -24,7 +24,8 @@
     "section_ml": "Modelado",
     "section_system": "Sistema",
     "dashboard": "Dashboard",
-    "bitacora": "Bitácora"
+    "bitacora": "Bitácora",
+    "proyeccion": "Proyecciones"
   },
   "common": {
     "loading": "Cargando",
@@ -537,5 +538,42 @@
     "etapa_evaluacion": "Evaluación",
     "etapa_explicacion": "Explicabilidad",
     "etapa_veredicto": "Veredicto"
+  },
+  "proy": {
+    "title": "Proyecciones",
+    "lead": "Cuánto va a pasar el período que viene, y cuánto creerle. Antes de proyectar, el programa mide cada método contra el pasado y muestra el resultado.",
+    "columna_tiempo": "Columna de fecha",
+    "columna_valor": "Qué proyectar",
+    "grano": "Período",
+    "agregacion": "Cómo agrupar",
+    "horizonte": "Períodos a proyectar",
+    "calcular": "Medir y proyectar",
+    "grafico": "Historia y proyección",
+    "tabla": "Proyección período a período",
+    "periodo": "Período",
+    "valor": "Proyectado",
+    "inferior": "Mínimo esperable",
+    "superior": "Máximo esperable",
+    "backtest": "Cuánto erró cada método en el pasado",
+    "backtest_sub": "Prueba hacia atrás sobre {n} cortes: en cada uno el método vio sólo el pasado y se lo calificó con lo que vino después.",
+    "modelo": "Método",
+    "origenes": "Cortes",
+    "historico": "Historia",
+    "proyectado": "Proyección",
+    "mase_hint": "MASE 1,00 = errar lo mismo que repetir el período anterior. Menos de 1 es mejor que eso; más de 1 es peor. El tilde marca los métodos que se combinaron para proyectar.",
+    "nivel_ok": "Confiable",
+    "nivel_revisar": "Con reservas",
+    "nivel_alerta": "Poco confiable",
+    "sin_fecha": "Este dataset no tiene una columna de fecha y una numérica, que es lo mínimo para proyectar.",
+    "grano_day": "Diario",
+    "grano_week": "Semanal",
+    "grano_month": "Mensual",
+    "grano_quarter": "Trimestral",
+    "grano_year": "Anual",
+    "agg_sum": "Sumar",
+    "agg_avg": "Promediar",
+    "agg_count": "Contar",
+    "agg_min": "Mínimo",
+    "agg_max": "Máximo"
   }
 }

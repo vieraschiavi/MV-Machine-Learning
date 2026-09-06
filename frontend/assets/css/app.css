@@ -510,3 +510,12 @@ pre.code {
    en el documento para que el navegador lo imprima, pero no que se vea. */
 .bit-impresion { position: fixed; width: 0; height: 0; border: 0; visibility: hidden; }
 @media (max-width: 760px) { .bit-dos { grid-template-columns: 1fr; } }
+
+/* ── Proyecciones ──────────────────────────────────────────────────────────
+   El veredicto va arriba de todo y con semáforo: es lo que decide si vale la
+   pena mirar el gráfico. La banda de la proyección se dibuja punteada para
+   que no se confunda con la línea central. */
+.proy-veredicto { display: flex; gap: 12px; align-items: flex-start; }
+.proy-veredicto p { margin: 0; font-size: 14px; color: var(--text-2); }
+.proy-salida .card { margin-top: 14px; }
+.proy-salida svg .series-2 ~ .series-2 { stroke-dasharray: 4 4; opacity: .55; }
