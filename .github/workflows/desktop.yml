@@ -197,6 +197,102 @@ jobs:
           mkdir -p ../entrega
           mv dist/*Setup.exe ../entrega/MV-AutoML-Studio-Owner-Setup.exe
 
+      # ── el instalador se INSTALA, no se mira ────────────────────────────────
+      # Todo lo que probaba el instalador hasta acá leía archivos de texto: que
+      # el .nsh existiera, que electron-builder lo referenciara, que el mensaje
+      # no tuviera acentos. Nada ejecutaba el .exe. Así se publicó un instalador
+      # que al doble clic no hacía absolutamente nada —un `Abort` en `.onInit`
+      # cierra NSIS sin mostrar una palabra, ni ventana ni error— y el build
+      # salió verde igual. Mismo patrón que el bug de MV_FRONTEND_DIR: la prueba
+      # medía el texto, no el producto.
+      #
+      # Esto lo instala de verdad EN UNA CARPETA ELEGIDA —que es además lo que
+      # se pidió poder hacer— y comprueba que lo que quedó instalado arranca.
+      - name: Instalar el .exe owner y comprobar que el programa quedó usable
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $setup = "$env:GITHUB_WORKSPACE\entrega\MV-AutoML-Studio-Owner-Setup.exe"
+          # Sin espacios a propósito: NSIS no admite comillas en /D= y toma el
+          # resto de la línea como ruta.
+          $destino = "$env:RUNNER_TEMP\mv-instalado"
+
+          if (-not (Test-Path $setup)) { throw "no existe el instalador: $setup" }
+          "instalador: {0:N0} MB" -f ((Get-Item $setup).Length / 1MB)
+
+          # /S silenciosa, /D= destino. /D va último y sin comillas: es la
+          # sintaxis de NSIS, no la de PowerShell.
+          cmd /c "`"$setup`" /S /D=$destino"
+          "el instalador devolvio: $LASTEXITCODE"
+
+          # NSIS en modo /S puede devolver antes de terminar de copiar.
+          $exe = "$destino\MV AutoML Studio.exe"
+          for ($i = 0; $i -lt 150; $i++) {
+            if (Test-Path $exe) { break }
+            Start-Sleep -Seconds 2
+          }
+          if (-not (Test-Path $exe)) {
+            Write-Host "::error::el instalador corrió y NO dejó el programa en $destino"
+            if (Test-Path $destino) { Get-ChildItem -Recurse $destino | Select -First 40 }
+            else { "la carpeta de destino ni siquiera se creó" }
+            exit 1
+          }
+          "instalado en la carpeta elegida: $destino"
+
+          # Lo que hace utilizable a la instalación, pieza por pieza. Cada una
+          # de éstas faltó alguna vez y el síntoma fue distinto: sin frontend,
+          # una ventana con {"detail":"Not Found"}; sin public.key, todas las
+          # licencias rechazadas; sin license.key, el owner arrancando en demo.
+          $piezas = @{
+            "el backend"           = "$destino\resources\mv-backend\mv-backend.exe"
+            "la interfaz"          = "$destino\resources\frontend\index.html"
+            "la clave publica"     = "$destino\resources\owner\public.key"
+            "la licencia owner"    = "$destino\resources\owner\license.key"
+          }
+          $faltan = @()
+          foreach ($p in $piezas.GetEnumerator()) {
+            if (Test-Path $p.Value) { "  OK  $($p.Key)" }
+            else { $faltan += $p.Key; Write-Host "::error::falta $($p.Key): $($p.Value)" }
+          }
+          if ($faltan.Count) { exit 1 }
+
+          # Y que lo instalado ARRANQUE. Que los archivos estén no alcanza: el
+          # cliente no abre archivos, abre el programa.
+          $env:MV_DATA_DIR = "$env:RUNNER_TEMP\mvdata-instalado"
+          $env:MV_PORT = "8477"
+          $env:MV_API_TOKEN = "tok-instalado"
+          $env:MV_FRONTEND_DIR = "$destino\resources\frontend"
+          $log = "$env:RUNNER_TEMP\backend-instalado.log"
+          $back = Start-Process -FilePath "$destino\resources\mv-backend\mv-backend.exe" `
+                    -RedirectStandardOutput $log -RedirectStandardError "$log.err" -PassThru
+          $vivo = $false
+          for ($i = 0; $i -lt 90; $i++) {
+            try {
+              if ((Invoke-WebRequest -Uri "http://127.0.0.1:8477/api/health" `
+                    -TimeoutSec 3 -UseBasicParsing).StatusCode -eq 200) {
+                $vivo = $true; "el backend instalado respondio a los $($i * 2) s"; break
+              }
+            } catch { }
+            if ($back.HasExited) { break }
+            Start-Sleep -Seconds 2
+          }
+          if (-not $vivo) {
+            Write-Host "::error::el programa instalado no llego a responder. Su salida:"
+            Get-Content $log, "$log.err" -ErrorAction SilentlyContinue
+            exit 1
+          }
+          $raiz = Invoke-WebRequest -Uri "http://127.0.0.1:8477/" -TimeoutSec 10 -UseBasicParsing
+          if ($raiz.Content -notmatch "<title>MV AutoML Studio</title>") {
+            Write-Host "::error::la instalacion no sirve la interfaz sino: $($raiz.Content.Substring(0, 200))"
+            exit 1
+          }
+          "la instalacion sirve la interfaz del producto"
+          Stop-Process -Id $back.Id -Force -ErrorAction SilentlyContinue
+
+          # Se libera el disco: el empaquetado del cliente vuelve a escribir en
+          # dist/ y el runner no tiene lugar de sobra.
+          Remove-Item -Recurse -Force $destino -ErrorAction SilentlyContinue
+
       # ── copia portable, sin instalador ──────────────────────────────────────
       # El instalador NSIS extrae su paquete interno a `%TEMP%` y recién
       # después lo descomprime al destino: necesita el espacio dos veces, y el
@@ -444,6 +540,7 @@ jobs:
             entrega/MV-AutoML-Studio-Owner-Portable.zip
             entrega/Activar-OWNER.bat
             instalador-owner/Instalar-en-otro-disco.bat
+            instalador-owner/Diagnostico-instalador.bat
           body_path: entrega/CUERPO.md
 
       # Sólo el activador, que pesa unos 3 KB.
