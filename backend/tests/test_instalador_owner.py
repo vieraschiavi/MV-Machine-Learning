@@ -418,5 +418,103 @@ def test_el_instalador_no_bloquea_si_no_puede_medir_el_espacio():
     es impredecible, y equivocarse acá deja a un cliente sin poder instalar por
     una comprobación que ni siquiera pudo hacerse."""
     texto = NSH.read_text(encoding="ascii")
-    assert '$R1 != ""' in texto, (
+    assert re.search(r'\$\w+ != ""', texto), (
         "el chequeo no contempla que la medición del espacio falle")
+
+
+def test_el_aviso_de_espacio_no_puede_cerrar_el_instalador():
+    """La prueba de esta sesión: doble clic al instalador y no pasaba NADA.
+
+    Este archivo se inserta en `.onInit`. Ahí `Abort` cierra el instalador sin
+    mostrar una sola palabra —ni ventana, ni cartel, ni código de error—, y
+    desde la máquina del cliente ese síntoma es indistinguible de un ejecutable
+    corrupto. Una comprobación de conveniencia no puede tener el poder de matar
+    al programa que instala.
+
+    El aviso avisa; la decisión de seguir o cerrar es del usuario.
+    """
+    texto = NSH.read_text(encoding="ascii")
+    codigo = [ln for ln in texto.splitlines() if not ln.lstrip().startswith(";")]
+
+    assert not any(re.search(r"\bAbort\b", ln) for ln in codigo), (
+        "hay un Abort en el .onInit del instalador: eso lo cierra en silencio")
+    assert not any(re.search(r"\bQuit\b", ln) for ln in codigo), (
+        "hay un Quit en el .onInit del instalador: eso lo cierra en silencio")
+
+
+def test_el_aviso_no_pisa_los_registros_que_usa_electron_builder():
+    """`$R0`-`$R9` los usa electron-builder en su propio `.onInit`, justo
+    alrededor de donde se inserta esto. Pisarlos deja el arranque en un estado
+    indefinido, y el modo de falla es mudo. Variables propias (`Var`)."""
+    texto = NSH.read_text(encoding="ascii")
+    codigo = "\n".join(
+        ln for ln in texto.splitlines() if not ln.lstrip().startswith(";"))
+
+    usados = sorted(set(re.findall(r"\$R[0-9]\b", codigo)))
+    assert not usados, f"el .nsh pisa registros de electron-builder: {usados}"
+    assert "Var mv" in texto, "no declara variables propias con Var"
+
+
+def test_el_aviso_se_calla_en_la_instalacion_silenciosa():
+    """Un MessageBox en modo `/S` no lo cierra nadie: la instalación queda
+    colgada hasta que alguien mate el proceso. Es además el modo en que la CI
+    instala el .exe para probarlo, así que sin esto la prueba se cuelga en vez
+    de fallar."""
+    texto = NSH.read_text(encoding="ascii")
+    assert "${Silent}" in texto, (
+        "el aviso no contempla la instalación silenciosa")
+
+
+def test_la_ci_instala_el_exe_en_vez_de_solo_leerlo():
+    """El hueco que dejó pasar un instalador que no instalaba.
+
+    Todas las pruebas de este archivo leen texto: que el `.nsh` exista, que
+    `electron-builder.yml` lo referencie, que el mensaje no tenga acentos. Son
+    útiles y baratas, y ninguna se entera de que el `.exe` publicado no arranca.
+
+    El único lugar donde eso se puede comprobar es el runner Windows del CI:
+    instalar el instalador, en una carpeta elegida, y ver que lo instalado
+    levanta. Si ese paso se va del workflow, volvemos a poder publicar un
+    programa que al doble clic no hace nada.
+    """
+    wf = (RAIZ / ".github" / "workflows" / "desktop.yml").read_text(encoding="utf-8")
+
+    assert "/S /D=" in wf, (
+        "el CI no instala el .exe en modo silencioso hacia una carpeta elegida")
+    assert "MV AutoML Studio.exe" in wf, (
+        "el CI no comprueba que la instalación haya dejado el programa")
+    for pieza in ("resources\\mv-backend", "resources\\frontend",
+                  "resources\\owner"):
+        assert pieza in wf, f"el CI no verifica que se instale {pieza}"
+    assert "api/health" in wf and "8477" in wf, (
+        "el CI no arranca lo que quedó instalado: que los archivos estén no "
+        "alcanza, el cliente abre el programa, no la carpeta")
+
+
+def test_el_diagnostico_del_instalador_viaja_en_el_release():
+    """Cuando el instalador no hace nada, «no hace nada» no es un dato.
+
+    Ese síntoma tiene varias causas que desde afuera se ven idénticas: la
+    descarga cortada, la marca de archivo bajado de internet, la carpeta
+    temporal sin espacio, el .exe dañado. Este .bat las separa sin pedirle al
+    usuario que tipee comandos, así que tiene que llegarle en el release —uno
+    que se quede en el repositorio no ayuda a nadie.
+    """
+    bat = RAIZ / "instalador-owner" / "Diagnostico-instalador.bat"
+    assert bat.exists(), "no existe el diagnóstico del instalador"
+
+    # NSIS y cmd.exe comparten el mismo problema con los acentos: la consola
+    # de Windows los rompe según la página de códigos del sistema.
+    bat.read_bytes().decode("ascii")
+
+    texto = bat.read_text(encoding="ascii")
+    assert "/NCRC" in texto, (
+        "no ofrece saltear la comprobación de integridad, que es lo que "
+        "distingue un archivo dañado de un instalador que se cierra solo")
+    assert "Zone.Identifier" in texto, (
+        "no mira la marca de archivo bajado de internet")
+
+    wf = (RAIZ / ".github" / "workflows" / "desktop.yml").read_text(encoding="utf-8")
+    assert "Diagnostico-instalador.bat" in wf, (
+        "el diagnóstico no se publica: queda en el repositorio, donde no "
+        "le sirve a quien tiene el problema")
