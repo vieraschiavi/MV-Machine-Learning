@@ -9,21 +9,28 @@
 ;
 ;  Este aviso corre antes de extraer y nombra las salidas. Es SOLO un aviso.
 ;
-;  Por que solo un aviso, y esto importa mas que la comprobacion misma:
+;  Cuatro reglas, y cada una viene de haberla roto:
 ;
-;  1. Esto se inserta en `.onInit`. Ahi `Abort` cierra el instalador SIN
-;     mostrar absolutamente nada: el usuario hace doble clic y no pasa nada,
-;     ni ventana ni cartel ni error. Un sintoma imposible de diagnosticar
-;     desde la maquina del cliente. Una comprobacion de conveniencia no puede
-;     tener el poder de matar al instalador en silencio, asi que no hay Abort.
+;  1. Sin `Abort`. Esto se inserta en `.onInit`, y ahi `Abort` cierra el
+;     instalador SIN mostrar absolutamente nada: doble clic y no pasa nada, ni
+;     ventana ni cartel ni error. Desde la maquina del cliente ese sintoma es
+;     indistinguible de un ejecutable corrupto. Una comprobacion de
+;     conveniencia no puede tener el poder de matar al instalador en silencio.
 ;
-;  2. Las variables son propias (`Var`), no $R0/$R1. Los registros $R0-$R9 los
-;     usa electron-builder en su propio `.onInit`, alrededor de donde se
-;     inserta esto; pisarlos deja el arranque en un estado indefinido.
+;  2. Sin `Var` a nivel de archivo. electron-builder compila el DESINSTALADOR
+;     en una pasada aparte que incluye este mismo archivo pero NO inserta
+;     `customInit`: las variables quedarian declaradas y sin usar, NSIS avisa
+;     "warning 6001: Variable not referenced or never set", y electron-builder
+;     trata los warnings de NSIS como errores. El build entero se cae, en el
+;     ultimo paso, despues de cuatro minutos de empaquetado.
 ;
-;  3. En instalacion silenciosa (/S) no se muestra: no hay nadie para leer un
-;     cartel, y un MessageBox sin nadie que lo cierre cuelga la instalacion
-;     para siempre. Es ademas el modo en que la CI prueba el instalador.
+;  3. Los registros se guardan y se devuelven. $0-$9 y $R0-$R9 son compartidos:
+;     electron-builder los usa en su propio `.onInit`, alrededor de donde se
+;     inserta esto. Push al entrar, Pop al salir, y nadie se entera.
+;
+;  4. En instalacion silenciosa (/S) no se muestra: no hay nadie para cerrar un
+;     cartel, y uno sin cerrar cuelga la instalacion para siempre. Es ademas el
+;     modo en que la CI prueba el instalador.
 ;
 ;  Todo en ASCII: NSIS compila con la pagina de codigos del sistema y un acento
 ;  sale como basura en la pantalla del cliente.
@@ -37,24 +44,25 @@
 ; destino necesita ~1400 MB mas, pero ese disco lo elige el usuario.
 !define MV_TEMP_MB_MINIMO 900
 
-Var mvUnidadTemp
-Var mvLibreMB
-
 !macro customInit
-  StrCpy $mvUnidadTemp $TEMP 3
-  ${DriveSpace} "$mvUnidadTemp" "/D=F /S=M" $mvLibreMB
+  ; $0 = unidad de %TEMP%, $1 = MB libres. Prestados y devueltos.
+  Push $0
+  Push $1
+
+  StrCpy $0 $TEMP 3
+  ${DriveSpace} "$0" "/D=F /S=M" $1
 
   ; Tres condiciones para hablar, y ninguna para frenar:
   ;   - que no sea instalacion silenciosa (no hay quien lea el cartel);
-  ;   - que la medicion haya dado algo (si fallo, $mvLibreMB queda vacio, y
-  ;     comparar eso como numero es impredecible);
+  ;   - que la medicion haya dado algo (si fallo, $1 queda vacio, y comparar
+  ;     eso como numero es impredecible);
   ;   - que efectivamente falte espacio.
   ${IfNot} ${Silent}
-  ${AndIf} $mvLibreMB != ""
-  ${AndIf} $mvLibreMB < ${MV_TEMP_MB_MINIMO}
+  ${AndIf} $1 != ""
+  ${AndIf} $1 < ${MV_TEMP_MB_MINIMO}
     MessageBox MB_OK|MB_ICONEXCLAMATION \
-      "Puede faltar espacio en el disco $mvUnidadTemp$\n$\n\
-Libre: $mvLibreMB MB. Conviene tener al menos ${MV_TEMP_MB_MINIMO} MB.$\n$\n\
+      "Puede faltar espacio en el disco $0$\n$\n\
+Libre: $1 MB. Conviene tener al menos ${MV_TEMP_MB_MINIMO} MB.$\n$\n\
 El instalador descomprime en la carpeta temporal de ESE disco antes de copiar \
 los archivos, asi que necesita lugar ahi aunque elijas instalar en otro disco.$\n$\n\
 Si seguis y no alcanza, va a fallar con un error que menciona app-64.7z. \
@@ -66,4 +74,7 @@ le digas.$\n\
 quieras y se ejecuta.$\n$\n\
 Aceptar para seguir igual."
   ${EndIf}
+
+  Pop $1
+  Pop $0
 !macroend

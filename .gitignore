@@ -41,3 +41,9 @@ desktop/release/
 web/video/.voces/
 web/video/.audio/
 web/video/*.con-voz.mp4
+
+# Modo servidor: lleva la credencial de acceso y la licencia.
+.env
+datos-servidor/
+Dockerfile.verificacion
+ca-bundle-verificacion.crt

@@ -575,5 +575,13 @@
     "agg_count": "Count",
     "agg_min": "Minimum",
     "agg_max": "Maximum"
+  },
+  "acceso": {
+    "title": "Server access",
+    "lead": "This program is running on a server. The data stays there: only what you see on screen passes through this browser.",
+    "clave": "Access key",
+    "entrar": "Enter",
+    "error": "That key is not correct. Try again.",
+    "ayuda": "It is set by whoever started the server, in the MV_API_TOKEN variable. It is forgotten when you close the tab."
   }
 }

@@ -1,0 +1,29 @@
+# Todo lo que no tiene por qué viajar al servidor del cliente. La lista
+# importa por dos razones: el tamaño de la imagen, y que nada de esto debería
+# terminar en infraestructura ajena.
+.git
+.github
+node_modules
+pybuild
+desktop
+instalador-owner
+web
+api
+data
+docs
+scripts
+examples
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+dist
+entrega
+*.exe
+*.zip
+# Claves y licencias: en modo servidor viajan por variable de entorno, nunca
+# horneadas en la imagen. Una imagen es un archivo que se copia; una licencia
+# adentro es una credencial que se copia con ella.
+**/*.key
+**/owner/
+.env

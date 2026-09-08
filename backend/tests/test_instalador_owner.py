@@ -442,17 +442,47 @@ def test_el_aviso_de_espacio_no_puede_cerrar_el_instalador():
         "hay un Quit en el .onInit del instalador: eso lo cierra en silencio")
 
 
-def test_el_aviso_no_pisa_los_registros_que_usa_electron_builder():
-    """`$R0`-`$R9` los usa electron-builder en su propio `.onInit`, justo
-    alrededor de donde se inserta esto. Pisarlos deja el arranque en un estado
-    indefinido, y el modo de falla es mudo. Variables propias (`Var`)."""
+def test_el_aviso_devuelve_los_registros_que_toma_prestados():
+    """`$0`-`$9` y `$R0`-`$R9` son compartidos: electron-builder los usa en su
+    propio `.onInit`, justo alrededor de donde se inserta esto. Pisarlos y no
+    devolverlos deja el arranque en un estado indefinido, y el modo de falla es
+    mudo. El idioma de NSIS para esto es Push al entrar y Pop al salir.
+    """
     texto = NSH.read_text(encoding="ascii")
-    codigo = "\n".join(
-        ln for ln in texto.splitlines() if not ln.lstrip().startswith(";"))
+    codigo = [ln for ln in texto.splitlines() if not ln.lstrip().startswith(";")]
 
-    usados = sorted(set(re.findall(r"\$R[0-9]\b", codigo)))
-    assert not usados, f"el .nsh pisa registros de electron-builder: {usados}"
-    assert "Var mv" in texto, "no declara variables propias con Var"
+    empujados = [ln.split()[1] for ln in codigo if ln.strip().startswith("Push ")]
+    sacados = [ln.split()[1] for ln in codigo if ln.strip().startswith("Pop ")]
+    assert empujados, "el .nsh usa registros sin guardarlos"
+    assert empujados == list(reversed(sacados)), (
+        f"la pila queda torcida: entran {empujados}, salen {sacados}")
+
+    tocados = set(re.findall(r"\$R?[0-9]\b", "\n".join(codigo)))
+    assert tocados <= set(empujados), (
+        f"toca registros que no guardó: {sorted(tocados - set(empujados))}")
+
+
+def test_el_aviso_no_declara_variables_a_nivel_de_archivo():
+    """El error que tiró el build entero, cuatro minutos después de empezar.
+
+    electron-builder compila el DESINSTALADOR en una pasada aparte que incluye
+    este mismo archivo pero **no** inserta `customInit`. Una `Var` declarada
+    acá queda ahí sin usar, NSIS avisa «warning 6001: Variable not referenced
+    or never set» y electron-builder trata sus warnings como errores:
+
+        warning 6001: Variable "mvUnidadTemp" not referenced or never set
+        Error: warning treated as error
+
+    Doce minutos de build para enterarse de una línea. Esta prueba tarda un
+    milisegundo.
+    """
+    codigo = [ln for ln in NSH.read_text(encoding="ascii").splitlines()
+              if not ln.lstrip().startswith(";")]
+
+    declaradas = [ln.strip() for ln in codigo if re.match(r"^\s*Var\s+\w", ln)]
+    assert not declaradas, (
+        "declara variables a nivel de archivo; la pasada del desinstalador no "
+        f"las usa y NSIS lo trata como error: {declaradas}")
 
 
 def test_el_aviso_se_calla_en_la_instalacion_silenciosa():
