@@ -575,5 +575,13 @@
     "agg_count": "Contar",
     "agg_min": "Mínimo",
     "agg_max": "Máximo"
+  },
+  "acceso": {
+    "title": "Acceso al servidor",
+    "lead": "Este programa está corriendo en un servidor. Los datos quedan ahí: por este navegador sólo pasa lo que ves en pantalla.",
+    "clave": "Clave de acceso",
+    "entrar": "Entrar",
+    "error": "La clave no es correcta. Probá de nuevo.",
+    "ayuda": "La define quien levantó el servidor, en la variable MV_API_TOKEN. Se olvida al cerrar la pestaña."
   }
 }

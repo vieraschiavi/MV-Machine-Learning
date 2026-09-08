@@ -41,6 +41,12 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(mess
 
 VERSION = "1.0.0"
 
+# Antes de construir nada: en modo servidor, sin credencial no se arranca. Va
+# acá y no en el arranque de uvicorn para que valga por cualquier vía que
+# levante la app —uvicorn, gunicorn, el contenedor, un import suelto—, y para
+# que el error salga en el log del servidor en vez de dejarlo abierto callado.
+S.exigir_credencial_en_servidor()
+
 app = FastAPI(
     title="MV AutoML Studio",
     version=VERSION,

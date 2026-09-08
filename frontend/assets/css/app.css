@@ -519,3 +519,25 @@ pre.code {
 .proy-veredicto p { margin: 0; font-size: 14px; color: var(--text-2); }
 .proy-salida .card { margin-top: 14px; }
 .proy-salida svg .series-2 ~ .series-2 { stroke-dasharray: 4 4; opacity: .55; }
+
+/* ── Acceso al servidor ────────────────────────────────────────────────────
+   Sólo se ve en modo servidor: el .exe nunca llega acá porque Electron le pasa
+   la credencial a la interfaz por el puente seguro. Ocupa la pantalla entera y
+   reemplaza al shell, para que quede claro que no hay nada detrás todavía. */
+.acceso-modo { display: block; }
+.acceso {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 24px; background: var(--bg);
+}
+.acceso-caja {
+  width: 100%; max-width: 420px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 28px;
+}
+.acceso-caja h1 { margin: 0 0 8px; font-size: 20px; }
+.acceso-lead { margin: 0 0 20px; color: var(--text-2); font-size: 13.5px; line-height: 1.5; }
+.acceso-caja label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-2); }
+.acceso-caja input { width: 100%; }
+.acceso-caja .row { margin-top: 16px; }
+.acceso-caja .btn { width: 100%; justify-content: center; }
+.acceso-error { min-height: 18px; margin: 8px 0 0; font-size: 12.5px; color: var(--bad); }
+.acceso-caja .hint { margin-top: 16px; }

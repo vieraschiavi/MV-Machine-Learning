@@ -3,6 +3,7 @@ import * as i18n from './i18n.js';
 import * as audio from './audio.js';
 import * as store from './store.js';
 import * as api from './api.js';
+import { pedirAcceso, esFaltaDeAcceso } from './acceso.js';
 import { $, $$, el, icon, clear, toast, fail, modal } from './ui.js';
 
 import overview from './views/overview.js';
@@ -251,6 +252,13 @@ async function start() {
     renderAiChip();
     $('#version').textContent = `v${store.get().health?.version || '1.0.0'}`;
   } catch (err) {
+    // 401 en el navegador significa modo servidor sin credencial cargada: se
+    // pide y se recarga. Un toast de «error de red» ahí sería mentira, y
+    // dejaría al usuario mirando una aplicación vacía sin saber qué hacer.
+    if (esFaltaDeAcceso(err) && api.enNavegador()) {
+      pedirAcceso({ fallo: Boolean(sessionStorage.getItem('mv.acceso')) });
+      return;
+    }
     toast(i18n.t('errors.network'), 'bad');
   }
 

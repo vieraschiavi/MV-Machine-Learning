@@ -1,8 +1,27 @@
 /** Cliente HTTP de la API. Todo error del servidor llega acá con mensaje legible. */
 
-/** Token de sesión del escritorio: lo inyecta Electron por el puente seguro.
- * En el navegador no existe y la autenticación queda del lado del servidor. */
-const sessionToken = () => (window.mvDesktop && window.mvDesktop.token) || null;
+/** Clave de acceso en modo servidor. Se guarda en `sessionStorage` y no en
+ * `localStorage` a propósito: en una laptop laboral —prestada, compartida, con
+ * perfil administrado— la credencial del servidor de un cliente no puede
+ * sobrevivir a que se cierre la pestaña. */
+const CLAVE = 'mv.acceso';
+export const guardarAcceso = (clave) => sessionStorage.setItem(CLAVE, clave.trim());
+export const olvidarAcceso = () => sessionStorage.removeItem(CLAVE);
+const accesoGuardado = () => {
+  // Un navegador con el almacenamiento bloqueado por política corporativa hace
+  // que esto lance en vez de devolver null. Sin el try, la interfaz no carga.
+  try { return sessionStorage.getItem(CLAVE); } catch { return null; }
+};
+
+/** Token de sesión: en el escritorio lo inyecta Electron por el puente seguro;
+ * en el navegador —modo servidor— lo escribió el usuario en la pantalla de
+ * acceso. Sin ninguno de los dos, el servidor responde 401 y la interfaz la
+ * muestra. */
+const sessionToken = () =>
+  (window.mvDesktop && window.mvDesktop.token) || accesoGuardado() || null;
+
+/** True cuando la interfaz corre en un navegador común, no adentro del .exe. */
+export const enNavegador = () => !(window.mvDesktop && window.mvDesktop.token);
 
 /** Workspace activo: viaja en cada request y aísla datasets, modelos y archivos. */
 export const workspaceName = () => localStorage.getItem('mv.workspace') || 'principal';

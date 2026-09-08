@@ -1,0 +1,72 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  MV AutoML Studio — modo servidor
+#
+#  Se levanta en el servidor o la VM del cliente:
+#
+#      cp .env.ejemplo .env      # y completar las dos variables de adentro
+#      docker compose up -d
+#
+#  Y se usa desde el navegador de cualquier máquina que llegue a ese servidor.
+#  No hay nada que instalar del lado del usuario: ni .exe, ni .bat, ni permisos
+#  de administrador. Sólo el navegador que ya viene con la laptop.
+#
+#  Guía completa, incluido el caso sin Docker: docs/modo-servidor.md
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  mv-automl-studio:
+    build: .
+    image: mv-automl-studio:latest
+    container_name: mv-automl-studio
+    restart: unless-stopped
+
+    environment:
+      MV_MODO: servidor
+      # La credencial de acceso. Sin ella el programa NO ARRANCA: en un
+      # servidor alcanzable por la red, la autenticación no puede ser optativa.
+      #   openssl rand -base64 32
+      MV_API_TOKEN: ${MV_API_TOKEN:?falta MV_API_TOKEN; generala con openssl rand -base64 32}
+      # La licencia owner y la clave que la valida. Van por entorno y no se
+      # escriben en el disco: un license.key en el servidor de un cliente es
+      # una credencial abandonada ahí, que sobrevive al contenedor.
+      MV_LICENSE: ${MV_LICENSE:?falta MV_LICENSE}
+      MV_LICENSE_PUBLIC_KEY: ${MV_LICENSE_PUBLIC_KEY:?falta MV_LICENSE_PUBLIC_KEY}
+      # De dónde se acepta que venga la interfaz. El comodín está bien en el
+      # escritorio, donde sólo escucha en 127.0.0.1; acá se nombra el origen.
+      MV_CORS_ORIGINS: ${MV_CORS_ORIGINS:-http://localhost:8000}
+
+    ports:
+      # Por omisión escucha SÓLO en el propio servidor: así una copia levantada
+      # a las apuradas no queda expuesta a la red de la empresa sin que nadie
+      # lo haya decidido. Para llegar desde otra máquina hay dos caminos, y el
+      # primero es el recomendado:
+      #   1. túnel SSH desde la laptop:
+      #        ssh -L 8000:127.0.0.1:8000 usuario@servidor
+      #      y abrir http://localhost:8000. Nada nuevo expuesto en la red.
+      #   2. exponerlo de verdad: MV_BIND=0.0.0.0 en el .env. Hacelo sólo
+      #      detrás de HTTPS y con el visto bueno de seguridad del cliente.
+      - "${MV_BIND:-127.0.0.1}:${MV_PUERTO:-8000}:8000"
+
+    volumes:
+      # Acá viven los datos del cliente, en su propio disco. Es lo único que
+      # persiste, y es lo que hay que respaldar o borrar al terminar el
+      # proyecto.
+      - ${MV_DATOS:-./datos-servidor}:/datos
+
+    # Que un agujero en el programa no sea además un agujero en la máquina.
+    security_opt:
+      - no-new-privileges:true
+
+    # Un entrenamiento pesado no puede llevarse puesto el servidor del cliente.
+    # Ajustá según lo que te hayan asignado.
+    deploy:
+      resources:
+        limits:
+          cpus: ${MV_CPUS:-4}
+          memory: ${MV_RAM:-8g}
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
