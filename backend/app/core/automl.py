@@ -269,6 +269,32 @@ def optimize_family(family: str, spec: dict, task: str, cfg: TrainConfig,
 
 
 # ══════════════════════════════════════════════════════════ ENTRENAR ═════════
+def _validar_objetivo(df, target: str) -> None:
+    """Corta cuando el objetivo no plantea ningún problema que resolver.
+
+    Un dataset donde todos los clientes pagaron —o donde la columna de monto
+    quedó en cero para todos— no tiene nada que aprender. Hasta acá el programa
+    entrenaba igual y devolvía un modelo con `auc: null`: un resultado sin
+    significado, con la misma cara que uno bueno. Para una herramienta que se
+    vende por medir con honestidad, eso es lo peor que puede entregar.
+
+    Se corta antes de gastar el presupuesto de entrenamiento, y el mensaje dice
+    qué pasa y qué mirar.
+    """
+    valores = df[target].dropna()
+    distintos = valores.nunique()
+    if distintos >= 2:
+        return
+
+    unico = valores.iloc[0] if len(valores) else "(vacía)"
+    raise ValueError(
+        f"La variable objetivo «{target}» tiene un solo valor en todo el "
+        f"dataset ({unico}), así que no hay nada que predecir: cualquier "
+        "modelo acertaría siempre sin haber aprendido nada. Revisá si "
+        "filtraste de más, si la columna es la correcta, o si te falta "
+        "incorporar los casos del otro grupo.")
+
+
 def train(df: pd.DataFrame, cfg: TrainConfig, progress: Progress = _noop) -> dict[str, Any]:
     """Corre el pipeline completo y devuelve el informe."""
     t_start = time.time()
@@ -281,6 +307,7 @@ def train(df: pd.DataFrame, cfg: TrainConfig, progress: Progress = _noop) -> dic
     if len(df) < 40:
         raise ValueError(f"Sólo quedan {len(df)} filas con la variable objetivo cargada. "
                          "Se necesitan al menos 40 para validar de forma honesta.")
+    _validar_objetivo(df, cfg.target)
 
     task = cfg.task if cfg.task != "auto" else P.infer_task(df[cfg.target])
     cfg.task = task
