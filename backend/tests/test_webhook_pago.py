@@ -71,12 +71,20 @@ def llamar_al_webhook(pago: dict, privada: str, cuerpo: dict | None = None,
     return json.loads(r.stderr.strip().splitlines()[-1])
 
 
-def pago_aprobado(plan: str) -> dict:
+# El precio de cada plan, como lo cobra `crear-pago.js`. La simulación decía 39
+# para todos, y con eso un «pago» del plan anual de Empresa —1290— pasaba por
+# 39 dólares. Cuando el webhook empezó a comparar el monto, esta prueba lo
+# atrapó: el dato de la simulación era el irreal, no el código.
+PRECIO = {"profesional-mes": 39, "profesional-anio": 390,
+          "empresa-mes": 129, "empresa-anio": 1290}
+
+
+def pago_aprobado(plan: str, monto: float | None = None) -> dict:
     return {
         "status": "approved",
         "external_reference": f"{plan}:1750000000000",
         "payer": {"email": "cliente@empresa.com", "first_name": "Ana", "last_name": "Pérez"},
-        "transaction_amount": 39,
+        "transaction_amount": PRECIO.get(plan, 39) if monto is None else monto,
         "currency_id": "USD",
     }
 
@@ -157,3 +165,22 @@ def test_un_plan_desconocido_no_emite_una_licencia_cualquiera(monkeypatch):
     salida = llamar_al_webhook(pago, priv)
     assert not any("MVAS." in linea for linea in salida["registrado"])
     assert any("plan desconocido" in e for e in salida["errores"])
+
+
+def test_pagar_de_menos_no_compra_el_plan_caro(monkeypatch):
+    """La comprobación que faltaba, y que esta misma suite dejó ver.
+
+    El webhook verificaba que el pago existiera y estuviera aprobado —eso
+    estaba bien y sigue—, pero emitía el plan que decía el `external_reference`
+    sin mirar el importe. Un pago de 39 por el plan anual de Empresa, que
+    cuesta 1290, emitía la licencia igual.
+    """
+    priv, _ = L.generate_keypair()
+    barato = pago_aprobado("empresa-anio", monto=39)
+
+    salida = llamar_al_webhook(barato, priv)
+
+    assert salida["estado"] == 200, "a MercadoPago no se le pide que reintente"
+    assert not salida.get("licencia"), "emitió licencia por un pago de menos"
+    assert any("se pagaron 39" in e and "1290" in e for e in salida["errores"]), \
+        salida["errores"]

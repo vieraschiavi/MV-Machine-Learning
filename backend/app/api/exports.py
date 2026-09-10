@@ -107,6 +107,9 @@ def listing() -> dict[str, Any]:
 def download(filename: str):
     base = workspace.dir_for("exports").resolve()
     path = (base / filename).resolve()
-    if not str(path).startswith(str(base)) or not path.is_file():
+    # `is_relative_to` compara RUTAS, no texto. Con `startswith`, un directorio
+    # hermano llamado `exports-privado` pasaba el control por empezar igual que
+    # `exports`, y su contenido se servía.
+    if not path.is_relative_to(base) or not path.is_file():
         raise HTTPException(404, "Archivo inexistente.")
     return FileResponse(path, filename=path.name, media_type="application/octet-stream")

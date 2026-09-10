@@ -548,3 +548,50 @@ def test_el_diagnostico_del_instalador_viaja_en_el_release():
     assert "Diagnostico-instalador.bat" in wf, (
         "el diagnóstico no se publica: queda en el repositorio, donde no "
         "le sirve a quien tiene el problema")
+
+
+# ══════════════════════════════════════════ compilar, no sólo leer ═══════════
+def _makensis() -> str | None:
+    import shutil
+    return shutil.which("makensis")
+
+
+@pytest.mark.skipif(_makensis() is None, reason="makensis no está instalado")
+def test_el_script_del_instalador_compila_en_las_dos_pasadas(tmp_path):
+    """La prueba que convierte veinte minutos de build en un segundo.
+
+    electron-builder compila NSIS **dos veces** con el mismo `.nsh`: una para
+    el instalador, que inserta `customInit`, y otra para el DESINSTALADOR, que
+    no lo inserta. Y trata los warnings de NSIS como errores.
+
+    Esa segunda pasada tumbó un build entero, al final de todo, después de
+    cuatro minutos de empaquetado, por una línea:
+
+        warning 6001: Variable "mvUnidadTemp" not referenced or never set
+        Error: warning treated as error
+
+    `makensis` corre en Linux y tarda un segundo. Compilar acá las dos pasadas
+    —con `-WX`, igual que electron-builder— atrapa eso antes de gastar un
+    runner de Windows. Verificado: contra el `.nsh` que rompió el build, esta
+    prueba reproduce ese error exacto.
+    """
+    import subprocess
+
+    guiones = {
+        "instalador": f'!include "{NSH}"\nName "p"\nOutFile "i.exe"\n'
+                      "Function .onInit\n  !insertmacro customInit\nFunctionEnd\n"
+                      'Section "s"\nSectionEnd\n',
+        # La pasada del desinstalador: incluye el .nsh y NO inserta la macro.
+        "desinstalador": f'!define BUILD_UNINSTALLER\n!include "{NSH}"\nName "p"\n'
+                         'OutFile "d.exe"\nSection "s"\nSectionEnd\n',
+    }
+
+    for nombre, guion in guiones.items():
+        nsi = tmp_path / f"{nombre}.nsi"
+        nsi.write_text(guion, encoding="ascii")
+        r = subprocess.run([_makensis(), "-WX", str(nsi)],  # noqa: S603
+                           capture_output=True, text=True, cwd=tmp_path)
+        assert r.returncode == 0, (
+            f"la pasada «{nombre}» no compila:\n"
+            + "\n".join(ln for ln in (r.stdout + r.stderr).splitlines()
+                        if "warning" in ln.lower() or "error" in ln.lower()))

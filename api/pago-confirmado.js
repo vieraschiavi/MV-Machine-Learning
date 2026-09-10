@@ -24,6 +24,17 @@ import { DIAS, emitirLicencia } from './_firmar.js';
 const NIVEL = { 'profesional-mes': 'paid', 'profesional-anio': 'paid',
                 'empresa-mes': 'paid', 'empresa-anio': 'paid' };
 
+// Los mismos precios que fija `crear-pago.js`. El webhook verifica que el pago
+// exista y esté aprobado —eso ya estaba—, pero emitía el plan que dice el
+// `external_reference` sin mirar CUÁNTO se pagó. Es la comprobación estándar
+// de cualquier integración de cobros: barata, y cubre el caso que no necesita
+// un atacante —un precio que cambió con enlaces viejos dando vueltas—.
+const PRECIO = { 'profesional-mes': 39, 'profesional-anio': 390,
+                 'empresa-mes': 129, 'empresa-anio': 1290 };
+
+// Un centavo de diferencia por redondeo del medio de pago no es un fraude.
+const TOLERANCIA = 1;
+
 async function enviarPorCorreo(destino, licencia, plan, sitio) {
   const key = process.env.RESEND_API_KEY;
   if (!key || !destino) return false;
@@ -87,6 +98,14 @@ export default async function handler(req, res) {
     const nivel = NIVEL[plan];
     if (!dias) {
       console.error(`pago ${id} aprobado pero con plan desconocido: ${plan}`);
+      return res.status(200).end();
+    }
+
+    const esperado = PRECIO[plan];
+    const pagado = Number(pago.transaction_amount);
+    if (esperado && Number.isFinite(pagado) && pagado + TOLERANCIA < esperado) {
+      console.error(`pago ${id}: se pagaron ${pagado} para el plan ${plan}, `
+                    + `que cuesta ${esperado}. No se emite licencia.`);
       return res.status(200).end();
     }
 
