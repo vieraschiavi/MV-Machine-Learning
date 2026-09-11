@@ -36,9 +36,17 @@ ENGINES: dict[str, dict[str, Any]] = {
     "custom": {"label": "URL de SQLAlchemy", "driver": None, "port": None},
 }
 
+# Lista blanca: la consulta tiene que SER una lectura. Es lo único que no
+# depende de acordarse de todos los verbos que escriben —«VACUUM INTO» copió
+# una base entera justamente porque no estaba en ninguna lista negra—.
+SOLO_LECTURA = re.compile(r"^(select|with)\b", re.I)
+
+# Segunda barrera, para lo que empieza con SELECT o WITH y aun así escribe:
+# el `WITH x AS (DELETE … RETURNING *)` de PostgreSQL, o el `SELECT … INTO
+# tabla` de SQL Server.
 DANGEROUS = re.compile(
     r"\b(insert|update|delete|drop|truncate|alter|create|grant|revoke|merge|exec|execute|"
-    r"sp_|xp_|into\s+outfile|backup|restore)\b", re.I)
+    r"sp_|xp_|into|backup|restore|attach|vacuum|pragma|copy|load_extension)\b", re.I)
 
 
 class ConnectionError_(RuntimeError):
@@ -255,14 +263,40 @@ def preview(p: dict[str, Any], sql: str, limit: int = 100) -> dict[str, Any]:
         engine.dispose()
 
 
-def guard(sql: str) -> None:
-    """El conector es de sólo lectura. Cualquier verbo que escriba se rechaza."""
+def _sin_ruido(sql: str) -> str:
+    """La consulta sin comentarios y sin literales de texto.
+
+    Los literales se sacan porque el control mira palabras: sin esto,
+    ``WHERE nota LIKE '%delete%'`` se rechazaba como si borrara algo, y
+    ``VACUUM INTO '/ruta'`` se escondía detrás de su propia ruta.
+    """
     s = re.sub(r"--.*?$|/\*.*?\*/", " ", sql, flags=re.S | re.M)
+    s = re.sub(r"'(?:''|[^'])*'", "''", s)
+    return s.strip()
+
+
+def guard(sql: str) -> None:
+    """El conector es de sólo lectura, y eso se decide por lista blanca.
+
+    La base del otro lado suele ser la de producción de un cliente. Enumerar
+    los verbos que escriben no alcanza —``VACUUM INTO`` copió una base entera a
+    un archivo, ``ATTACH DATABASE`` creó otro, y ninguno de los dos figuraba en
+    ninguna lista—: se exige que la consulta sea una lectura, y recién después
+    se mira si esconde una escritura adentro.
+    """
+    s = _sin_ruido(sql)
+    if not s:
+        raise ConnectionError_("La consulta está vacía.")
+    if not SOLO_LECTURA.match(s):
+        verbo = re.match(r"[A-Za-z_]+", s)
+        raise ConnectionError_(
+            f"El conector es de sólo lectura y «{verbo.group(0) if verbo else s[:20]}» no es una "
+            "consulta de lectura. Empezá con SELECT, o con un WITH que termine en SELECT.")
     if DANGEROUS.search(s):
         raise ConnectionError_(
             "La consulta contiene una sentencia de escritura. El conector es de sólo lectura: "
             "usá SELECT (o una vista) para extraer los datos.")
-    if s.count(";") > 1 or (";" in s.strip()[:-1]):
+    if s.count(";") > 1 or (";" in s[:-1]):
         raise ConnectionError_("Enviá una sola sentencia SELECT por consulta.")
 
 

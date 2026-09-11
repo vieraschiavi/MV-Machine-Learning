@@ -234,7 +234,7 @@ def record_job(job: dict[str, Any]) -> None:
     """Historial durable de trabajos: sobrevive al reinicio del proceso."""
     try:
         err = job.get("error")
-        with _connect(job.get("workspace")) as con:
+        with _catalogo(job.get("workspace")) as con:
             con.execute(
                 "INSERT OR REPLACE INTO jobs VALUES (?,?,?,?,?,?,?,?)",
                 (job["id"], job.get("kind"), job.get("title"), job.get("status"),
