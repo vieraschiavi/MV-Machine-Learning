@@ -6,10 +6,18 @@ name: Escritorio Windows
 #   · el instalador Owner en un release BORRADOR: sólo lo ven los
 #     colaboradores del repositorio, que es exactamente el pedido
 #     ("un exe versión owner en GitHub sólo para probar el programa full").
+#
+# CUÁNDO CORRE, y por qué no en cada merge: son ~20 minutos de runner Windows,
+# o sea ~40 minutos de cuota, cada vez. Disparándose en cada push a `main` se
+# gastaban aunque el merge no tocara el instalador, y así se agotó la cuota del
+# mes —con ella, la capacidad de entregar—. Sacar un instalador pasa a ser una
+# decisión explícita, que es lo que ya era en la práctica:
+#
+#   · por etiqueta:  git tag v1.2.0 && git push origin v1.2.0
+#   · a pedido:      Actions -> «Escritorio Windows» -> Run workflow -> main
 on:
   push:
     tags: ["v*"]
-    branches: [main]
   workflow_dispatch:
 
 permissions:
