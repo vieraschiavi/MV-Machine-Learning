@@ -1,8 +1,16 @@
 name: CI
 
+# El repositorio es privado: cada minuto de runner sale de una cuota mensual, y
+# los de Windows cuentan el doble. Con `push` a todas las ramas MÁS
+# `pull_request`, cada push a una rama con PR abierto corría la suite entera
+# DOS VECES sobre el mismo commit (verificado: runs 34543134661 y 34543137404
+# sobre 7f00bb0, idénticos). La mitad de la cuota se iba ahí.
+#
+# Las ramas de trabajo las cubre `pull_request`; el `push` queda en `main` para
+# saber el estado de lo que se entrega. No se apagó ninguna prueba.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
