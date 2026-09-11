@@ -9,6 +9,7 @@ from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 from ..core import licensing as L
 from ..core import profiling, storage, workspace
@@ -21,6 +22,25 @@ SAFE_NAME = re.compile(r"[^A-Za-z0-9._\- ]+")
 def _tmp(filename: str) -> Path:
     safe = SAFE_NAME.sub("_", Path(filename or "dataset.csv").name)[:120] or "dataset.csv"
     return workspace.dir_for("uploads") / f"{uuid.uuid4().hex[:10]}__{safe}"
+
+
+def _ingestar(archivo: Path, nombre: str) -> storage.DatasetMeta:
+    """Leer el archivo y escribir el Parquet: minutos de trabajo bloqueante.
+
+    Vive en una función aparte porque las rutas de subida son `async` y esto
+    tiene que correr FUERA del event loop. Adentro ocuparía el único hilo que
+    atiende a todo el servidor: mientras un usuario sube su archivo, nadie más
+    recibe respuesta. Medido sobre 9 MB, la latencia del resto pasaba de 3 ms a
+    955 ms, y escala con el tamaño —justo lo que este producto no limita—.
+    """
+    L.check_count(len(storage.list_datasets()), "max_datasets")
+    meta = storage.ingest_file(archivo, nombre, source="upload")
+    try:
+        L.check_rows(meta.rows)
+    except PermissionError:
+        storage.delete_dataset(meta.id)     # no se deja a medias en el workspace
+        raise
+    return meta
 
 
 @router.get("")
@@ -46,13 +66,7 @@ async def upload_stream(request: Request, filename: str = Query(...),
                     written += len(chunk)
         if written == 0:
             raise HTTPException(400, "El archivo llegó vacío.")
-        L.check_count(len(storage.list_datasets()), "max_datasets")
-        meta = storage.ingest_file(dest, name or Path(filename).stem, source="upload")
-        try:
-            L.check_rows(meta.rows)
-        except PermissionError:
-            storage.delete_dataset(meta.id)     # no se deja a medias en el workspace
-            raise
+        meta = await run_in_threadpool(_ingestar, dest, name or Path(filename).stem)
         return {"dataset": meta.to_dict(), "bytes_received": written}
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc
@@ -69,13 +83,8 @@ async def upload_multipart(file: UploadFile = File(...),
         with dest.open("wb") as fh:
             while chunk := await file.read(4 * 1024 * 1024):
                 fh.write(chunk)
-        L.check_count(len(storage.list_datasets()), "max_datasets")
-        meta = storage.ingest_file(dest, name or Path(file.filename or "dataset").stem)
-        try:
-            L.check_rows(meta.rows)
-        except PermissionError:
-            storage.delete_dataset(meta.id)
-            raise
+        meta = await run_in_threadpool(
+            _ingestar, dest, name or Path(file.filename or "dataset").stem)
         return {"dataset": meta.to_dict()}
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc

@@ -45,8 +45,10 @@ interfaz son módulos ES nativos.
 * **Servidores SQL**: SQL Server, PostgreSQL, MySQL/MariaDB, SQLite, DuckDB y
   cualquier otro motor vía URL de SQLAlchemy (Oracle, Snowflake, BigQuery,
   Redshift…). Explorás esquemas y tablas, escribís el `SELECT`, ves la vista
-  previa y extraés. **El conector es de sólo lectura**: cualquier sentencia que
-  escriba se rechaza antes de salir.
+  previa y extraés. **El conector es de sólo lectura**, y eso se decide por
+  lista blanca: la consulta tiene que empezar con `SELECT` (o con un `WITH` que
+  termine en `SELECT`). Enumerar los verbos que escriben no alcanzaba —`VACUUM
+  INTO` copiaba la base entera a un archivo sin ser un `INSERT` ni un `UPDATE`—.
 * El encoding, el separador y el símbolo decimal se detectan solos, y se
   detectan bien: un archivo con montos `$ 1.711,20` no se parte por la coma.
 
