@@ -25,6 +25,7 @@ class Profile(BaseModel):
     schema_: str | None = None
     url: str | None = None
     tds_version: str | None = None
+    odbc_driver: str | None = None      # Fabric: versión del driver ODBC instalado
 
     def to_dict(self) -> dict[str, Any]:
         d = self.model_dump()

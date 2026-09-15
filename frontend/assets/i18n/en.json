@@ -115,7 +115,7 @@
     "uploading": "Uploading",
     "processing": "Processing the file",
     "sql_title": "SQL server",
-    "sql_hint": "Connect to SQL Server, PostgreSQL, MySQL, SQLite, DuckDB or any engine via a SQLAlchemy URL.",
+    "sql_hint": "Connect to Microsoft Fabric, SQL Server, PostgreSQL, MySQL, SQLite, DuckDB or any engine with a SQLAlchemy URL.",
     "engine": "Engine",
     "host": "Host",
     "port": "Port",
@@ -145,7 +145,16 @@
     "ph_label": "Production",
     "ph_host": "sql-server.mycompany.com",
     "ph_file": "/path/to/file.db",
-    "ph_url": "oracle+oracledb://user:password@server:1521/?service_name=orcl"
+    "ph_url": "oracle+oracledb://user:password@server:1521/?service_name=orcl",
+    "fabric_endpoint": "Fabric SQL endpoint",
+    "ph_fabric_endpoint": "abcdefg.datawarehouse.fabric.microsoft.com",
+    "fabric_database": "Lakehouse or Warehouse",
+    "ph_fabric_database": "Lakehouse name",
+    "fabric_identity": "Application ID or work email",
+    "ph_fabric_identity": "00000000-0000-0000-0000-000000000000",
+    "fabric_secret": "Application secret",
+    "ph_fabric_secret": "leave empty to sign in as yourself",
+    "fabric_hint": "Fabric authenticates through Entra ID. Leave the secret empty to sign in with your organisation account (a Microsoft window opens and multi-factor works), or enter the ID and secret of a registered application so it can run unattended. The machine needs Microsoft ODBC Driver 18 installed."
   },
   "explore": {
     "title": "Explore",

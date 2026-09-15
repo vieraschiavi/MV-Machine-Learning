@@ -115,7 +115,7 @@
     "uploading": "Subiendo",
     "processing": "Procesando el archivo",
     "sql_title": "Servidor SQL",
-    "sql_hint": "Conectate a SQL Server, PostgreSQL, MySQL, SQLite, DuckDB o cualquier motor con URL de SQLAlchemy.",
+    "sql_hint": "Conectate a Microsoft Fabric, SQL Server, PostgreSQL, MySQL, SQLite, DuckDB o cualquier motor con URL de SQLAlchemy.",
     "engine": "Motor",
     "host": "Servidor",
     "port": "Puerto",
@@ -145,7 +145,16 @@
     "ph_label": "Producción",
     "ph_host": "servidor-sql.miempresa.com",
     "ph_file": "/ruta/al/archivo.db",
-    "ph_url": "oracle+oracledb://usuario:clave@servidor:1521/?service_name=orcl"
+    "ph_url": "oracle+oracledb://usuario:clave@servidor:1521/?service_name=orcl",
+    "fabric_endpoint": "Endpoint SQL de Fabric",
+    "ph_fabric_endpoint": "abcdefg.datawarehouse.fabric.microsoft.com",
+    "fabric_database": "Lakehouse o Warehouse",
+    "ph_fabric_database": "nombre del Lakehouse",
+    "fabric_identity": "ID de aplicación o correo de la organización",
+    "ph_fabric_identity": "00000000-0000-0000-0000-000000000000",
+    "fabric_secret": "Secreto de la aplicación",
+    "ph_fabric_secret": "vacío para entrar con tu usuario",
+    "fabric_hint": "Fabric se autentica con Entra ID. Dejá el secreto vacío para iniciar sesión con tu usuario de la organización (se abre la ventana de Microsoft y admite doble factor), o cargá el ID y el secreto de una aplicación registrada para que corra sin nadie delante. Hace falta el driver ODBC 18 de Microsoft instalado en el equipo."
   },
   "explore": {
     "title": "Exploración",

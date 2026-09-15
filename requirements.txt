@@ -45,6 +45,10 @@ sqlalchemy>=2.0
 pymysql>=1.1
 psycopg2-binary>=2.9
 pymssql>=2.2
+# Fabric y Azure SQL se autentican con Entra ID, y eso pymssql no lo habla: ese
+# camino va por ODBC. El driver del sistema («ODBC Driver 18 for SQL Server») lo
+# instala Microsoft aparte; esto es sólo el puente de Python.
+pyodbc>=5.0
 
 # Proveedores de IA (HTTP genérico, sin SDKs propietarios)
 httpx>=0.26

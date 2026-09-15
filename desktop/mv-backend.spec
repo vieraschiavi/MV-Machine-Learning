@@ -19,8 +19,11 @@ for paquete in ["lightgbm", "xgboost", "catboost", "shap", "duckdb", "pyarrow"]:
 hidden += collect_submodules("sklearn", filter=sin_tests)
 hidden += collect_submodules("uvicorn")
 hidden += collect_submodules("anyio")
-hidden += ["pymssql", "pymysql", "xlsxwriter", "openpyxl", "optuna",
-           "app", "app.main"]
+# Los drivers de base los importa SQLAlchemy por nombre, en tiempo de
+# ejecución: el análisis estático de PyInstaller no los ve y hay que nombrarlos.
+# `pyodbc` es el que usa el conector de Microsoft Fabric (Entra ID).
+hidden += ["pymssql", "pymysql", "pyodbc", "xlsxwriter", "openpyxl", "optuna",
+           "app", "app.main", "app.notebook"]
 
 # CUDA no viaja en un instalador de escritorio: 450 MB de bibliotecas de GPU
 # que el motor no usa (los árboles corren en CPU). En Windows además no vienen.

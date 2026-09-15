@@ -70,6 +70,7 @@ function sqlCard(rerender) {
   const engineSel = el('select', {},
     ...engines.map((e) => el('option', { value: e.id, text: e.label, selected: e.id === conn.engine })));
   const fields = el('div', { class: 'grid grid-3' });
+  const engineHint = el('div', { class: 'hint mb-2' });
   const result = el('div');
   const tablesBox = el('div', { class: 'mt-2' });
   const sqlBox = el('textarea', { class: 'mono', rows: '5', placeholder: 'SELECT * FROM esquema.tabla' });
@@ -92,6 +93,15 @@ function sqlCard(rerender) {
     add('label', 'data.connection_label', 'text', t('data.ph_label'));
     if (eng === 'custom') {
       add('url', 'data.connection_url', 'text', t('data.ph_url'));
+    } else if (eng === 'fabric') {
+      // Fabric no tiene usuario y contraseña de base: la identidad la da Entra ID.
+      // El puerto es siempre 1433 y no se muestra: si quedó uno de otro motor
+      // en el formulario, la conexión se iba a ese puerto y no contra Fabric.
+      conn.port = null;
+      add('host', 'data.fabric_endpoint', 'text', t('data.ph_fabric_endpoint'));
+      add('database', 'data.fabric_database', 'text', t('data.ph_fabric_database'));
+      add('username', 'data.fabric_identity', 'text', t('data.ph_fabric_identity'));
+      add('password', 'data.fabric_secret', 'password', t('data.ph_fabric_secret'));
     } else if (eng === 'sqlite' || eng === 'duckdb') {
       add('database', 'data.database', 'text', t('data.ph_file'));
     } else {
@@ -102,8 +112,12 @@ function sqlCard(rerender) {
       add('password', 'data.password', 'password');
     }
   }
-  engineSel.onchange = renderFields;
-  renderFields();
+  function renderAll() {
+    renderFields();
+    engineHint.textContent = engineSel.value === 'fabric' ? t('data.fabric_hint') : '';
+  }
+  engineSel.onchange = renderAll;
+  renderAll();
 
   const testBtn = el('button', { class: 'btn' }, t('data.test_connection'));
   const saveBtn = el('button', { class: 'btn' }, t('data.save_connection'));
@@ -201,6 +215,7 @@ function sqlCard(rerender) {
         el('div', { class: 'card-sub', text: t('data.sql_hint') }))),
     el('div', { class: 'field' }, el('label', { text: t('data.engine') }), engineSel),
     fields,
+    engineHint,
     el('div', { class: 'row mb-2' }, testBtn, saveBtn, browseBtn),
     result,
     tablesBox,

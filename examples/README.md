@@ -43,3 +43,16 @@ comparar cuadro a cuadro.
 Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
 la auditoría antes de entrenar.
+
+## Notebook para Microsoft Fabric
+
+[`fabric/mv_automl_en_fabric.ipynb`](fabric/mv_automl_en_fabric.ipynb) entrena
+desde una celda de Python: lee una tabla del Lakehouse, entrena, guarda el
+modelo y deja las cuatro tablas que Power BI consume. Corre también fuera de
+Fabric —si no encuentra el Lakehouse arma una tabla de ejemplo y escribe en una
+carpeta local—, así se prueba el circuito completo antes de tocar un dato de la
+empresa. Una prueba automatizada lo ejecuta entero en cada corrida
+(`backend/tests/test_notebook_de_ejemplo.py`), para que no envejezca en silencio.
+
+El paso a paso, con permisos y autenticación, está en
+[`docs/FABRIC_Y_POWERBI.md`](../docs/FABRIC_Y_POWERBI.md).
