@@ -42,9 +42,9 @@ interfaz son módulos ES nativos.
   JSON. **No hay tope de filas ni de megas**: el archivo se sube por streaming,
   se convierte a Parquet por bloques y se consulta con DuckDB fuera de memoria.
   El límite es el disco, no la RAM.
-* **Servidores SQL**: SQL Server, PostgreSQL, MySQL/MariaDB, SQLite, DuckDB y
-  cualquier otro motor vía URL de SQLAlchemy (Oracle, Snowflake, BigQuery,
-  Redshift…). Explorás esquemas y tablas, escribís el `SELECT`, ves la vista
+* **Servidores SQL**: Microsoft Fabric (endpoint SQL, con identidad de Entra
+  ID), SQL Server, PostgreSQL, MySQL/MariaDB, SQLite, DuckDB y cualquier otro
+  motor vía URL de SQLAlchemy (Oracle, Snowflake, BigQuery, Redshift…). Explorás esquemas y tablas, escribís el `SELECT`, ves la vista
   previa y extraés. **El conector es de sólo lectura**, y eso se decide por
   lista blanca: la consulta tiene que empezar con `SELECT` (o con un `WITH` que
   termine en `SELECT`). Enumerar los verbos que escriben no alcanzaba —`VACUUM
@@ -181,6 +181,30 @@ natural.
 
 CSV y Parquet no tienen tope de filas. En Excel, si el listado supera el millón
 de filas se parte en hojas sucesivas y la plataforma lo advierte.
+
+### 7 bis. Modo notebook: Fabric, Jupyter, Databricks
+
+El mismo motor se importa desde una celda de Python, sin levantar el servidor y
+sin subir ningún archivo: donde ya hay un DataFrame, hay entrenamiento.
+
+```python
+from app import notebook as mv
+
+datos = spark.sql("SELECT * FROM ventas_clientes").toPandas()   # Fabric
+modelo = mv.entrenar(datos, objetivo="compro", excluir=["cliente_id"])
+print(modelo.resumen()["veredicto"])
+modelo.para_powerbi("/lakehouse/default/Files/mv/powerbi", datos=datos)
+```
+
+Acepta DataFrames de pandas, Spark, Polars y tablas de PyArrow. Guarda el modelo
+en una carpeta y lo vuelve a cargar para puntuar datos nuevos sin reentrenar, y
+deja cuatro tablas —predicciones, métricas, importancias y resumen— que Power BI
+lee directo del Lakehouse. Los topes de la licencia rigen igual que en la
+interfaz: el notebook no es una puerta de atrás.
+
+El paso a paso está en [`docs/FABRIC_Y_POWERBI.md`](docs/FABRIC_Y_POWERBI.md) y
+el notebook listo para importar en
+[`examples/fabric/`](examples/fabric/mv_automl_en_fabric.ipynb).
 
 ### 8. Tres idiomas y sistema de audio
 
@@ -338,6 +362,10 @@ pipeline por motivos que no son del código.
 * [`examples/`](examples/README.md) — datasets sintéticos listos para recorrer
   la plataforma, incluida una columna de texto libre y un panel de cobranzas
   con fuga contable para que la auditoría trabaje.
+* [Fabric y Power BI](docs/FABRIC_Y_POWERBI.md) — usar el motor desde un
+  notebook de Microsoft Fabric, conectar el programa al endpoint SQL con
+  identidad de Entra ID y dejar la salida lista para el tablero. Incluye lo que
+  se probó y lo que no.
 * [Puesta en producción](docs/PRODUCCION.md) — paso a paso por plataforma para
   dejar el cobro, las licencias y el panel andando, sin correr un solo comando.
 * [Análisis del negocio](docs/MV-AutoML-Studio-Analisis.xlsx) — calificación por

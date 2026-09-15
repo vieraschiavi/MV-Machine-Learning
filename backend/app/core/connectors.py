@@ -1,8 +1,12 @@
 """Conexión a cualquier servidor SQL y extracción del dataset por streaming.
 
-Motores soportados de fábrica: SQL Server, PostgreSQL, MySQL/MariaDB, SQLite
-y DuckDB; además de una URL de SQLAlchemy libre para cualquier otro motor con
-driver instalado (Oracle, Snowflake, BigQuery, Redshift, Databricks…).
+Motores soportados de fábrica: Microsoft Fabric, SQL Server, PostgreSQL,
+MySQL/MariaDB, SQLite y DuckDB; además de una URL de SQLAlchemy libre para
+cualquier otro motor con driver instalado (Oracle, Snowflake, BigQuery,
+Redshift, Databricks…).
+
+Fabric es el caso distinto: no acepta usuario y contraseña de base de datos, la
+identidad la da Entra ID. Ver ``_url_fabric`` y ``docs/FABRIC_Y_POWERBI.md``.
 
 La extracción usa cursor del lado del servidor y escribe a Parquet por
 bloques: una tabla de 50 millones de filas no entra en RAM y no hace falta
@@ -18,7 +22,7 @@ import uuid
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlencode
 
 import pandas as pd
 
@@ -26,9 +30,18 @@ from ..config import settings  # noqa: F401
 from . import storage as S
 from . import workspace
 
+# Motores que hablan el dialecto de SQL Server: recortan con TOP, no con LIMIT.
+DIALECTO_SQLSERVER = ("sqlserver", "fabric")
+
+# Driver ODBC por omisión para Fabric. Es el que instala Microsoft en Windows;
+# se puede cambiar por perfil si el equipo tiene otra versión.
+ODBC_DRIVER = "ODBC Driver 18 for SQL Server"
+
 ENGINES: dict[str, dict[str, Any]] = {
     "sqlserver": {"label": "Microsoft SQL Server", "driver": "mssql+pymssql", "port": 1433,
                   "schema_query": "sys.tables"},
+    "fabric": {"label": "Microsoft Fabric (endpoint SQL)", "driver": "mssql+pyodbc", "port": 1433,
+               "schema_query": "sys.tables"},
     "postgresql": {"label": "PostgreSQL", "driver": "postgresql+psycopg2", "port": 5432},
     "mysql": {"label": "MySQL / MariaDB", "driver": "mysql+pymysql", "port": 3306},
     "sqlite": {"label": "SQLite", "driver": "sqlite", "port": None},
@@ -130,6 +143,8 @@ def build_url(p: dict[str, Any]) -> str:
     if eng in ("sqlite", "duckdb"):
         path = p.get("database") or ":memory:"
         return f"{'sqlite' if eng == 'sqlite' else 'duckdb'}:///{path}"
+    if eng == "fabric":
+        return _url_fabric(p)
     spec = ENGINES[eng]
     host = p.get("host") or "localhost"
     port = int(p.get("port") or spec["port"])
@@ -144,6 +159,45 @@ def build_url(p: dict[str, Any]) -> str:
     return f"{spec['driver']}://{auth}{host}:{port}/{db}{extra}"
 
 
+def _url_fabric(p: dict[str, Any]) -> str:
+    """URL del endpoint SQL de Fabric, que se autentica contra Entra ID.
+
+    Fabric no acepta usuario y contraseña de base de datos: la identidad la da
+    Entra ID (el ex Azure AD). Dos caminos, y el perfil elige solo:
+
+    * **Aplicación registrada** (usuario = ID de aplicación, contraseña =
+      secreto): es el modo desatendido, el que sirve para un entrenamiento
+      programado.
+    * **Inicio interactivo** (usuario = el correo de la persona, sin
+      contraseña): abre la ventana de Microsoft y soporta doble factor. Es el
+      modo para el equipo de escritorio.
+    """
+    host = (p.get("host") or "").strip()
+    if not host:
+        raise ConnectionError_(
+            "Falta el endpoint SQL de Fabric. Está en el Lakehouse o el Warehouse, "
+            "en «Configuración → Cadena de conexión del endpoint de análisis SQL».")
+    db = (p.get("database") or "").strip()
+    if not db:
+        raise ConnectionError_("Falta el nombre del Lakehouse o Warehouse en Fabric.")
+    user = str(p.get("username") or "").strip()
+    if not user:
+        raise ConnectionError_(
+            "Falta la identidad de Entra ID: poné el ID de aplicación (con su secreto) "
+            "o tu correo de la organización para entrar de forma interactiva.")
+    pwd = str(p.get("password") or "")
+    modo = "ActiveDirectoryServicePrincipal" if pwd else "ActiveDirectoryInteractive"
+    auth = f"{quote_plus(user)}:{quote_plus(pwd)}@" if pwd else f"{quote_plus(user)}@"
+    query = urlencode({
+        "driver": p.get("odbc_driver") or ODBC_DRIVER,
+        "Authentication": modo,
+        "Encrypt": "yes",
+        "TrustServerCertificate": "no",
+    })
+    port = int(p.get("port") or ENGINES["fabric"]["port"])
+    return f"mssql+pyodbc://{auth}{host}:{port}/{db}?{query}"
+
+
 def make_engine(p: dict[str, Any], timeout: int = 15):
     from sqlalchemy import create_engine
 
@@ -154,6 +208,11 @@ def make_engine(p: dict[str, Any], timeout: int = 15):
         kwargs["connect_args"] = {"connect_timeout": timeout}
     elif eng == "sqlserver":
         kwargs["connect_args"] = {"timeout": timeout, "login_timeout": timeout}
+    elif eng == "fabric":
+        # El inicio interactivo abre una ventana del navegador: si el timeout es
+        # el de una conexión normal, corta antes de que la persona alcance a
+        # escribir el segundo factor.
+        kwargs["connect_args"] = {"timeout": max(timeout, 120)}
     try:
         return create_engine(url, **kwargs)
     except Exception as exc:
@@ -163,6 +222,12 @@ def make_engine(p: dict[str, Any], timeout: int = 15):
 def _friendly(exc: Exception) -> str:
     m = str(exc)
     low = m.lower()
+    if "libodbc" in low or ("odbc" in low and ("driver manager" in low
+                                               or "data source name" in low
+                                               or "not found" in low)):
+        return ("Falta el driver ODBC de Microsoft para SQL Server / Fabric. "
+                "Instalá «ODBC Driver 18 for SQL Server» desde el sitio de Microsoft "
+                "(en Linux, además, el administrador unixODBC) y volvé a probar.")
     if "no module named" in low or "can't load plugin" in low:
         mod = re.search(r"no module named '?([\w\.]+)", low)
         return ("Falta el driver de Python para este motor"
@@ -304,7 +369,7 @@ def _wrap_limit(sql: str, limit: int, engine: str | None) -> str:
     s = sql.strip().rstrip(";")
     if re.search(r"\blimit\s+\d+|\btop\s+\d+|\bfetch\s+first\b", s, re.I):
         return s
-    if engine == "sqlserver":
+    if engine in DIALECTO_SQLSERVER:
         return f"SELECT TOP {int(limit)} * FROM ({s}) AS _q"
     return f"SELECT * FROM ({s}) AS _q LIMIT {int(limit)}"
 
