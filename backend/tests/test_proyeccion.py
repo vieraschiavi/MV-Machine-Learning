@@ -68,7 +68,7 @@ def test_en_cada_origen_el_modelo_solo_ve_el_pasado():
         vistos.append(len(train))
         return np.repeat(train[-1], h)
 
-    res = proyeccion.backtest(y, m=12, h=3, modelos={"espia": espia}, n_origenes=5)
+    res, _ = proyeccion.backtest(y, m=12, h=3, modelos={"espia": espia}, n_origenes=5)
 
     cortes = [f["origen"] for f in res if f["modelo"] == "espia"]
     assert vistos, "el modelo nunca fue llamado"
@@ -78,20 +78,70 @@ def test_en_cada_origen_el_modelo_solo_ve_el_pasado():
 
 def test_todos_los_modelos_compiten_con_los_mismos_origenes():
     """Comparar un modelo en meses fáciles contra otro en meses difíciles no
-    es una comparación: es elegir el resultado."""
-    y = np.sin(np.arange(80) / 6) * 10 + 100
-    res = proyeccion.backtest(y, m=12, h=4, n_origenes=6)
+    es una comparación: es elegir el resultado.
 
+    La invariante vive en el RANKING y no en las filas crudas: un modelo
+    estacional necesita dos ciclos de historia, así que en los primeros
+    cortes no puede correr y no tiene fila. Antes eso se tapaba —devolvía
+    la predicción de la naive con su propio nombre puesto—, y la tabla
+    quedaba pareja a costa de mentir sobre qué modelo se midió. Ahora falta
+    la fila, y el resumen se encarga de que el promedio salga sobre los
+    cortes que TODOS pudieron correr.
+    """
+    y = np.sin(np.arange(80) / 6) * 10 + 100
+    filas, _ = proyeccion.backtest(y, m=12, h=4, n_origenes=6)
+    tabla, parciales, comunes = proyeccion._resumen(filas)
+
+    assert len({f["origenes"] for f in tabla}) == 1, tabla
+    assert all(f["origenes"] == len(comunes) for f in tabla), (tabla, comunes)
+    # Y los cortes usados son de verdad cortes donde cada modelo rankeado corrió.
+    rankeados = {f["modelo"] for f in tabla}
     por_modelo: dict[str, set] = {}
-    for f in res:
+    for f in filas:
         por_modelo.setdefault(f["modelo"], set()).add(f["origen"])
-    assert len(set(map(frozenset, por_modelo.values()))) == 1, por_modelo
+    for m in rankeados:
+        assert set(comunes) <= por_modelo[m], (m, comunes, por_modelo[m])
+    assert not (rankeados & set(parciales))
+
+
+def test_un_modelo_que_corre_en_menos_cortes_no_gana_por_eso():
+    """El sesgo que esto evita, con números: un modelo que sólo corre en los
+    cortes fáciles no puede ganarle a otro medido también en los difíciles.
+
+    Se arma a mano: «facil» sólo sabe correr en los dos últimos orígenes, y
+    ahí acierta perfecto; «parejo» corre en todos con un error constante.
+    Promediando cada uno sobre SUS cortes, gana el fácil; sobre los cortes
+    comunes, se los compara de verdad.
+    """
+    y = np.arange(1, 61, dtype=float)
+    llamadas: list[int] = []
+
+    def facil(train, h, m):
+        llamadas.append(len(train))
+        if len(train) < 45:
+            raise proyeccion.NoAplicable("necesita más historia")
+        return np.arange(len(train) + 1, len(train) + 1 + h, dtype=float)
+
+    def parejo(train, h, m):
+        return np.arange(len(train) + 1, len(train) + 1 + h, dtype=float) + 3.0
+
+    filas, no_eval = proyeccion.backtest(
+        y, m=12, h=3, n_origenes=5, modelos={"facil": facil, "parejo": parejo})
+    tabla, parciales, comunes = proyeccion._resumen(filas)
+
+    assert llamadas, "el modelo nunca fue llamado"
+    assert not no_eval, "corrió en algunos cortes: no es «no evaluado»"
+    # Todos los rankeados, sobre los mismos cortes.
+    assert len({f["origenes"] for f in tabla}) == 1, tabla
+    if "facil" in {f["modelo"] for f in tabla}:
+        comunes_facil = {f["origen"] for f in filas if f["modelo"] == "facil"}
+        assert set(comunes) <= comunes_facil
 
 
 def test_el_mase_del_naive_estacional_ronda_uno_en_una_serie_estacional():
     """Cordura de la métrica: si el MASE del baseline diera 0.01, algo se rompió."""
     y = np.tile(np.arange(12, dtype=float) + 10, 8)      # estacional pura
-    res = proyeccion.backtest(y, m=12, h=6, n_origenes=4)
+    res, _ = proyeccion.backtest(y, m=12, h=6, n_origenes=4)
 
     naive = [f["MASE"] for f in res if f["modelo"].startswith("naive")]
     assert naive and all(np.isfinite(naive))

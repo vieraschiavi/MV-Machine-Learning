@@ -113,27 +113,55 @@ def _deriva(train, h: int, m: int):
     return train[-1] + paso * np.arange(1, h + 1)
 
 
+class NoAplicable(RuntimeError):
+    """Este modelo no se puede correr acá, y por qué.
+
+    Existe para no MENTIR en la tabla del backtest. Antes, cuando un modelo
+    con estacionalidad no podía usarla —serie corta, o `statsmodels` sin
+    instalar— esta función devolvía la predicción de la naive estacional
+    **con el nombre del modelo caro puesto**. La tabla mostraba tres filas,
+    «tendencia (Holt)», «estacional (Holt-Winters)» y «estacional
+    multiplicativo», con exactamente el mismo MASE, y el veredicto
+    concluía que «la serie no tiene una forma aprovechable» cuando lo que
+    pasaba es que ningún modelo con forma había corrido.
+    """
+
+
 def _ets(tendencia: str | None, estacional: str | None) -> Callable:
     def modelo(train, h: int, m: int):
-        from statsmodels.tsa.holtwinters import ExponentialSmoothing
+        try:
+            from statsmodels.tsa.holtwinters import ExponentialSmoothing
+        except ImportError as exc:            # falta la librería, no la serie
+            raise NoAplicable(
+                "hace falta statsmodels (pip install statsmodels)") from exc
 
         y = np.asarray(train, float)
-        usa_est = estacional is not None and m > 1 and len(y) >= MIN_CICLOS * m + 4
-        # Holt-Winters multiplicativo necesita valores estrictamente positivos.
-        if usa_est and estacional == "mul" and np.any(y <= 0):
-            return _naive_estacional(train, h, m)
+        if estacional is not None:
+            if m <= 1:
+                raise NoAplicable("la serie no declara estacionalidad")
+            if len(y) < MIN_CICLOS * m + 4:
+                raise NoAplicable(
+                    f"con {len(y)} períodos no alcanza para estimar "
+                    f"{m} factores estacionales: hacen falta "
+                    f"{MIN_CICLOS * m + 4}")
+            # Holt-Winters multiplicativo necesita valores estrictamente positivos.
+            if estacional == "mul" and np.any(y <= 0):
+                raise NoAplicable("el multiplicativo necesita valores positivos "
+                                  "y la serie tiene ceros o negativos")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             try:
                 f = ExponentialSmoothing(
                     y, trend=tendencia,
-                    seasonal=estacional if usa_est else None,
-                    seasonal_periods=m if usa_est else None,
+                    seasonal=estacional,
+                    seasonal_periods=m if estacional else None,
                     initialization_method="estimated").fit()
                 p = np.asarray(f.forecast(h), float)
-            except Exception:
-                return _naive_estacional(train, h, m)
-        return p if np.all(np.isfinite(p)) else _naive_estacional(train, h, m)
+            except Exception as exc:          # noqa: BLE001
+                raise NoAplicable(f"no ajustó: {type(exc).__name__}") from exc
+        if not np.all(np.isfinite(p)):
+            raise NoAplicable("la predicción salió con valores no finitos")
+        return p
 
     return modelo
 
@@ -212,40 +240,90 @@ def _origenes(n: int, h: int, m: int, n_origenes: int) -> list[int]:
 
 
 def backtest(valores, m: int, h: int, modelos: dict[str, Callable] | None = None,
-             n_origenes: int = 6) -> list[dict[str, Any]]:
+             n_origenes: int = 6) -> tuple[list[dict[str, Any]], dict[str, str]]:
     """Walk-forward: en cada corte el modelo ve SÓLO el pasado.
 
-    Devuelve una fila por (modelo, origen). Todos los modelos reciben los
-    mismos cortes: comparar un modelo en meses fáciles contra otro en meses
-    difíciles no es una comparación, es elegir el resultado.
+    Devuelve `(filas, no_evaluados)`: una fila por (modelo, origen), y el
+    motivo de cada modelo que NO se pudo correr en ninguno. Todos los
+    modelos reciben los mismos cortes: comparar un modelo en meses fáciles
+    contra otro en meses difíciles no es una comparación, es elegir el
+    resultado.
+
+    Lo segundo importa tanto como lo primero: sin la lista de los que no
+    corrieron, «ningún modelo con estacionalidad le ganó» se lee como «la
+    serie no tiene estacionalidad», cuando puede ser que falte una
+    librería.
     """
     y = np.asarray(valores, float)
     modelos = modelos or MODELOS
     filas: list[dict[str, Any]] = []
+    motivos: dict[str, str] = {}
     for t in _origenes(len(y), h, m, n_origenes):
         train, real = y[:t], y[t:t + h]
         for nombre, f in modelos.items():
             try:
                 pred = np.asarray(f(train, h, m), float)[:h]
-            except Exception:
+            except NoAplicable as exc:
+                # Se guarda el motivo: un modelo que no corrió no es un
+                # modelo que perdió, y la diferencia cambia el veredicto.
+                motivos.setdefault(nombre, str(exc))
+                continue
+            except Exception as exc:          # noqa: BLE001
+                motivos.setdefault(nombre, f"{type(exc).__name__}: {str(exc)[:80]}")
                 continue
             if len(pred) < h or not np.all(np.isfinite(pred)):
+                motivos.setdefault(nombre, "devolvió menos puntos de los pedidos")
                 continue
             filas.append({"modelo": nombre, "origen": int(t),
                           "MASE": mase(real, pred, train, m), "sMAPE": smape(real, pred)})
-    return filas
+    # Un modelo que corrió en ALGÚN origen no está «sin evaluar».
+    evaluados = {f["modelo"] for f in filas}
+    return filas, {k: v for k, v in motivos.items() if k not in evaluados}
 
 
-def _resumen(filas: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _resumen(filas: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str], list[int]]:
+    """La tabla del backtest, comparando a todos sobre los MISMOS cortes.
+
+    Esta función promediaba el MASE de cada modelo sobre los orígenes en
+    los que ese modelo hubiera corrido, y ahí se colaba una ventaja
+    silenciosa: un modelo estacional necesita dos ciclos de historia, así
+    que sólo corre en los cortes MÁS LARGOS Y RECIENTES —los fáciles—,
+    mientras que repetir el año pasado corre en todos, incluidos los
+    primeros, que son los difíciles. Medido sobre la serie de demo, esa
+    mezcla daba «estacional multiplicativo, MASE 0,26, 79 % mejor que lo
+    trivial» comparando 3 cortes contra 6; sobre los mismos 3 cortes, la
+    ventaja real es otra. Elegir modelo así es elegir el resultado.
+
+    Devuelve `(tabla, parciales, comunes)`: la tabla rankeada sobre los
+    orígenes comunes, los modelos que quedaron fuera del ranking por
+    cobertura insuficiente, y cuáles fueron esos orígenes.
+    """
     if not filas:
-        return []
+        return [], [], []
     df = pd.DataFrame(filas)
-    g = (df.groupby("modelo")
+    por_modelo = {m: set(g["origen"]) for m, g in df.groupby("modelo")}
+    todos = set(df["origen"])
+    comunes = set.intersection(*por_modelo.values()) if por_modelo else set()
+    parciales: list[str] = []
+    # Si exigir que TODOS hayan corrido deja la comparación en menos de la
+    # mitad de los cortes (o en menos de dos), el remedio es peor que la
+    # enfermedad: dos pliegues no alcanzan para rankear nada. En ese caso
+    # se rankea a los de cobertura completa y los otros se listan aparte,
+    # con su cobertura a la vista.
+    minimo = max(2, (len(todos) + 1) // 2)
+    if len(comunes) < minimo:
+        cobertura = max(len(v) for v in por_modelo.values())
+        completos = {m for m, v in por_modelo.items() if len(v) == cobertura}
+        parciales = sorted(set(por_modelo) - completos)
+        comunes = set.intersection(*(por_modelo[m] for m in completos))
+    d = df[df["origen"].isin(comunes) & ~df["modelo"].isin(parciales)]
+    g = (d.groupby("modelo")
            .agg(MASE=("MASE", "mean"), sMAPE=("sMAPE", "mean"), origenes=("MASE", "size"))
            .reset_index().sort_values("MASE"))
-    return [{"modelo": r.modelo, "MASE": round(float(r.MASE), 4),
-             "sMAPE": round(float(r.sMAPE), 2), "origenes": int(r.origenes)}
-            for r in g.itertuples() if np.isfinite(r.MASE)]
+    tabla = [{"modelo": r.modelo, "MASE": round(float(r.MASE), 4),
+              "sMAPE": round(float(r.sMAPE), 2), "origenes": int(r.origenes)}
+             for r in g.itertuples() if np.isfinite(r.MASE)]
+    return tabla, parciales, sorted(comunes)
 
 
 # ═══════════════════════════════════════════════════════════ la proyección ═══
@@ -257,7 +335,8 @@ def _siguientes(ultimo: str, grano: str, h: int) -> list[str]:
     return [(t + paso * (i + 1)).strftime("%Y-%m-%d") for i in range(h)]
 
 
-def _veredicto(mejor: dict[str, Any] | None, piso: dict[str, Any] | None) -> dict[str, str]:
+def _veredicto(mejor: dict[str, Any] | None, piso: dict[str, Any] | None,
+               no_evaluados: dict[str, str] | None = None) -> dict[str, str]:
     """Qué tan en serio tomar la proyección.
 
     La vara NO es sólo la naive estacional: es el MEJOR de los modelos
@@ -275,6 +354,17 @@ def _veredicto(mejor: dict[str, Any] | None, piso: dict[str, Any] | None) -> dic
     mase_mejor = mejor["MASE"]
 
     if mejor["modelo"] in TRIVIALES:
+        # «Ningún modelo con forma le ganó» y «ningún modelo con forma
+        # corrió» son cosas distintas, y sólo una es culpa de la serie.
+        sin_correr = {k: v for k, v in (no_evaluados or {}).items()
+                      if k not in TRIVIALES}
+        if sin_correr:
+            detalle = "; ".join(f"«{k}»: {v}" for k, v in sorted(sin_correr.items()))
+            return {"nivel": "revisar",
+                    "texto": f"Ganó «{mejor['modelo']}», que no aprende ningún patrón, pero "
+                             f"NO se pudo evaluar {len(sin_correr)} modelo(s) con tendencia o "
+                             f"estacionalidad: {detalle}. Con eso sin resolver, esto no dice "
+                             f"que la serie no tenga forma — dice que todavía no se buscó."}
         return {"nivel": "alerta",
                 "texto": f"Lo que mejor funciona en esta serie es «{mejor['modelo']}», que no "
                          f"aprende ningún patrón: se limita a repetir o promediar lo ya visto. "
@@ -315,8 +405,15 @@ def proyectar_serie(s: dict[str, Any], horizonte: int = 6,
         raise ValueError(f"Un horizonte de {horizonte} períodos sobre {n} de historia es "
                          f"adivinar, no proyectar. El tope es {n // 2}.")
 
-    filas = backtest(y, m=m, h=horizonte, n_origenes=n_origenes)
-    tabla = _resumen(filas)
+    filas, no_evaluados = backtest(y, m=m, h=horizonte, n_origenes=n_origenes)
+    tabla, parciales, comunes = _resumen(filas)
+    for nombre in parciales:
+        # No es «no se pudo evaluar»: corrió, pero en menos cortes que el
+        # resto, así que su número no es comparable y no compite.
+        no_evaluados.setdefault(
+            nombre, f"corrió en {len([f for f in filas if f['modelo'] == nombre])} "
+                    f"de {len({f['origen'] for f in filas})} cortes: su error no es "
+                    f"comparable con el de los que corrieron en todos")
     mejor = tabla[0] if tabla else None
     naive = next((f for f in tabla if f["modelo"].startswith("naive")), None)
     # El piso contra el que se juzga: el mejor de los métodos que no aprenden nada.
@@ -351,10 +448,12 @@ def proyectar_serie(s: dict[str, Any], horizonte: int = 6,
         "modelo_elegido": nombre, "modelos_combinados": elegidos, "backtest": tabla,
         "mejor_mase": mejor["MASE"] if mejor else None,
         "mase_baseline": naive["MASE"] if naive else None,
-        "veredicto": _veredicto(mejor, piso),
+        "veredicto": _veredicto(mejor, piso, no_evaluados),
+        "no_evaluados": no_evaluados,
         "mase_piso_trivial": piso["MASE"] if piso else None,
         "modelo_piso_trivial": piso["modelo"] if piso else None,
-        "origenes_evaluados": len({f["origen"] for f in filas}),
+        "origenes_evaluados": len(comunes),
+        "origenes_comunes": comunes,
     }
 
 

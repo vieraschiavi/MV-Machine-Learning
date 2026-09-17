@@ -62,8 +62,14 @@ def test_el_notebook_escribe_en_el_lakehouse_cuando_esta_montado(tmp_path, monke
     falso_lakehouse = tmp_path / "lakehouse" / "default" / "Files"
     falso_lakehouse.mkdir(parents=True)
 
+    # `as_posix()` y no `str()`: la ruta se INYECTA dentro de un literal de
+    # Python del notebook, y en Windows `str(WindowsPath)` trae barras
+    # invertidas — `Path("C:\Users\...")` es `\U`, o sea `SyntaxError:
+    # truncated \UXXXXXXXX escape` antes de ejecutar una sola línea. Es un
+    # defecto del test, no del notebook: `Path` acepta barras normales en
+    # Windows y la comparación de abajo sigue dando igual.
     celda = _celdas_de_codigo()[0].replace("/lakehouse/default/Files",
-                                           str(falso_lakehouse))
+                                           falso_lakehouse.as_posix())
     monkeypatch.chdir(tmp_path)
     entorno: dict[str, object] = {}
     exec(compile(celda, "<celda 1>", "exec"), entorno)                  # noqa: S102
