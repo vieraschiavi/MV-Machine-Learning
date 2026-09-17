@@ -31,7 +31,8 @@ from app.core import proyeccion as P  # noqa: E402
 
 def motor(train, h, m):
     """El motor tal como proyecta en la aplicación: mide y combina los mejores."""
-    tabla = P._resumen(P.backtest(np.asarray(train, float), m=m, h=h, n_origenes=5))
+    filas, _ = P.backtest(np.asarray(train, float), m=m, h=h, n_origenes=5)
+    tabla, _parciales, _comunes = P._resumen(filas)
     elegidos = [f["modelo"] for f in tabla[:P.COMBINAR]] or ["naive estacional"]
     return np.mean([np.asarray(P.MODELOS[e](train, h, m), float)[:h] for e in elegidos], axis=0)
 
