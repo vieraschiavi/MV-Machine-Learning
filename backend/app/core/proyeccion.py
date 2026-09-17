@@ -239,6 +239,35 @@ def _origenes(n: int, h: int, m: int, n_origenes: int) -> list[int]:
     return sorted({int(t) for t in np.linspace(minimo, ultimo, n_origenes)})
 
 
+def motivo_sin_cortes(n: int, h: int, m: int) -> str:
+    """Por qué el walk-forward no pudo armar NI UN corte, con la cuenta.
+
+    Existe por un caso medido con datos de un negocio de verdad: 18 meses
+    de mercado, horizonte 6, estacionalidad 12. La pantalla decía «no se
+    pudo evaluar ningún modelo sobre esta serie» — verdad, y leído por un
+    gerente significa «mis datos no sirven». No es eso: falta LARGO, y la
+    cuenta es fija y se puede mostrar.
+
+    Cada corte necesita `max(MIN_PUNTOS, m + h)` puntos de entrenamiento y
+    tiene que dejar `h` reales por delante, así que hacen falta
+    `h + max(MIN_PUNTOS, m + h)` en total. Y como bajar el horizonte baja
+    el mínimo, muchas veces la serie SÍ alcanza para un horizonte más
+    corto: eso es una acción concreta, no un lamento.
+    """
+    necesarios = h + max(MIN_PUNTOS, m + h if m > 1 else 2 * h)
+    posible = max((k for k in range(1, h)
+                   if k + max(MIN_PUNTOS, m + k if m > 1 else 2 * k) <= n), default=0)
+    arreglo = (f" Con un horizonte de {posible} sí se puede evaluar (necesita "
+               f"{posible + max(MIN_PUNTOS, m + posible if m > 1 else 2 * posible)})."
+               if posible else
+               f" Ni con horizonte 1 alcanza: para esta estacionalidad ({m}) hacen "
+               f"falta {1 + max(MIN_PUNTOS, m + 1)} puntos como mínimo.")
+    return (f"la serie tiene {n} puntos y el walk-forward necesita {necesarios} para "
+            f"un solo corte con horizonte {h} (un corte entrena con "
+            f"{max(MIN_PUNTOS, m + h if m > 1 else 2 * h)} y deja {h} reales por "
+            f"delante para medirse contra ellos)." + arreglo)
+
+
 def backtest(valores, m: int, h: int, modelos: dict[str, Callable] | None = None,
              n_origenes: int = 6) -> tuple[list[dict[str, Any]], dict[str, str]]:
     """Walk-forward: en cada corte el modelo ve SÓLO el pasado.
@@ -336,7 +365,8 @@ def _siguientes(ultimo: str, grano: str, h: int) -> list[str]:
 
 
 def _veredicto(mejor: dict[str, Any] | None, piso: dict[str, Any] | None,
-               no_evaluados: dict[str, str] | None = None) -> dict[str, str]:
+               no_evaluados: dict[str, str] | None = None,
+               sin_cortes: str = "") -> dict[str, str]:
     """Qué tan en serio tomar la proyección.
 
     La vara NO es sólo la naive estacional: es el MEJOR de los modelos
@@ -348,9 +378,14 @@ def _veredicto(mejor: dict[str, Any] | None, piso: dict[str, Any] | None,
     el ruido se delata: el ganador ES un trivial.
     """
     if mejor is None:
+        # Con el motivo adelante: sin él, esto se lee como «tus datos no
+        # sirven» cuando lo que falta es largo de serie, que es otra cosa
+        # y tiene arreglo.
+        porque = f" Motivo: {sin_cortes}" if sin_cortes else ""
         return {"nivel": "alerta",
-                "texto": "No se pudo evaluar ningún modelo sobre esta serie. La proyección "
-                         "que se muestra es sólo la continuación de lo último observado."}
+                "texto": "No se pudo evaluar ningún modelo sobre esta serie, así que la "
+                         "proyección que se muestra es sólo la continuación de lo último "
+                         "observado: no tiene respaldo de pruebas hacia atrás." + porque}
     mase_mejor = mejor["MASE"]
 
     if mejor["modelo"] in TRIVIALES:
@@ -406,6 +441,11 @@ def proyectar_serie(s: dict[str, Any], horizonte: int = 6,
                          f"adivinar, no proyectar. El tope es {n // 2}.")
 
     filas, no_evaluados = backtest(y, m=m, h=horizonte, n_origenes=n_origenes)
+    # Sin NI UN corte no hay motivos por modelo que juntar: ninguno llegó a
+    # intentarse. El motivo es de la serie, y es aritmético — se dice con
+    # los números, porque «no se pudo evaluar ningún modelo» a secas se lee
+    # como «tus datos no sirven».
+    sin_cortes = motivo_sin_cortes(n, horizonte, m) if not filas else ""
     tabla, parciales, comunes = _resumen(filas)
     for nombre in parciales:
         # No es «no se pudo evaluar»: corrió, pero en menos cortes que el
@@ -448,8 +488,12 @@ def proyectar_serie(s: dict[str, Any], horizonte: int = 6,
         "modelo_elegido": nombre, "modelos_combinados": elegidos, "backtest": tabla,
         "mejor_mase": mejor["MASE"] if mejor else None,
         "mase_baseline": naive["MASE"] if naive else None,
-        "veredicto": _veredicto(mejor, piso, no_evaluados),
+        "veredicto": _veredicto(mejor, piso, no_evaluados, sin_cortes),
         "no_evaluados": no_evaluados,
+        #: Vacío salvo cuando el walk-forward no armó ni un corte. Entonces
+        #: trae la cuenta: cuántos puntos hay, cuántos hacen falta, y con
+        #: qué horizonte sí se podría medir.
+        "sin_cortes": sin_cortes,
         "mase_piso_trivial": piso["MASE"] if piso else None,
         "modelo_piso_trivial": piso["modelo"] if piso else None,
         "origenes_evaluados": len(comunes),
