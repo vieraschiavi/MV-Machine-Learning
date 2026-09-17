@@ -272,3 +272,50 @@ def test_una_columna_que_no_es_fecha_da_400_con_motivo(client, dataset_binary):
 
     assert r.status_code == 400
     assert "fecha" in r.json()["detail"].lower()
+
+
+def test_cuando_el_walkforward_no_arma_ni_un_corte_dice_la_cuenta():
+    """El caso medido con datos de un negocio de verdad: 18 meses de
+    mercado, horizonte 6, estacionalidad 12.
+
+    La pantalla decía «no se pudo evaluar ningún modelo sobre esta serie».
+    Es verdad, y leído por un gerente significa «mis datos no sirven». No
+    es eso: falta LARGO, la cuenta es fija, y bajando el horizonte la
+    misma serie sí se puede medir. Eso es una acción concreta.
+    """
+    serie = {"periodos": [f"2025-{1 + i % 12:02d}-01" for i in range(18)],
+             "valores": [100.0 + i for i in range(18)],
+             "grano": "month", "estacionalidad": 12,
+             "columna_tiempo": "f", "columna_valor": "v"}
+    out = proyeccion.proyectar_serie(serie, horizonte=6)
+    assert out["origenes_evaluados"] == 0
+    assert out["backtest"] == []
+    motivo = out["sin_cortes"]
+    assert "18 puntos" in motivo and "24" in motivo, motivo
+    # y el veredicto lo lleva adelante, no lo esconde en otra clave
+    assert "Motivo:" in out["veredicto"]["texto"]
+    assert "horizonte de 3" in motivo, "tiene que decir con qué horizonte SÍ se puede"
+
+
+def test_con_el_horizonte_que_sugiere_la_misma_serie_se_evalua():
+    """El arreglo que propone el mensaje tiene que funcionar de verdad.
+    Sin este test, la sugerencia es una frase amable sin respaldo."""
+    serie = {"periodos": [f"2025-{1 + i % 12:02d}-01" for i in range(18)],
+             "valores": [100.0 + i for i in range(18)],
+             "grano": "month", "estacionalidad": 12,
+             "columna_tiempo": "f", "columna_valor": "v"}
+    out = proyeccion.proyectar_serie(serie, horizonte=3)
+    assert out["origenes_evaluados"] >= 1
+    assert out["backtest"], "con el horizonte sugerido tiene que haber tabla"
+    assert not out["sin_cortes"]
+
+
+def test_una_serie_larga_no_trae_motivo_de_cortes():
+    """`sin_cortes` vacío cuando no hay nada que explicar: un campo que
+    siempre trae texto se vuelve ruido y deja de leerse."""
+    serie = {"periodos": [f"20{20 + i // 12}-{1 + i % 12:02d}-01" for i in range(48)],
+             "valores": [100.0 + (i % 12) * 5 for i in range(48)],
+             "grano": "month", "estacionalidad": 12,
+             "columna_tiempo": "f", "columna_valor": "v"}
+    out = proyeccion.proyectar_serie(serie, horizonte=6)
+    assert out["sin_cortes"] == ""
