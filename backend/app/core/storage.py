@@ -573,8 +573,12 @@ def load_frame(ds_id: str, columns: list[str] | None = None,
     """Carga en memoria, muestreando de forma reproducible si es demasiado grande."""
     meta = load_meta(ds_id)
     cols = "*" if not columns else ", ".join(f'"{c}"' for c in columns)
+    # `None` en los dos lados = sin tope: se carga el dataset ENTERO. Es el
+    # default del producto. Muestrear sin que nadie lo haya pedido deja al
+    # usuario leyendo métricas de una fracción de sus datos creyendo que son
+    # de todos.
     limit = max_rows or settings.max_train_rows
-    if meta.rows <= limit:
+    if limit is None or meta.rows <= limit:
         return query(ds_id, f"SELECT {cols} FROM {{t}}")
     frac = limit / meta.rows
     con = connect()
