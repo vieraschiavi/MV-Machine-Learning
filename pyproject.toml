@@ -18,7 +18,8 @@ filterwarnings = [
 [tool.ruff]
 line-length = 110
 target-version = "py311"
-exclude = ["data", "node_modules"]
+# .claude/skills: skills de terceros copiados tal cual; se mantienen en su origen, no acá.
+exclude = ["data", "node_modules", ".claude/skills"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "C4"]
