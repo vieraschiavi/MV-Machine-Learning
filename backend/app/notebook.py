@@ -152,8 +152,12 @@ def entrenar(datos: Any, objetivo: str, *,
     # notebook se pasó tres minutos entrenando.
     L.check_rows(len(df))
 
-    if len(df) > settings.max_train_rows:
-        df = df.sample(n=settings.max_train_rows, random_state=42).reset_index(drop=True)
+    # Sin tope configurado se entrena con la tabla entera. El muestreo sólo
+    # ocurre si alguien puso `MV_MAX_TRAIN_ROWS` — acá era mudo, ni siquiera
+    # el `progress` de la API que sí lo avisa.
+    tope = settings.max_train_rows
+    if tope is not None and len(df) > tope:
+        df = df.sample(n=tope, random_state=42).reset_index(drop=True)
 
     cfg = A.TrainConfig(
         target=objetivo, task=tarea, time_column=tiempo, exclude=list(excluir),
