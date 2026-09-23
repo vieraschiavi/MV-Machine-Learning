@@ -45,6 +45,7 @@ export default {
     const campos = el('div', { class: 'grid grid-3' });
     const salida = el('div', { class: 'proy-salida' });
     const self = this;
+    const btn = el('button', { class: 'btn btn-primary' }, icon('results', 15), t('proy.calcular'));
 
     const cargarColumnas = async () => {
       elegido.dataset = dsSel.value;
@@ -54,10 +55,17 @@ export default {
       try { c = await api.get(`/api/proyeccion/columnas/${elegido.dataset}`); }
       catch (err) { fail(err); return; }
 
+      // Sin fecha o sin número no hay serie: se avisa Y se apaga el botón.
+      // Antes sólo se avisaba, el botón quedaba vivo, y apretarlo mandaba
+      // `null` al servidor — el usuario veía el 422 crudo de pydantic.
       if (!c.fechas.length || !c.numericas.length) {
         salida.appendChild(note(t('proy.sin_fecha'), 'warn'));
+        elegido.tiempo = null;
+        elegido.valor = null;
+        btn.disabled = true;
         return;
       }
+      btn.disabled = false;
       elegido.tiempo = c.fechas.includes(elegido.tiempo) ? elegido.tiempo : c.fechas[0];
       elegido.valor = c.numericas.includes(elegido.valor) ? elegido.valor : c.numericas[0];
 
@@ -78,8 +86,8 @@ export default {
 
     dsSel.onchange = cargarColumnas;
 
-    const btn = el('button', { class: 'btn btn-primary' }, icon('results', 15), t('proy.calcular'));
     btn.onclick = async () => {
+      if (!elegido.tiempo || !elegido.valor) return;
       btn.disabled = true;
       clear(salida).appendChild(note(t('common.loading'), 'info'));
       try {

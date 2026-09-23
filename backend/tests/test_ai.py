@@ -92,3 +92,37 @@ def test_sin_coincidencias_ofrece_alternativas():
     r = _heuristic_target(COLUMNAS, "el color favorito del gerente")
     assert r["target"] is None
     assert r["alternatives"]
+
+
+def test_el_respaldo_de_claude_no_quedo_en_la_generacion_4():
+    # Sin clave, la pantalla muestra esta lista: tiene que ser la generación actual.
+    respaldo = AI.PROVIDERS["anthropic"]["fallback_models"]
+    assert "claude-opus-5" in respaldo and "claude-sonnet-5" in respaldo
+    assert not any(m.startswith(("claude-sonnet-4-5", "claude-opus-4-1")) for m in respaldo)
+
+
+def test_actualizar_modelos_de_claude_sigue_todas_las_paginas(monkeypatch):
+    import httpx
+
+    paginas = {
+        None: {"data": [{"id": "claude-opus-5"}, {"id": "claude-sonnet-5"}],
+               "has_more": True, "last_id": "claude-sonnet-5"},
+        "claude-sonnet-5": {"data": [{"id": "claude-haiku-4-5"}],
+                            "has_more": False, "last_id": "claude-haiku-4-5"},
+    }
+    pedidos = []
+
+    def manejar(req: httpx.Request) -> httpx.Response:
+        after = req.url.params.get("after_id")
+        pedidos.append(after)
+        assert req.headers["x-api-key"] == "sk-ant-prueba"
+        return httpx.Response(200, json=paginas[after])
+
+    transporte = httpx.MockTransport(manejar)
+    monkeypatch.setattr(AI, "_client", lambda timeout=None: httpx.Client(transport=transporte))
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-prueba")
+
+    r = AI.refresh_models("anthropic")
+    assert r["ok"], r
+    assert pedidos == [None, "claude-sonnet-5"]
+    assert r["models"] == ["claude-haiku-4-5", "claude-opus-5", "claude-sonnet-5"]

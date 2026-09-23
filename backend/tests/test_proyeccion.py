@@ -319,3 +319,40 @@ def test_una_serie_larga_no_trae_motivo_de_cortes():
              "columna_tiempo": "f", "columna_valor": "v"}
     out = proyeccion.proyectar_serie(serie, horizonte=6)
     assert out["sin_cortes"] == ""
+
+
+# ==========================================================================
+# El 422 crudo de pydantic que le llegaba al usuario
+# ==========================================================================
+def test_columnas_nulas_se_eligen_solas_en_vez_de_un_422(client, dataset_binary):
+    """El defecto: la pantalla dejaba el botón habilitado sin columnas
+    elegidas y el pedido salía con `null`. El usuario veía
+    `[{"type":"string_type","loc":["body","columna_tiempo"],...}]`, que no
+    dice qué hacer. Si el dataset tiene con qué, se elige solo."""
+    r = client.post("/api/proyeccion", json={
+        "dataset_id": dataset_binary.id, "columna_tiempo": None,
+        "columna_valor": None, "horizonte": 6})
+
+    assert r.status_code == 200, r.text
+    assert len(r.json()["proyeccion"]) == 6
+
+
+def test_sin_columna_de_fecha_se_explica_en_castellano_no_con_un_422(
+        client, tmp_path):
+    """Un dataset sin fecha —el caso de subir la hoja «Diccionario» de un
+    Excel— tiene que devolver un motivo que se entienda, no un 422."""
+    csv = tmp_path / "diccionario.csv"
+    csv.write_text("Tabla,Campo,Tipo,Descripcion\nRecetas,PXs,int,Unidades\n"
+                   "Mercado,VentasUSD,float,Monto\n", encoding="utf-8")
+    with csv.open("rb") as f:
+        up = client.post("/api/datasets/upload", files={"file": ("diccionario.csv", f)})
+    assert up.status_code == 200, up.text
+    ds_id = up.json()["dataset"]["id"]
+
+    r = client.post("/api/proyeccion", json={"dataset_id": ds_id, "horizonte": 6})
+
+    assert r.status_code == 400, r.text
+    motivo = r.json()["detail"]
+    assert isinstance(motivo, str), "tiene que ser un texto, no la lista de pydantic"
+    assert "fecha" in motivo.lower()
+    assert "hoja" in motivo.lower(), "tiene que sugerir que se cargó la hoja equivocada"

@@ -42,7 +42,10 @@ PROVIDERS: dict[str, dict[str, Any]] = {
         "key_hint": "sk-ant-…",
         "docs": "https://console.anthropic.com/settings/keys",
         "style": "anthropic",
-        "fallback_models": ["claude-sonnet-4-5", "claude-opus-4-1", "claude-haiku-4-5"],
+        # Respaldo sólo para cuando no hay clave: con clave, *Actualizar* trae el
+        # catálogo real paginado. Esta lista había quedado en la generación 4.x y
+        # era lo único que la pantalla mostraba («3 modelos encontrados»).
+        "fallback_models": ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"],
     },
     "xai": {
         "label": "Grok (xAI)",
@@ -254,6 +257,21 @@ def refresh_models(provider: str) -> dict[str, Any]:
                 items = r.json()
                 items = items if isinstance(items, list) else items.get("models", [])
                 models = [m.get("id") or m.get("name") for m in items if (m.get("id") or m.get("name"))]
+            elif style == "anthropic":
+                # /v1/models viene paginado (20 por página por defecto): sin
+                # seguir `has_more` la lista quedaba corta.
+                models, after = [], None
+                for _ in range(50):
+                    params = {"limit": 1000}
+                    if after:
+                        params["after_id"] = after
+                    r = cli.get(f"{base}/models", headers=_headers(provider, cfg), params=params)
+                    r.raise_for_status()
+                    data = r.json()
+                    models += [m.get("id") for m in data.get("data") or [] if m.get("id")]
+                    after = data.get("last_id")
+                    if not data.get("has_more") or not after:
+                        break
             else:
                 r = cli.get(f"{base}/models", headers=_headers(provider, cfg))
                 r.raise_for_status()
