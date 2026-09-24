@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MV AutoML Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<style>
+:root{
+  --navy:#081527; --navy2:#0f2340; --amber:#f2b441; --amber-ink:#5c3d00; --blue:#215ea3;
+  --paper:#ffffff; --ground:#f4f7fb; --ink:#122238; --muted:#586a80; --line:#e1e8f1; --soft:#eef3f9;
+  --ok:#0a7d5a; --ok-bg:#e3f5ee; --warn:#9a6200; --warn-bg:#fdf1d8; --bad:#b3261e; --bad-bg:#fbe6e4;
+  --code-bg:#0c1d33; --code-ink:#dfe9f6;
+  --display:"Archivo","Segoe UI",system-ui,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#0e1d33; --ground:#081527; --ink:#e6eef9; --muted:#9db0c8; --line:#1f3654; --soft:#132844;
+    --blue:#7fb2ec; --amber-ink:#f2b441;
+    --ok:#4fd1a5; --ok-bg:#0f3a30; --warn:#f2c265; --warn-bg:#3d2f10; --bad:#ff8a80; --bad-bg:#43191a;
+    --code-bg:#050e1b;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#0e1d33; --ground:#081527; --ink:#e6eef9; --muted:#9db0c8; --line:#1f3654; --soft:#132844;
+  --blue:#7fb2ec; --amber-ink:#f2b441;
+  --ok:#4fd1a5; --ok-bg:#0f3a30; --warn:#f2c265; --warn-bg:#3d2f10; --bad:#ff8a80; --bad-bg:#43191a;
+  --code-bg:#050e1b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font:17px/1.6 var(--body)}
+a{color:var(--blue)}
+code{font-family:var(--mono);font-size:.86em;background:var(--soft);padding:.08em .35em;border-radius:4px}
+.portada{background:var(--navy);color:#eaf1fb;padding-block:56px 40px;padding-inline:16px;border-bottom:4px solid var(--amber)}
+.portada .in{max-width:1120px;margin:0 auto}
+.marca{font:600 13px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+.portada h1{font:800 clamp(38px,6vw,64px)/1.02 var(--display);margin:14px 0 14px;letter-spacing:-.02em;text-wrap:balance}
+.portada .bajada{font-size:clamp(18px,2.2vw,21px);max-width:44em;color:#c9d6e8;margin:0}
+.portada .meta{margin-top:18px;font:14px var(--mono);color:#9db0c8}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:34px}
+.kpi{border-top:1px solid #2a4160;padding-top:12px}
+.kpi b{display:block;font:800 40px/1 var(--display);color:var(--amber);font-variant-numeric:tabular-nums}
+.kpi span{display:block;margin-top:6px;font-size:14px;color:#b7c6da;line-height:1.35}
+.filtro{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.filtro .in{max-width:1120px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filtro .lbl{font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.filtro button{font:600 14px var(--body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.filtro button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+:root[data-theme="dark"] .filtro button[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#1c1305}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .filtro button[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#1c1305}}
+.filtro button:focus-visible,.indice a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.cuerpo{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:32px 64px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px}
+.indice{position:sticky;top:72px;align-self:start;font-size:14px}
+.indice ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.indice a{display:flex;gap:10px;text-decoration:none;color:var(--muted);padding:5px 8px;border-radius:6px;line-height:1.3}
+.indice a:hover{background:var(--soft);color:var(--ink)}
+.indice a span{font:12px var(--mono);color:var(--amber-ink);padding-top:2px}
+main{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+section{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:28px clamp(18px,3.5vw,40px) 30px}
+section[hidden]{display:none!important}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:10px}
+.sec-num{font:600 14px var(--mono);color:var(--amber-ink)}
+h2{font:800 clamp(24px,3vw,30px)/1.15 var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance;flex:1 1 16em}
+h3{font:700 19px/1.3 var(--display);margin:26px 0 8px}
+h4{font:700 16px/1.3 var(--display);margin:0 0 4px}
+p{margin:10px 0;max-width:68ch}
+.lead{font-size:19px;line-height:1.55;max-width:62ch}
+.para{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.para-gerentes{background:var(--warn-bg);color:var(--warn)}
+.para-tecnicos{background:var(--soft);color:var(--blue)}
+ul{padding-left:1.2em;margin:10px 0;max-width:72ch}
+li{margin:6px 0}
+li::marker{color:var(--amber-ink)}
+.pasos{list-style:none;counter-reset:p;padding:0;margin:14px 0;display:grid;gap:0}
+.pasos li{counter-increment:p;display:grid;grid-template-columns:44px 1fr;gap:14px;margin:0;padding:12px 0;border-top:1px solid var(--line)}
+.pasos li:first-child{border-top:0}
+.pasos li::before{content:counter(p,decimal-leading-zero);font:700 15px/1.4 var(--mono);color:var(--amber-ink);padding-top:1px}
+.pasos p{margin:0}
+.tabla{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+th{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;text-align:left;color:var(--muted);background:var(--soft);padding:10px 12px}
+td{padding:11px 12px;border-top:1px solid var(--line);vertical-align:top;line-height:1.45}
+td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.chip{display:inline-block;font:600 13px var(--body);padding:2px 10px;border-radius:999px;white-space:nowrap}
+.chip-ok{background:var(--ok-bg);color:var(--ok)} .chip-warn{background:var(--warn-bg);color:var(--warn)} .chip-bad{background:var(--bad-bg);color:var(--bad)}
+.codigo{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:16px 18px;overflow-x:auto;font:14px/1.6 var(--mono);margin:14px 0}
+.codigo code{background:none;padding:0;font-size:inherit;color:inherit}
+.aviso{border-radius:8px;padding:14px 18px;margin:16px 0;border:1px solid}
+.aviso p{margin:4px 0 0}
+.aviso-warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 35%,transparent)}
+.aviso-info{background:var(--soft);border-color:var(--line)}
+.ventanas{margin:14px 0 6px;display:grid;grid-template-columns:3fr 1fr 1fr;gap:4px}
+.ventanas .v{padding:14px 14px;border-radius:6px;display:grid;gap:2px;min-width:0}
+.ventanas b{font:700 15px var(--display)} .ventanas span{font:13px var(--mono)}
+.v-tr{background:var(--soft);color:var(--ink)} .v-se{background:color-mix(in srgb,var(--blue) 18%,var(--paper));color:var(--ink)}
+.v-ho{background:var(--navy);color:#fff;box-shadow:inset 0 -4px 0 var(--amber)}
+.ventanas figcaption,.escala figcaption{grid-column:1/-1;font-size:14px;color:var(--muted);margin-top:6px}
+.psi-tabla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.z{border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.z .mono{font:600 13px var(--mono)} .z b{font:800 20px var(--display)} .z small{font-size:13px;opacity:.85}
+.z-ok{background:var(--ok-bg);color:var(--ok)} .z-warn{background:var(--warn-bg);color:var(--warn)} .z-bad{background:var(--bad-bg);color:var(--bad)}
+.escala{margin:24px 0 8px;padding:0 8px}
+.barra{position:relative;height:14px;display:flex;border-radius:7px;margin:44px 0 44px}
+.zb{height:100%} .zb-ok{background:var(--ok);border-radius:7px 0 0 7px} .zb-warn{background:#e0a030} .zb-bad{background:var(--bad);border-radius:0 7px 7px 0}
+.m{position:absolute;top:-6px;transform:translateX(-50%)}
+.m i{display:block;width:4px;height:26px;background:var(--ink);border-radius:2px;margin:0 auto}
+.m span{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);white-space:nowrap;font:12px var(--mono);color:var(--ink)}
+.m.abajo span{bottom:auto;top:30px}
+.m:first-of-type span{left:0;transform:none}
+.m:last-of-type span{left:auto;right:0;transform:none}
+.ejes{position:relative;height:18px;font:12px var(--mono);color:var(--muted)}
+.ejes span{position:absolute;transform:translateX(-50%)}
+.ejes span:first-child{transform:none} .ejes span:last-child{transform:translateX(-100%)}
+.qa{margin:8px 0;display:grid;gap:0}
+.qa div{padding:14px 0;border-top:1px solid var(--line)} .qa div:first-child{border-top:0}
+.qa dt{font:700 17px/1.35 var(--display)} .qa dd{margin:4px 0 0;max-width:68ch}
+.cierre{font:600 clamp(19px,2.2vw,22px)/1.45 var(--display);max-width:44em;margin:8px 0 0;padding:26px 30px;border-radius:10px;background:var(--navy);color:#eaf1fb;border-left:4px solid var(--amber)}
+.pie{max-width:1120px;margin:0 auto;padding:0 16px 40px;font:13px var(--mono);color:var(--muted)}
+@media (max-width:900px){
+  .cuerpo{grid-template-columns:minmax(0,1fr);gap:18px}
+  .indice{position:static}
+  .indice ol{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  body{font-size:16px}
+  .psi-tabla{grid-template-columns:1fr}
+  .ventanas{grid-template-columns:1fr}
+  .m span{font-size:11px}
+  .barra{margin-top:62px}
+  .m.m2 span{bottom:48px}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media print{.filtro,.indice{display:none}.cuerpo{display:block}section{break-inside:avoid-page;border:0}}
+</style>
+</head>
+<body>
+<header class="portada"><div class="in">
+  <div class="marca">Guía para gerentes y técnicos</div>
+  <h1>MV AutoML Studio</h1>
+  <p class="bajada">De cualquier planilla a un modelo validado, explicado y vigilado. Qué hace, cómo llega a cada usuario y por qué se le puede creer al número.</p>
+  <div class="meta">Versión 1.0 · septiembre de 2026 · Martín Viera</div>
+  <div class="kpis"><div class="kpi"><b>615</b><span>pruebas automáticas en cada cambio</span></div><div class="kpi"><b>15</b><span>familias de modelos compitiendo</span></div><div class="kpi"><b>0</b><span>filas de tope: el límite es el disco</span></div><div class="kpi"><b>3</b><span>idiomas: español, inglés y portugués</span></div></div>
+</div></header>
+<nav class="filtro" aria-label="Filtrar por público"><div class="in">
+  <span class="lbl">Leer como</span>
+  <button type="button" id="ver-todo" data-v="todo" aria-pressed="true">Todo</button>
+  <button type="button" id="ver-gerentes" data-v="gerentes" aria-pressed="false">Gerente</button>
+  <button type="button" id="ver-tecnicos" data-v="tecnicos" aria-pressed="false">Técnico</button>
+</div></nav>
+<div class="cuerpo">
+  <nav class="indice" aria-label="Índice"><ol><li><a href="#resumen"><span>01</span>En una página</a></li><li><a href="#problema"><span>02</span>El problema que resuelve</a></li><li><a href="#recorrido"><span>03</span>El recorrido, de punta a punta</a></li><li><a href="#logistica"><span>04</span>Logística: cómo llega a cada usuario</a></li><li><a href="#arquitectura"><span>05</span>Para técnicos: cómo está armado</a></li><li><a href="#microsoft"><span>06</span>Fabric, Power BI y Copilot</a></li><li><a href="#deriva"><span>07</span>Lo que le faltaba, y ya tiene: el control de deriva</a></li><li><a href="#calidad"><span>08</span>Cómo sabemos que anda</a></li><li><a href="#estado"><span>09</span>Qué está verificado y qué falta</a></li><li><a href="#proximo"><span>10</span>Lo que sugiero para la próxima etapa</a></li><li><a href="#preguntas"><span>11</span>Preguntas que van a aparecer</a></li></ol></nav>
+  <main>
+<section id="resumen" data-para="gerentes">
+  <header class="sec-head"><span class="sec-num">01</span>
+  <h2>En una página</h2><span class="para para-gerentes">Para gerentes</span></header>
+  <p class="lead">MV AutoML Studio agarra una tabla (un Excel, un CSV, una consulta a SQL Server o a Microsoft Fabric) y devuelve un modelo predictivo validado, explicado y listo para usar, sin escribir código. Lo que en un equipo de datos lleva semanas de ida y vuelta, acá lleva una tarde y queda documentado.</p>
+<p>En criollo: le decís <strong>«quiero saber qué clientes van a pagar en los próximos 30 días»</strong>, y el programa arma la cancha, pone a competir quince tipos de modelos, se queda con el que mejor juega en un partido que nunca vio y te dice cuánto le podés creer. Y ahora, además, te avisa cuando el modelo se quedó sin piernas y hay que reentrenarlo.</p>
+<h3>Por qué convence</h3>
+<ul><li><strong>El número no está inflado.</strong> Se mide sobre un holdout ciego: datos que no participaron de ninguna decisión. Si el modelo se desinfla fuera de la ventana donde se lo eligió, el programa lo dice en voz alta.</li><li><strong>Los datos no se van de casa.</strong> Corre en la PC, en el servidor del cliente o adentro de Fabric. La inteligencia artificial es opcional: sin ninguna clave, el ETL, el AutoML y la exportación andan completos.</li><li><strong>Se enchufa con lo que ya hay:</strong> Excel, SQL Server, Microsoft Fabric, Power BI y Copilot.</li><li><strong>Avisa cuando el modelo se pone viejo.</strong> Nuevo en esta versión: el control de deriva compara los datos de hoy con los del entrenamiento y dice «estable», «vigilar» o «reentrenar».</li><li><strong>Está probado en serio:</strong> 615 pruebas automáticas corren en cada cambio, sin salir a internet.</li></ul>
+</section>
+<section id="problema" data-para="gerentes">
+  <header class="sec-head"><span class="sec-num">02</span>
+  <h2>El problema que resuelve</h2><span class="para para-gerentes">Para gerentes</span></header>
+  <p>La mayoría de los modelos que fracasan no fracasan por el algoritmo. Fracasan por tres cosas previsibles, y el programa ataca las tres.</p>
+<div class="tabla"><table><colgroup><col style="width:22%"><col style="width:39%"><col style="width:39%"></colgroup><thead><tr><th class="">Problema</th><th class="">Qué pasa en la práctica</th><th class="">Qué hace el programa</th></tr></thead><tbody><tr><td class=""><strong>Fuga de información</strong></td><td class="">Una columna trae la respuesta escondida (por ejemplo, la fecha de pago para predecir si paga). El modelo da un 0,99 espectacular y en producción no sirve para nada.</td><td class="">Audita la fuga <strong>antes</strong> de entrenar: bloquea esas columnas y explica por qué.</td></tr><tr><td class=""><strong>Número optimista</strong></td><td class="">Se informa el resultado de la misma ventana con la que se eligió el modelo. Siempre da mejor de lo que el modelo realmente es.</td><td class="">Tres ventanas: una entrena, otra elige y la tercera, ciega, reporta. La diferencia entre las dos últimas se muestra como degradación.</td></tr><tr><td class=""><strong>Modelo viejo</strong></td><td class="">Cambian los clientes, el canal o los precios. El modelo sigue largando números con cara de serios, pero ya no valen.</td><td class="">Control de deriva (PSI): compara los datos nuevos con la foto de entrenamiento y dice qué se movió y si toca reentrenar.</td></tr></tbody></table></div>
+</section>
+<section id="recorrido" data-para="todos">
+  <header class="sec-head"><span class="sec-num">03</span>
+  <h2>El recorrido, de punta a punta</h2><span class="para para-todos">Para todos</span></header>
+  <p>Ocho pasos, en este orden. Nada se ejecuta sin que alguien lo apruebe, y cada paso deja rastro.</p>
+<ol class="pasos"><li><div><h4>Traer los datos</h4><p>Archivos sin tope de tamaño (CSV, Excel, Parquet, JSON), que se suben por bloques y se consultan con DuckDB fuera de memoria. O una consulta de <strong>sólo lectura</strong> a Fabric, SQL Server, PostgreSQL, MySQL, Oracle, Snowflake o BigQuery.</p></div></li><li><div><h4>Entender la tabla</h4><p>Ingeniería de datos medida, no supuesta: qué identifica una fila, qué huecos tiene el tiempo, qué tabla se cruza con cuál y el contrato de datos con su <code>CREATE TABLE</code>.</p></div></li><li><div><h4>Limpiar con un plan aprobado</h4><p>El programa propone el ETL paso por paso, con el motivo de cada uno. Vos aprobás o desactivás. El plan se compila a una sola sentencia SQL que queda a la vista.</p></div></li><li><div><h4>Decir el objetivo en tus palabras</h4><p>«Si el cliente va a pagar en 30 días». El programa encuentra la columna y detecta si es clasificación o regresión, con o sin IA.</p></div></li><li><div><h4>Poner a competir los modelos</h4><p>Quince familias (LightGBM, XGBoost, CatBoost, bosques, lineales, redes y más) con búsqueda de hiperparámetros dentro de un presupuesto de tiempo que fijás vos.</p></div></li><li><div><h4>Leer el resultado</h4><p>Métricas explicadas en llano, deciles, lift, curvas ROC y de calibración, y qué variable pesa y hacia dónde empuja. Se puede pedir la explicación a la IA o escucharla en voz alta.</p></div></li><li><div><h4>Usarlo</h4><p>Aplicar el modelo a un dataset entero, exportar el Excel corporativo de ocho hojas, CSV o Parquet, o dejar las tablas listas para Power BI.</p></div></li><li><div><h4>Vigilarlo</h4><p>Con cada tanda de datos nuevos, el control de deriva dice si el modelo sigue midiendo la misma población. Si no, se reentrena.</p></div></li></ol>
+<p>Además: <strong>Proyecciones</strong> de series de tiempo, que primero miden con un backtest hacia adelante y recién después proyectan; <strong>tableros automáticos</strong> con filtros; <strong>preguntas en lenguaje natural</strong> que se traducen a SQL y se ejecutan de verdad; y una <strong>bitácora</strong> que explica el pipeline a quien no lo programó.</p>
+</section>
+<section id="logistica" data-para="todos">
+  <header class="sec-head"><span class="sec-num">04</span>
+  <h2>Logística: cómo llega a cada usuario</h2><span class="para para-todos">Para todos</span></header>
+  <p>El mismo motor se entrega de cuatro maneras. Se elige según dónde tienen que quedar los datos, no según la comodidad del proveedor.</p>
+<div class="tabla"><table><colgroup><col style="width:20%"><col style="width:27%"><col style="width:29%"><col style="width:24%"></colgroup><thead><tr><th class="">Modalidad</th><th class="">Para quién</th><th class="">Qué se instala</th><th class="">Dónde quedan los datos</th></tr></thead><tbody><tr><td class=""><strong>Escritorio Windows</strong></td><td class="">El analista o el gerente con su PC</td><td class="">Un instalador de unos 375 MB que deja elegir la carpeta (no obliga a usar el disco C:) y crea los íconos</td><td class="">En la PC</td></tr><tr><td class=""><strong>Modo servidor</strong></td><td class="">Proyectos con datos de un cliente que no pueden salir de su infraestructura</td><td class="">Nada en la laptop: el programa corre en el servidor del cliente, protegido con token, y se usa desde el navegador</td><td class="">En el servidor del cliente</td></tr><tr><td class=""><strong>Notebook</strong></td><td class="">Equipos que ya trabajan en Fabric, Jupyter o Databricks</td><td class="">Una línea de Python: <code>from app import notebook as mv</code></td><td class="">En el Lakehouse</td></tr><tr><td class=""><strong>Docker</strong></td><td class="">Áreas de TI que quieren estandarizar</td><td class=""><code>docker compose up</code></td><td class="">En el volumen del contenedor</td></tr></tbody></table></div>
+<h3>Licencias y venta</h3>
+<p>Las licencias se firman con <strong>Ed25519</strong>: el programa sólo trae la clave pública, así que no se pueden fabricar desde afuera. Activar una licencia convierte la demo en versión completa sin reinstalar. La web de venta, publicada en Vercel en tres idiomas, cobra, emite la licencia y entrega la descarga contra esa licencia.</p>
+<div class="tabla"><table><colgroup><col style="width:20%"><col style="width:24%"><col style="width:56%"></colgroup><thead><tr><th class="">Plan</th><th class="">Precio publicado</th><th class="">Qué incluye</th></tr></thead><tbody><tr><td class=""><strong>Demo</strong></td><td class="">US$ 0</td><td class="">Hasta 50.000 filas por dataset y 3 familias de modelos. Los resultados son reales; el Excel sale con marca de agua.</td></tr><tr><td class=""><strong>Profesional</strong></td><td class="">US$ 39 por mes, por equipo</td><td class="">Sin tope de filas, las 15 familias, conectores SQL, IA, texto libre, tableros y exportación sin marca de agua.</td></tr><tr><td class=""><strong>Empresa</strong></td><td class="">US$ 129 por mes, hasta 5 equipos</td><td class="">Todo lo del Profesional, más la puesta en marcha sobre el servidor SQL de la empresa y soporte prioritario. Se cobra en pesos uruguayos por MercadoPago, con factura.</td></tr></tbody></table></div>
+</section>
+<section id="arquitectura" data-para="tecnicos">
+  <header class="sec-head"><span class="sec-num">05</span>
+  <h2>Para técnicos: cómo está armado</h2><span class="para para-tecnicos">Para técnicos</span></header>
+  <div class="tabla"><table><colgroup><col style="width:18%"><col style="width:38%"><col style="width:44%"></colgroup><thead><tr><th class="">Capa</th><th class="">Tecnología</th><th class="">Por qué así</th></tr></thead><tbody><tr><td class="">API</td><td class="">FastAPI: 13 routers, 73 rutas, 78 operaciones</td><td class="">La interfaz usa la misma API que un agente o un script. Contrato OpenAPI.</td></tr><tr><td class="">Datos</td><td class="">Parquet por bloques + DuckDB</td><td class="">Sin tope de filas: se consulta fuera de memoria. El límite es el disco, no la RAM.</td></tr><tr><td class="">Catálogo</td><td class="">SQLite por workspace</td><td class="">Aísla datasets, modelos y conexiones; el historial sobrevive reinicios y se reconstruye desde el disco.</td></tr><tr><td class="">Modelos</td><td class="">LightGBM, XGBoost, CatBoost, scikit-learn, Optuna</td><td class="">Cada familia es un archivo en <code>core/zoo/</code>: sumar una no toca el motor y hereda validación y calibración.</td></tr><tr><td class="">Explicación</td><td class="">Importancia nativa, permutación sobre el holdout y SHAP</td><td class="">Tres vías que se controlan entre sí; la permutación se mide donde el modelo no eligió nada.</td></tr><tr><td class="">Interfaz</td><td class="">Módulos ES nativos, sin compilar; es, en y pt</td><td class="">Nada que buildear. Una prueba exige que los tres idiomas tengan las mismas claves.</td></tr><tr><td class="">Escritorio</td><td class="">Electron + PyInstaller, instalador NSIS</td><td class="">Todo local, con un token de sesión entre la ventana y el backend.</td></tr><tr><td class="">Modelo guardado</td><td class="">Bundle joblib + ficha JSON</td><td class="">Viaja con el preprocesamiento, los calibradores y la foto de deriva.</td></tr></tbody></table></div>
+<h3>El protocolo de validación</h3>
+<figure class="ventanas" aria-label="Las tres ventanas de validación">
+  <div class="v v-tr"><b>Entrenamiento</b><span>ajusta · 60 %</span></div>
+  <div class="v v-se"><b>Selección</b><span>elige · 20 %</span></div>
+  <div class="v v-ho"><b>Holdout ciego</b><span>reporta · 20 %</span></div>
+  <figcaption>El número que se informa sale de la tercera ventana, que no participó de ninguna decisión.
+  Proporciones de la demo de esta guía: 2.399 · 800 · 801 filas.</figcaption>
+</figure>
+<p>El holdout no participa de ninguna decisión: ni de los hiperparámetros, ni de la calibración, ni de la depuración de variables. Con una columna de fecha declarada, las tres ventanas son consecutivas en el tiempo: nunca se entrena con el futuro para predecir el pasado.</p>
+<ul><li><strong>Calibración isotónica</strong>, que se aplica sólo si mejora el error de calibración.</li><li><strong>Depuración de variables</strong>, que se acepta sólo si no empeora la métrica.</li><li><strong>Combinación contra el mejor individual</strong>: se comparan y se informan los dos.</li><li><strong>Regresión sesgada</strong> (montos, deudas): se modela en logaritmo con la corrección de Duan, para que el total predicho cierre contra el total real.</li><li><strong>Texto libre</strong> como variable: TF-IDF + SVD ajustado sólo sobre la ventana de entrenamiento.</li></ul>
+<h3>Seguridad</h3>
+<ul><li>El conector SQL es de <strong>sólo lectura por lista blanca</strong>: la consulta tiene que empezar con <code>SELECT</code> o con un <code>WITH</code> que termine en <code>SELECT</code>. Enumerar los verbos prohibidos no alcanzaba: <code>VACUUM INTO</code> copiaba la base entera sin ser un <code>INSERT</code>.</li><li>Los filtros de los tableros se compilan a <strong>SQL parametrizado</strong>.</li><li>Las claves de IA se guardan en el equipo con permisos restringidos (<code>0600</code>) y <strong>nunca vuelven al navegador</strong>.</li><li>La clave privada de licencias vive en los secretos del repositorio y de Vercel, nunca en el código.</li><li>La suite de pruebas no sale a internet: anula las claves del entorno antes de arrancar.</li></ul>
+</section>
+<section id="microsoft" data-para="todos">
+  <header class="sec-head"><span class="sec-num">06</span>
+  <h2>Fabric, Power BI y Copilot</h2><span class="para para-todos">Para todos</span></header>
+  <p>Para una empresa que ya vive en Microsoft, el programa no pide mudarse: entra por la puerta que ya está abierta.</p>
+<ul><li><strong>Dentro de un notebook de Fabric</strong>, sin levantar ningún servidor ni subir archivos: donde ya hay un DataFrame, hay entrenamiento. Acepta pandas, Spark, Polars y PyArrow.</li><li><strong>Contra el endpoint SQL de Fabric</strong>, con identidad de Entra ID, desde la interfaz del programa.</li><li><strong>Hacia Power BI</strong>: deja en el Lakehouse las tablas de predicciones, métricas, importancias y resumen, y ahora también la de <strong>deriva</strong>, para que el tablero tenga su semáforo de «¿hay que reentrenar?».</li><li><strong>Con Copilot</strong> (GitHub Models) como motor de IA para interpretar y narrar. También ChatGPT, Claude, Grok, Gemini o cualquier servicio compatible con OpenAI, incluidos Azure y Ollama.</li></ul>
+<pre class="codigo"><code>from app import notebook as mv
+
+datos = spark.sql(&quot;SELECT * FROM ventas_clientes&quot;).toPandas()
+modelo = mv.entrenar(datos, objetivo=&quot;compro&quot;, excluir=[&quot;cliente_id&quot;])
+print(modelo.resumen()[&quot;veredicto&quot;])
+
+modelo.para_powerbi(&quot;/lakehouse/default/Files/mv/powerbi&quot;, datos=datos)
+print(modelo.deriva(datos_del_mes)[&quot;veredicto&quot;][&quot;texto&quot;])</code></pre>
+<aside class="aviso aviso-warn"><h4>Lo que todavía no se probó</h4><p>La conexión, la autenticación y el rechazo de escrituras contra Fabric están cubiertos por pruebas automáticas, pero <strong>no contra un tenant real</strong>: en el entorno de desarrollo no hay uno. El primer intento contra el Fabric de la empresa es el que confirma permisos, red y versión del driver. Lo mismo con la carga en un Power BI real: los archivos están probados; el informe armado, no.</p></aside>
+</section>
+<section id="deriva" data-para="todos">
+  <header class="sec-head"><span class="sec-num">07</span>
+  <h2>Lo que le faltaba, y ya tiene: el control de deriva</h2><span class="para para-todos">Para todos</span></header>
+  <p class="lead">Un modelo no se rompe con un error: se pone viejo en silencio. Por eso, al revisar el programa entero para esta guía, la pieza que faltaba era la vigilancia después de la entrega. Ya está implementada.</p>
+<p>Al entrenar, el programa guarda <strong>dentro del modelo</strong> una foto de los datos: cada variable sobre la ventana de entrenamiento y la predicción sobre el holdout. Después, contra cualquier tabla nueva, mide el <strong>PSI</strong> (índice de estabilidad poblacional), el estándar de la industria de riesgo crediticio para esta pregunta.</p>
+<div class="psi-tabla">
+  <div class="z z-ok"><span class="mono">PSI &lt; 0,10</span><b>Estable</b><small>Misma población</small></div>
+  <div class="z z-warn"><span class="mono">0,10 a 0,25</span><b>Vigilar</b><small>Se movió algo</small></div>
+  <div class="z z-bad"><span class="mono">0,25 o más</span><b>Reentrenar</b><small>Cambió la población</small></div>
+</div>
+<ul><li><strong>Pesa lo que importa.</strong> Si se mueve una variable que el modelo casi no usa, el veredicto es «vigilar». Si se mueve una de las cinco que lo sostienen, o la predicción misma, es «reentrenar».</li><li><strong>Los vacíos cuentan.</strong> Si una columna que venía completa empieza a llegar con un 40 % vacío, se detecta aunque los valores presentes no cambien.</li><li><strong>Las categorías nuevas se informan</strong> (una sucursal o un canal que no existían).</li><li><strong>Los identificadores no se miden</strong>: un número de factura nuevo no es un cambio de población.</li><li><strong>Con menos de 100 filas no opina</strong>: con tan pocas, el PSI mide ruido.</li></ul>
+<h3>Una prueba real, con datos de ejemplo</h3>
+<p>Una cartera sintética de 4.000 préstamos: se entrenó un modelo de mora con los datos de «enero» y se controló contra el mismo mes y contra un «septiembre» donde el atraso creció un 80 % y el canal web pasó del 50 % al 80 %.</p>
+<div class="tabla"><table><colgroup><col style="width:22%"><col style="width:20%"><col style="width:18%"><col style="width:20%"><col style="width:20%"></colgroup><thead><tr><th class="">Variable</th><th class="n">Peso en el modelo</th><th class="n">PSI enero</th><th class="n">PSI septiembre</th><th class="">Veredicto</th></tr></thead><tbody><tr><td class="">(predicción)</td><td class="n">—</td><td class="n">0,010</td><td class="n">0,509</td><td class=""><span class="chip chip-bad">Reentrenar</span></td></tr><tr><td class="">atraso</td><td class="n">58,8 %</td><td class="n">0,002</td><td class="n">0,867</td><td class=""><span class="chip chip-bad">Reentrenar</span></td></tr><tr><td class="">canal</td><td class="n">13,8 %</td><td class="n">0,000</td><td class="n">0,360</td><td class=""><span class="chip chip-bad">Reentrenar</span></td></tr><tr><td class="">ingreso</td><td class="n">27,5 %</td><td class="n">0,001</td><td class="n">0,001</td><td class=""><span class="chip chip-ok">Estable</span></td></tr><tr><td class="">edad</td><td class="n">0,0 %</td><td class="n">0,002</td><td class="n">0,002</td><td class=""><span class="chip chip-ok">Estable</span></td></tr></tbody></table></div><figure class="escala" aria-label="PSI de septiembre sobre la escala">
+  <div class="barra"><span class="zb zb-ok" style="width:10%"></span><span class="zb zb-warn" style="width:15%"></span><span class="zb zb-bad" style="width:75%"></span><div class="m m0 " style="left:0.2%"><i></i><span><b>ingreso · edad</b> 0,002</span></div><div class="m m1 abajo" style="left:36.0%"><i></i><span><b>canal</b> 0,360</span></div><div class="m m2 " style="left:50.9%"><i></i><span><b>(predicción)</b> 0,509</span></div><div class="m m3 abajo" style="left:86.7%"><i></i><span><b>atraso</b> 0,867</span></div></div>
+  <div class="ejes"><span style="left:0">0</span><span style="left:10%">0,10</span><span style="left:25%">0,25</span><span style="left:50%">0,50</span><span style="left:100%">1,00</span></div>
+  <figcaption>Septiembre sobre la escala del PSI: lo que se cambió cae en rojo; lo que no, pegado al cero.</figcaption>
+</figure>
+<p>Contra enero, todo estable. Contra septiembre, el programa dijo: <em>«Reentrenar: cambiaron variables que sostienen el modelo: atraso (PSI 0,87), canal (PSI 0,36); la predicción se corrió (PSI 0,51).»</em> Señaló exactamente lo que se había cambiado, y nada más.</p>
+<h3>Dónde está</h3>
+<ul><li>En la pantalla de <strong>Resultados</strong>, el botón <strong>Controlar deriva</strong>: se elige el dataset y aparece el semáforo con la tabla.</li><li>En la API: <code>POST /api/automl/monitor</code> con el modelo y el dataset.</li><li>En el notebook: <code>modelo.deriva(datos)</code> y la tabla <code>deriva</code> para Power BI.</li></ul>
+<aside class="aviso aviso-info"><h4>Para los modelos que ya existen</h4><p>Los modelos entrenados antes de esta versión no tienen la foto guardada. El programa lo dice con esas palabras y no falla: alcanza con reentrenarlos una vez.</p></aside>
+</section>
+<section id="calidad" data-para="tecnicos">
+  <header class="sec-head"><span class="sec-num">08</span>
+  <h2>Cómo sabemos que anda</h2><span class="para para-tecnicos">Para técnicos</span></header>
+  <ul><li><strong>615 pruebas automáticas</strong> (pytest): ingesta y formatos, perfilado, ETL y fuga, métricas, AutoML en los tres tipos de tarea, registro y scoring, conectores, proveedores de IA, exportación, la API de punta a punta, el notebook y la consistencia de los tres idiomas.</li><li><strong>Integración continua</strong> en GitHub Actions en cada cambio, con lint (<code>ruff</code>). Tarda unos cinco minutos.</li><li><strong>Prueba de humo del instalador</strong>: el workflow de escritorio compila en Windows real y, sobre el <code>.exe</code> ya congelado, sube un archivo, entrena y verifica el AUC.</li><li><strong>Prueba en navegador real</strong> que recorre todas las vistas en los tres idiomas buscando errores de consola.</li><li>El control de deriva entró con <strong>25 pruebas nuevas</strong> (umbrales, bordes, veredicto, API, notebook, licencia) y una corrida real en Chromium sin errores de consola.</li></ul>
+</section>
+<section id="estado" data-para="todos">
+  <header class="sec-head"><span class="sec-num">09</span>
+  <h2>Qué está verificado y qué falta</h2><span class="para para-todos">Para todos</span></header>
+  <div class="tabla"><table><colgroup><col style="width:30%"><col style="width:18%"><col style="width:52%"></colgroup><thead><tr><th class="">Pieza</th><th class="">Estado</th><th class="">Detalle</th></tr></thead><tbody><tr><td class="">Motor, API, interfaz y notebook</td><td class=""><span class="chip chip-ok">Verificado</span></td><td class="">615 pruebas en verde con este cambio.</td></tr><tr><td class="">Control de deriva</td><td class=""><span class="chip chip-ok">Verificado</span></td><td class="">Pruebas automáticas y demo en navegador real.</td></tr><tr><td class="">Integración continua</td><td class=""><span class="chip chip-ok">Verificado</span></td><td class="">Corre en cada cambio; verde en la rama principal.</td></tr><tr><td class="">Instalador de Windows con lo último</td><td class=""><span class="chip chip-bad">Pendiente</span></td><td class="">El último instalador compilado es del 10 de septiembre. Hay que lanzar a mano el workflow «Escritorio Windows» en GitHub Actions para que incluya lo nuevo.</td></tr><tr><td class="">Fabric contra un tenant real</td><td class=""><span class="chip chip-warn">Parcial</span></td><td class="">Probado contra réplicas; falta el primer intento contra el Fabric de la empresa.</td></tr><tr><td class="">Power BI con el informe armado</td><td class=""><span class="chip chip-warn">Parcial</span></td><td class="">Las tablas están probadas; falta armar y validar el tablero.</td></tr></tbody></table></div>
+</section>
+<section id="proximo" data-para="todos">
+  <header class="sec-head"><span class="sec-num">10</span>
+  <h2>Lo que sugiero para la próxima etapa</h2><span class="para para-todos">Para todos</span></header>
+  <p>Con el control de deriva, el programa ya cubre el ciclo completo: datos, modelo, uso y vigilancia. Lo que sigue es automatizar esa vigilancia y cerrar el círculo con el resultado real.</p>
+<ol class="pasos"><li><div><h4>Control programado con aviso</h4><p>Hoy el control se corre a pedido. El paso natural es una tarea mensual o semanal que lo corra sola y mande un aviso cuando el veredicto pase a «reentrenar».</p></div></li><li><div><h4>Historial de deriva</h4><p>Guardar cada control para ver la tendencia en el tablero: un PSI que sube de a poco se anticipa antes de que cruce el umbral.</p></div></li><li><div><h4>Desempeño real, cuando llega la respuesta</h4><p>A los 30 días se sabe quién pagó. Comparar ese resultado con lo que el modelo prometió en el holdout es la prueba de fuego.</p></div></li><li><div><h4>Campeón contra retador</h4><p>Antes de reemplazar un modelo en uso, enfrentarlo al reentrenado sobre el mismo holdout y quedarse con el que gane.</p></div></li><li><div><h4>Usuarios y roles en modo servidor</h4><p>Inicio de sesión con Entra ID y permisos por workspace, para que varios equipos compartan un mismo servidor.</p></div></li></ol>
+</section>
+<section id="preguntas" data-para="gerentes">
+  <header class="sec-head"><span class="sec-num">11</span>
+  <h2>Preguntas que van a aparecer</h2><span class="para para-gerentes">Para gerentes</span></header>
+  <dl class="qa"><div><dt>¿Hace falta un científico de datos?</dt><dd>Para usarlo, no. Para decidir con él, conviene que alguien con criterio revise el plan de limpieza y la lectura del resultado. El programa explica cada paso en llano justamente para eso.</dd></div><div><dt>¿Y si la IA se equivoca?</dt><dd>La IA no calcula ningún número: los números salen del motor estadístico. Cuando se le pregunta algo a los datos en lenguaje natural, la consulta SQL se ejecuta de verdad y se muestra, así que se puede revisar.</dd></div><div><dt>¿Nuestros datos se suben a algún lado?</dt><dd>No. El entrenamiento corre donde corre el programa: la PC, el servidor del cliente o el notebook. Lo único que sale es lo que alguien escriba a propósito en la pestaña de IA, y sólo si hay una IA configurada.</dd></div><div><dt>¿Aguanta tablas grandes?</dt><dd>No tiene tope de filas. Los datos se guardan en Parquet por bloques y se consultan con DuckDB fuera de memoria: el límite es el disco.</dd></div><div><dt>¿Cada cuánto hay que reentrenar?</dt><dd>Cuando lo diga el control de deriva. Como costumbre sana, correrlo con cada tanda nueva de datos, por ejemplo una vez por mes.</dd></div><div><dt>¿Qué pasa si mañana cambiamos de proveedor de IA?</dt><dd>Nada: se cambia en una pantalla. Hay seis opciones y cualquier servicio compatible con OpenAI.</dd></div></dl>
+</section>
+<p class="cierre">MV AutoML Studio no promete magia: promete un número honesto, un camino a la vista y un aviso a tiempo cuando ese número deja de valer. Para un gerente eso es tranquilidad; para un técnico, es trabajo que no tiene que rehacer.</p>
+  </main>
+</div>
+<footer class="pie">MV AutoML Studio · Versión 1.0 · septiembre de 2026 · generado desde docs/presentacion/contenido.js</footer>
+<script>
+(function(){
+  var botones = document.querySelectorAll('.filtro button');
+  function aplicar(v){
+    botones.forEach(function(b){ b.setAttribute('aria-pressed', String(b.dataset.v === v)); });
+    document.querySelectorAll('section[data-para]').forEach(function(s){
+      var p = s.dataset.para;
+      s.hidden = !(v === 'todo' || p === 'todos' || p === v);
+      var enlace = document.querySelector('.indice a[href="#' + s.id + '"]');
+      if (enlace) enlace.parentElement.hidden = s.hidden;
+    });
+    try { localStorage.setItem('mv-guia-publico', v); } catch (e) { /* sin almacenamiento: no pasa nada */ }
+  }
+  botones.forEach(function(b){ b.addEventListener('click', function(){ aplicar(b.dataset.v); }); });
+  var guardado = 'todo';
+  try { guardado = localStorage.getItem('mv-guia-publico') || 'todo'; } catch (e) { guardado = 'todo'; }
+  aplicar(guardado);
+})();
+</script>
+</body>
+</html>

@@ -381,6 +381,10 @@ pipeline por motivos que no son del código.
 
 ## Documentación
 
+* [Guía para gerentes y técnicos](docs/presentacion/MV-AutoML-Studio-Guia.docx)
+  ([versión web](docs/presentacion/MV-AutoML-Studio-Guia.html)) — qué hace el
+  programa, cómo llega a cada usuario, cómo se valida y qué falta. Se genera
+  con `node docs/presentacion/generar.js` desde `contenido.js`.
 * [Arquitectura](docs/ARQUITECTURA.md) — cómo está armado, por qué no hay
   límite de tamaño y qué hace cada módulo.
 * [Modelos adjuntos](docs/MODELOS_ADJUNTOS.md) — qué se tomó de los motores
