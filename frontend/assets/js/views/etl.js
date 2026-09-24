@@ -187,7 +187,7 @@ export default {
             { dataset_id: plan.dataset_id, plan }, (j) => job.update(j));
           store.set({ etlResult: r });
           await store.refreshDatasets();
-          store.set({ datasetId: r.dataset.id, profile: null });
+          await store.elegirDataset(r.dataset.id);
           audio.beep('done');
           audio.speak(`${t('etl.result_title')}. ${num(r.rows_out)} ${t('common.rows')}, ${r.columns_out} ${t('common.columns')}.`);
           clear(result).appendChild(el('div', { class: 'card' },

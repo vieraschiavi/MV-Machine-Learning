@@ -539,6 +539,67 @@ def list_datasets() -> list[dict[str, Any]]:
 def delete_dataset(ds_id: str) -> None:
     shutil.rmtree(dataset_path(ds_id), ignore_errors=True)
     workspace.forget_dataset(ds_id)
+    if _leer_activo() == ds_id:
+        limpiar_dataset_activo()
+
+
+# ─────────────────────────────────────────────────────── dataset activo ───────
+# Una sola respuesta a «¿sobre qué datos estoy trabajando?» por workspace. Antes
+# cada pestaña guardaba su propia elección: Proyecciones y Bitácora se quedaban
+# con el primer dataset que vieron, y el archivo o la consulta SQL recién
+# cargados no les llegaban nunca. Vive en el servidor —no en el navegador— para
+# que cambiar de workspace no arrastre la elección de otro.
+ACTIVO = "activo.json"
+
+
+def _archivo_activo() -> Path:
+    return workspace.dir_for("datasets") / ACTIVO
+
+
+def _leer_activo() -> str | None:
+    try:
+        return json.loads(_archivo_activo().read_text(encoding="utf-8")).get("id") or None
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def dataset_activo() -> dict[str, Any]:
+    """El dataset sobre el que trabajan todas las pestañas.
+
+    ``origen`` dice de dónde sale: ``elegido`` (lo cargó o lo eligió el
+    usuario), ``reciente`` (no hay elección vigente y se toma el último
+    cargado) o ``None`` (el workspace no tiene datasets).
+    """
+    datasets = list_datasets()
+    por_id = {d.get("id"): d for d in datasets}
+    elegido = _leer_activo()
+    if elegido in por_id:
+        return {"id": elegido, "origen": "elegido", "dataset": por_id[elegido]}
+    if datasets:
+        return {"id": datasets[0]["id"], "origen": "reciente", "dataset": datasets[0]}
+    return {"id": None, "origen": None, "dataset": None}
+
+
+def elegir_dataset_activo(ds_id: str) -> dict[str, Any]:
+    load_meta(ds_id)                        # IngestError si no existe en este workspace
+    _archivo_activo().write_text(json.dumps({"id": ds_id}), encoding="utf-8")
+    return dataset_activo()
+
+
+def limpiar_dataset_activo() -> dict[str, Any]:
+    _archivo_activo().unlink(missing_ok=True)
+    return dataset_activo()
+
+
+def dataset_para(pedido: str | None = None) -> str:
+    """Resuelve qué dataset usa un consumidor: el pedido explícito o el activo."""
+    if pedido:
+        load_meta(pedido)
+        return pedido
+    ds_id = dataset_activo()["id"]
+    if not ds_id:
+        raise IngestError("No hay ningún dataset cargado en este workspace.")
+    return ds_id
 
 
 def glob_expr(ds_id: str) -> str:

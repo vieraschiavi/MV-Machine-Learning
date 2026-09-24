@@ -85,7 +85,11 @@
     "stop_narration": "Stop reading",
     "voice_input": "Dictate",
     "ai_none": "AI not configured",
-    "ai_active": "AI active"
+    "ai_active": "AI active",
+    "dataset_active": "Data",
+    "dataset_none": "No data loaded",
+    "dataset_auto": "latest loaded",
+    "dataset_hint": "This is the data every tab uses. Change it from Data or from any selector."
   },
   "overview": {
     "title": "Overview",

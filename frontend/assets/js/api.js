@@ -75,6 +75,7 @@ async function request(method, path, body, options = {}) {
 
 export const get = (p) => request('GET', p);
 export const post = (p, b) => request('POST', p, b);
+export const put = (p, b) => request('PUT', p, b);
 export const del = (p) => request('DELETE', p);
 
 /* ── subida por streaming: sin tope de tamaño ────────────────────────────── */

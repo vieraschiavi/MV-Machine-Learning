@@ -45,7 +45,8 @@ def columnas(ds_id: str) -> dict[str, Any]:
 
 
 class ProyectarBody(BaseModel):
-    dataset_id: str
+    # Sin dataset_id se proyecta sobre el dataset activo del workspace.
+    dataset_id: str | None = None
     # Opcionales a propósito. Eran `str` obligatorios, y cuando el dataset
     # no tenía fecha o número la pantalla avisaba «sin fecha» pero dejaba el
     # botón habilitado: el pedido salía con `null` y el usuario veía el 422
@@ -81,6 +82,10 @@ def _resolver_columnas(body: ProyectarBody) -> tuple[str, str]:
 
 @router.post("")
 def proyectar(body: ProyectarBody) -> dict[str, Any]:
+    try:
+        body.dataset_id = storage.dataset_para(body.dataset_id)
+    except storage.IngestError as exc:
+        raise HTTPException(404, str(exc)) from exc
     tiempo, valor = _resolver_columnas(body)
     try:
         return P.proyectar(body.dataset_id, tiempo, valor,

@@ -40,12 +40,37 @@ def _ingestar(archivo: Path, nombre: str) -> storage.DatasetMeta:
     except PermissionError:
         storage.delete_dataset(meta.id)     # no se deja a medias en el workspace
         raise
+    # lo que el usuario acaba de cargar pasa a ser el dataset de TODAS las pestañas
+    storage.elegir_dataset_activo(meta.id)
     return meta
 
 
 @router.get("")
 def list_all() -> dict[str, Any]:
     return {"datasets": storage.list_datasets()}
+
+
+class ActivoBody(BaseModel):
+    dataset_id: str
+
+
+@router.get("/active")
+def activo() -> dict[str, Any]:
+    """El dataset sobre el que trabajan todas las pestañas del workspace."""
+    return storage.dataset_activo()
+
+
+@router.put("/active")
+def elegir_activo(body: ActivoBody) -> dict[str, Any]:
+    try:
+        return storage.elegir_dataset_activo(body.dataset_id)
+    except storage.IngestError as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
+@router.delete("/active")
+def limpiar_activo() -> dict[str, Any]:
+    return storage.limpiar_dataset_activo()
 
 
 @router.post("/upload-stream")

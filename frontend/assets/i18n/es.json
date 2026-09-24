@@ -85,7 +85,11 @@
     "stop_narration": "Detener lectura",
     "voice_input": "Dictar por voz",
     "ai_none": "IA sin configurar",
-    "ai_active": "IA activa"
+    "ai_active": "IA activa",
+    "dataset_active": "Datos",
+    "dataset_none": "Sin datos cargados",
+    "dataset_auto": "último cargado",
+    "dataset_hint": "Estos son los datos que usan todas las pestañas. Cambialos desde Datos o desde cualquier selector."
   },
   "overview": {
     "title": "Panel",

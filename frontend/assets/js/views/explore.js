@@ -15,7 +15,7 @@ function datasetPicker(onChange) {
     ...s.datasets.map((d) => el('option', {
       value: d.id, text: `${d.name} · ${num(d.rows)} ${t('common.rows')}`, selected: d.id === s.datasetId,
     })));
-  sel.onchange = () => { store.set({ datasetId: sel.value }); onChange(); };
+  sel.onchange = () => { store.elegirDataset(sel.value); onChange(); };
   return sel;
 }
 

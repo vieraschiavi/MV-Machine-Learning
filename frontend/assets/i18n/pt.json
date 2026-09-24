@@ -85,7 +85,11 @@
     "stop_narration": "Parar leitura",
     "voice_input": "Ditar por voz",
     "ai_none": "IA não configurada",
-    "ai_active": "IA ativa"
+    "ai_active": "IA ativa",
+    "dataset_active": "Dados",
+    "dataset_none": "Sem dados carregados",
+    "dataset_auto": "último carregado",
+    "dataset_hint": "Estes são os dados que todas as abas usam. Troque-os em Dados ou em qualquer seletor."
   },
   "overview": {
     "title": "Painel",

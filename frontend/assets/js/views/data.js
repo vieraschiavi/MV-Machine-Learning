@@ -39,7 +39,7 @@ function uploadCard() {
       audio.beep('success');
       toast(`${res.dataset.name}: ${num(res.dataset.rows)} ${t('common.rows')}`, 'ok', t('common.success'));
       await store.refreshDatasets();
-      store.set({ datasetId: res.dataset.id });
+      await store.elegirDataset(res.dataset.id);
     } catch (err) {
       bar.classList.add('fail');
       status.textContent = '';
@@ -204,7 +204,7 @@ function sqlCard(rerender) {
       toast(`${num(r.dataset.rows)} ${t('common.rows')}`, 'ok', t('common.success'));
       audio.beep('done');
       await store.refreshDatasets();
-      store.set({ datasetId: r.dataset.id });
+      await store.elegirDataset(r.dataset.id);
       rerender();
     } catch (err) { fail(err); } finally { extractBtn.disabled = false; }
   };
@@ -260,7 +260,7 @@ function datasetList() {
   if (!s.datasets.length) return emptyState(t('common.empty'), t('data.lead'));
   return el('div', { class: 'item-list' }, ...s.datasets.map((d) => el('div', {
     class: `item ${d.id === s.datasetId ? 'selected' : ''}`,
-    onClick: () => { store.set({ datasetId: d.id }); audio.beep('click'); toast(`${t('data.selected')}: ${d.name}`, 'ok'); },
+    onClick: () => { store.elegirDataset(d.id); audio.beep('click'); toast(`${t('data.selected')}: ${d.name}`, 'ok'); },
   },
     icon(d.source === 'sql' ? 'db' : 'file', 16),
     el('div', { class: 'item-main' },
@@ -270,7 +270,7 @@ function datasetList() {
     badge(t(`data.source_${d.source}`) || d.source, d.source === 'derived' ? 'accent' : ''),
     el('div', { class: 'item-actions' },
       el('button', {
-        class: 'btn btn-sm', onClick: (e) => { e.stopPropagation(); store.set({ datasetId: d.id }); nav?.('explore'); },
+        class: 'btn btn-sm', onClick: (e) => { e.stopPropagation(); store.elegirDataset(d.id); nav?.('explore'); },
       }, t('explore.title')),
       el('button', {
         class: 'btn btn-sm btn-danger',

@@ -80,6 +80,13 @@ export default {
     /* ── datos crudos ──────────────────────────────────────────────────── */
     const dsSel2 = el('select', {}, ...s.datasets.map((d) => el('option', {
       value: d.id, text: `${d.name} · ${num(d.rows)}`, selected: d.id === s.datasetId })));
+    // Elegir acá también cambia el dataset activo de todas las pestañas.
+    dsSel.onchange = () => {
+      if (!dsSel.value) return;                 // «ninguno»: informe sólo del modelo
+      store.elegirDataset(dsSel.value);
+      dsSel2.value = dsSel.value;
+    };
+    dsSel2.onchange = () => { store.elegirDataset(dsSel2.value); dsSel.value = dsSel2.value; };
     const sep = el('select', {}, ...[[';', 'punto y coma ;'], [',', 'coma ,'], ['\t', 'tabulación']]
       .map(([v, l]) => el('option', { value: v, text: l })));
     const dec2 = el('select', {}, ...[[',', 'coma ,'], ['.', 'punto .']]

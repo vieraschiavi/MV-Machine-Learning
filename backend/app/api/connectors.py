@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from ..core import connectors as C
-from ..core import jobs
+from ..core import jobs, storage
 from ..core import licensing as L
 
 router = APIRouter(prefix="/api/connections", tags=["connections"])
@@ -113,7 +113,10 @@ def extract(profile_id: str, body: ExtractBody) -> dict[str, Any]:
     L.require("sql_connectors")
 
     def work(progress):
-        return C.extract(profile, body.sql, body.name, progress, body.max_rows)
+        out = C.extract(profile, body.sql, body.name, progress, body.max_rows)
+        # lo extraído por SQL pasa a ser el dataset de todas las pestañas
+        storage.elegir_dataset_activo(out["dataset"]["id"])
+        return out
 
     return jobs.run("extract", f"Extracción SQL · {body.name}", work,
                     meta={"connection": profile_id})
