@@ -15,7 +15,10 @@ import * as charts from '../charts.js';
 import { el, clear, note, emptyState, fail, toast, icon, table } from '../ui.js';
 
 let nav = null;
-const elegido = { dataset: null, tiempo: null, valor: null, grano: 'month',
+// El dataset NO se guarda acá: es el activo de la aplicación (store.datasetId).
+// Guardarlo en la pestaña la dejaba clavada en el primero que vio, y el
+// archivo o la consulta SQL que se cargaba después no le llegaba nunca.
+const elegido = { tiempo: null, valor: null, grano: 'month',
   agregacion: 'sum', horizonte: 6 };
 
 const SEMAFORO = { ok: 'ok', revisar: 'warn', alerta: 'bad' };
@@ -41,18 +44,17 @@ export default {
     if (!s.datasets.length) { host.appendChild(emptyState(t('errors.no_dataset'))); return; }
 
     const dsSel = el('select', {}, ...s.datasets.map((d) => el('option', {
-      value: d.id, text: d.name, selected: d.id === (elegido.dataset || s.datasetId) })));
+      value: d.id, text: d.name, selected: d.id === s.datasetId })));
     const campos = el('div', { class: 'grid grid-3' });
     const salida = el('div', { class: 'proy-salida' });
     const self = this;
     const btn = el('button', { class: 'btn btn-primary' }, icon('results', 15), t('proy.calcular'));
 
     const cargarColumnas = async () => {
-      elegido.dataset = dsSel.value;
       clear(campos);
       clear(salida);
       let c;
-      try { c = await api.get(`/api/proyeccion/columnas/${elegido.dataset}`); }
+      try { c = await api.get(`/api/proyeccion/columnas/${dsSel.value}`); }
       catch (err) { fail(err); return; }
 
       // Sin fecha o sin número no hay serie: se avisa Y se apaga el botón.
@@ -60,6 +62,18 @@ export default {
       // `null` al servidor — el usuario veía el 422 crudo de pydantic.
       if (!c.fechas.length || !c.numericas.length) {
         salida.appendChild(note(t('proy.sin_fecha'), 'warn'));
+        // Si el dataset salió de un Excel con varias hojas, otra hoja del mismo
+        // libro puede tener la fecha y el valor: se ofrece ir directo a ella.
+        const otras = c.otras_hojas || [];
+        if (otras.length) {
+          salida.appendChild(el('div', { class: 'card' },
+            el('p', { text: t('proy.otra_hoja') }),
+            el('div', { class: 'row' }, ...otras.map((o) => el('button', {
+              class: 'btn',
+              text: o.sheet || o.name,
+              onclick: () => { dsSel.value = o.id; store.elegirDataset(o.id); cargarColumnas(); },
+            })))));
+        }
         elegido.tiempo = null;
         elegido.valor = null;
         btn.disabled = true;
@@ -84,7 +98,7 @@ export default {
       campos.appendChild(el('div', { class: 'field' }, el('label', { text: t('proy.horizonte') }), h));
     };
 
-    dsSel.onchange = cargarColumnas;
+    dsSel.onchange = () => { store.elegirDataset(dsSel.value); cargarColumnas(); };
 
     btn.onclick = async () => {
       if (!elegido.tiempo || !elegido.valor) return;
@@ -92,7 +106,7 @@ export default {
       clear(salida).appendChild(note(t('common.loading'), 'info'));
       try {
         const r = await api.post('/api/proyeccion', {
-          dataset_id: elegido.dataset, columna_tiempo: elegido.tiempo,
+          dataset_id: dsSel.value, columna_tiempo: elegido.tiempo,
           columna_valor: elegido.valor, horizonte: elegido.horizonte,
           grano: elegido.grano, agregacion: elegido.agregacion,
         });

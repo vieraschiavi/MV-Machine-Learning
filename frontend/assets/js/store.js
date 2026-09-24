@@ -5,7 +5,11 @@ const state = {
   health: null,
   capabilities: null,
   datasets: [],
-  datasetId: localStorage.getItem('mv.dataset') || null,
+  // El dataset activo lo decide el servidor, por workspace (GET /api/datasets/active):
+  // guardado en el navegador, cada pestaña terminaba con su propia elección y el
+  // workspace nuevo heredaba la del anterior.
+  datasetId: null,
+  datasetOrigen: null,
   profile: null,
   target: localStorage.getItem('mv.target') || null,
   task: null,
@@ -25,11 +29,14 @@ function emit(keys) { listeners.forEach((fn) => fn(state, keys)); }
 export function set(patch) {
   Object.assign(state, patch);
   if ('datasetId' in patch) {
-    if (patch.datasetId) localStorage.setItem('mv.dataset', patch.datasetId);
-    else localStorage.removeItem('mv.dataset');
     // el perfil y el plan pertenecen al dataset anterior: se descartan
     if (!('profile' in patch)) state.profile = null;
     if (!('etlPlan' in patch)) state.etlPlan = null;
+    // y el objetivo también, si el dataset nuevo no tiene esa columna
+    if (!('target' in patch) && state.target && !columns().includes(state.target)) {
+      state.target = null;
+      localStorage.removeItem('mv.target');
+    }
   }
   if ('target' in patch) {
     if (patch.target) localStorage.setItem('mv.target', patch.target);
@@ -45,11 +52,30 @@ export function set(patch) {
 export const dataset = () => state.datasets.find((d) => d.id === state.datasetId) || null;
 export const columns = () => (dataset()?.columns || []).map((c) => c.name);
 
+/** Aplica la respuesta del resolver del servidor (`/api/datasets/active`). */
+function aplicarActivo(activo) {
+  set({ datasetId: activo?.id || null, datasetOrigen: activo?.origen || null });
+}
+
 export async function refreshDatasets() {
-  const { datasets } = await api.get('/api/datasets');
-  const ids = new Set(datasets.map((d) => d.id));
-  set({ datasets, datasetId: ids.has(state.datasetId) ? state.datasetId : (datasets[0]?.id || null) });
+  const [{ datasets }, activo] = await Promise.all([
+    api.get('/api/datasets'), api.get('/api/datasets/active')]);
+  state.datasets = datasets;
+  aplicarActivo(activo);
+  emit(['datasets']);
   return datasets;
+}
+
+/**
+ * Elegir el dataset de TODAS las pestañas. Es la única puerta: cargar un
+ * archivo, extraer por SQL, ejecutar el ETL o elegirlo en cualquier selector
+ * pasa por acá, y el servidor lo recuerda para el workspace.
+ */
+export async function elegirDataset(id) {
+  if (!id || id === state.datasetId) return;
+  set({ datasetId: id, datasetOrigen: 'elegido' });   // la interfaz responde ya
+  try { aplicarActivo(await api.put('/api/datasets/active', { dataset_id: id })); }
+  catch { await refreshDatasets(); }                  // p. ej. lo borraron en otra pestaña
 }
 
 export async function refreshModels() {

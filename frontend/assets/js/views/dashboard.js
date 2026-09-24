@@ -197,7 +197,7 @@ export default {
     const sel = el('select', { style: 'max-width:340px' },
       ...s.datasets.map((d) => el('option', {
         value: d.id, text: `${d.name} · ${num(d.rows)}`, selected: d.id === s.datasetId })));
-    sel.onchange = () => { store.set({ datasetId: sel.value }); spec = null; activeFilters = {}; this.refresh(); };
+    sel.onchange = () => { store.elegirDataset(sel.value); spec = null; activeFilters = {}; this.refresh(); };
     host.appendChild(el('div', { class: 'row mb-2' }, sel));
 
     const body = el('div');

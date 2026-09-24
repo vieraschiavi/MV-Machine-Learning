@@ -85,7 +85,11 @@
     "stop_narration": "Detener lectura",
     "voice_input": "Dictar por voz",
     "ai_none": "IA sin configurar",
-    "ai_active": "IA activa"
+    "ai_active": "IA activa",
+    "dataset_active": "Datos",
+    "dataset_none": "Sin datos cargados",
+    "dataset_auto": "último cargado",
+    "dataset_hint": "Estos son los datos que usan todas las pestañas. Cambialos desde Datos o desde cualquier selector."
   },
   "overview": {
     "title": "Panel",
@@ -154,7 +158,8 @@
     "ph_fabric_identity": "00000000-0000-0000-0000-000000000000",
     "fabric_secret": "Secreto de la aplicación",
     "ph_fabric_secret": "vacío para entrar con tu usuario",
-    "fabric_hint": "Fabric se autentica con Entra ID. Dejá el secreto vacío para iniciar sesión con tu usuario de la organización (se abre la ventana de Microsoft y admite doble factor), o cargá el ID y el secreto de una aplicación registrada para que corra sin nadie delante. Hace falta el driver ODBC 18 de Microsoft instalado en el equipo."
+    "fabric_hint": "Fabric se autentica con Entra ID. Dejá el secreto vacío para iniciar sesión con tu usuario de la organización (se abre la ventana de Microsoft y admite doble factor), o cargá el ID y el secreto de una aplicación registrada para que corra sin nadie delante. Hace falta el driver ODBC 18 de Microsoft instalado en el equipo.",
+    "hojas_cargadas": "Hojas cargadas, cada una como un dataset (quedó activa la más útil)"
   },
   "explore": {
     "title": "Exploración",
@@ -583,7 +588,8 @@
     "agg_avg": "Promediar",
     "agg_count": "Contar",
     "agg_min": "Mínimo",
-    "agg_max": "Máximo"
+    "agg_max": "Máximo",
+    "otra_hoja": "Otras hojas del mismo Excel sí tienen una fecha y un valor. Elegí una para proyectar:"
   },
   "acceso": {
     "title": "Acceso al servidor",

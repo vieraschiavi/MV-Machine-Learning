@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/etl", tags=["etl"])
 
 
 class ProposeBody(BaseModel):
-    dataset_id: str
+    dataset_id: str | None = None      # sin él, el dataset activo del workspace
     target: str | None = None
     options: dict[str, Any] | None = None
 
@@ -21,7 +21,7 @@ class ProposeBody(BaseModel):
 @router.post("/propose")
 def propose(body: ProposeBody) -> dict[str, Any]:
     try:
-        return E.propose(body.dataset_id, body.target, body.options)
+        return E.propose(storage.dataset_para(body.dataset_id), body.target, body.options)
     except storage.IngestError as exc:
         raise HTTPException(404, str(exc)) from exc
     except Exception as exc:

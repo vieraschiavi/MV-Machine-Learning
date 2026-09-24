@@ -35,6 +35,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from ..config import settings
+from . import fechas as fechas_mod
 from . import workspace
 
 SAFE_ID = re.compile(r"^[A-Za-z0-9_\-]{1,64}$")
@@ -268,8 +269,10 @@ def _fechas_en_texto(df: pd.DataFrame, prefiere_dia: bool) -> dict[str, bool]:
             continue
         if muestra.map(lambda v: bool(_FECHA_RE.match(v))).mean() < 0.95:
             continue
-        dia_primero = prefiere_dia
         partes = [m for m in (_ORDEN_RE.match(v) for v in muestra) if m]
+        # Sin «dd/mm» al principio la fecha es año primero (2024-03-01): ahí
+        # `dayfirst` no aplica, y pasárselo la leía como 3 de enero.
+        dia_primero = prefiere_dia if partes else False
         if partes:
             if max(int(m.group(1)) for m in partes) > 12:
                 dia_primero = True
@@ -339,6 +342,10 @@ def _ingest_excel(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
         engine = {"xls": "xlrd", "xlsb": "pyxlsb", "ods": "odf"}[ext.lstrip(".")]
         try:
             df = pd.read_excel(path, sheet_name=sheet or 0, engine=engine)
+        except (ValueError, KeyError) as exc:
+            if sheet:
+                raise IngestError(f"El libro no tiene una hoja «{sheet}».") from exc
+            raise
         except Exception as exc:  # pragma: no cover - depende de extras
             raise IngestError(
                 f"No se pudo leer {ext}: falta el motor '{engine}'. "
@@ -352,10 +359,30 @@ def _ingest_excel(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
 
     wb = load_workbook(path, read_only=True, data_only=True)
     try:
-        ws = wb[sheet] if sheet and sheet in wb.sheetnames else wb[wb.sheetnames[0]]
+        if sheet and sheet not in wb.sheetnames:
+            # antes caía en silencio a la primera hoja: el usuario pedía
+            # «Mercado» y recibía el diccionario de datos sin enterarse
+            raise IngestError(f"El libro no tiene una hoja «{sheet}». "
+                              f"Hojas: {', '.join(wb.sheetnames)}.")
+        ws = wb[sheet] if sheet else wb[wb.sheetnames[0]]
         rows = ws.iter_rows(values_only=True)
         header = None
         buf: list[tuple] = []
+        fechas: dict[str, bool] | None = None
+
+        def volcar() -> None:
+            # Igual que en el CSV: una columna de fechas escritas como texto (o
+            # mezcladas con alguna celda de texto) se decide con el primer
+            # bloque y se convierte en todos, para que el Parquet diga «fecha».
+            # Si todas son ambiguas (01/03/2024: ¿1 de marzo o 3 de enero?) se
+            # lee día primero, la convención de acá: un Excel no trae la pista
+            # de la coma decimal que usa el CSV.
+            nonlocal fechas
+            df = pd.DataFrame(buf, columns=header)
+            if fechas is None:
+                fechas = _fechas_en_texto(_normalize_chunk(df.copy()), True)
+            sink.write(_aplicar_fechas(df, fechas))
+
         for row in rows:
             if header is None:
                 if row is None or all(v is None for v in row):
@@ -366,10 +393,10 @@ def _ingest_excel(path: Path, sink: _ParquetSink, opts: dict[str, Any]) -> None:
                 continue
             buf.append(row[: len(header)] + (None,) * max(0, len(header) - len(row)))
             if len(buf) >= settings.chunk_rows:
-                sink.write(pd.DataFrame(buf, columns=header))
+                volcar()
                 buf.clear()
         if buf:
-            sink.write(pd.DataFrame(buf, columns=header))
+            volcar()
         if header is None:
             raise IngestError("La hoja de Excel está vacía.")
     finally:
@@ -478,6 +505,140 @@ def ingest_file(path: Path, name: str, source: str = "upload",
     return register_folder(ds_id, meta)
 
 
+# ───────────────────────────────────────────────── libros de varias hojas ─────
+# Un Excel con varias hojas no es UN dataset: suele ser un modelo entero —un
+# diccionario de datos, dos o tres dimensiones y las tablas de hechos—. Tomar
+# la primera hoja a ciegas dejaba como dataset al diccionario (texto puro, sin
+# una fecha ni un número) y Proyecciones decía «no tiene columna de fecha»
+# sobre un archivo lleno de fechas. Ahora cada hoja con datos es su propio
+# dataset, y la que queda activa es la más útil para analizar.
+def hojas_excel(path: Path) -> list[str]:
+    """Nombres de las hojas del libro, en el orden del archivo."""
+    ext = path.suffix.lower()
+    try:
+        if ext in {".xls", ".xlsb", ".ods"}:
+            engine = {"xls": "xlrd", "xlsb": "pyxlsb", "ods": "odf"}[ext.lstrip(".")]
+            with pd.ExcelFile(path, engine=engine) as xf:
+                return [str(h) for h in xf.sheet_names]
+        from openpyxl import load_workbook
+        wb = load_workbook(path, read_only=True, data_only=True)
+        try:
+            return list(wb.sheetnames)
+        finally:
+            wb.close()
+    except Exception as exc:
+        raise IngestError(f"No se pudo abrir el libro de Excel: {exc}") from exc
+
+
+def _medidas(ds_id: str, numericas: list[str]) -> list[str]:
+    """Numéricas que son medidas: ni partes de fecha, ni IDs, ni banderas 0/1."""
+    candidatas = [c for c in numericas if not fechas_mod.es_parte_de_fecha(c)]
+    if not candidatas:
+        return []
+    sel = ", ".join(f'approx_count_distinct("{c}") AS "{c}"' for c in candidatas)
+    try:
+        distintos = query(ds_id, f"SELECT {sel} FROM {{t}}").iloc[0].to_dict()
+    except Exception:
+        return candidatas
+    return [c for c in candidatas if int(distintos.get(c) or 0) > 2]
+
+
+def puntaje_hoja(ds_id: str) -> tuple[int, int, int]:
+    """Qué tan útil es un dataset para analizar: (tiene fecha y medida, medidas, filas).
+
+    Un diccionario de datos o una dimensión sin fechas dan (0, …); una tabla de
+    hechos con fecha y montos gana. Entre dos tablas de hechos, la de más
+    medidas, y después la de más filas.
+    """
+    col = clasificar_columnas(ds_id)
+    medidas = _medidas(ds_id, col["numericas"])
+    util = int(bool(col["fechas"]) and bool(medidas))
+    return util, len(medidas), load_meta(ds_id).rows
+
+
+def ingest_workbook(path: Path, name: str, source: str = "upload",
+                    origin: dict[str, Any] | None = None,
+                    opts: dict[str, Any] | None = None) -> list[DatasetMeta]:
+    """Ingesta un libro de Excel: una hoja → un dataset. El más útil, primero.
+
+    Con ``opts["sheet"]`` (o un libro de una sola hoja) es exactamente
+    :func:`ingest_file`. Las hojas vacías se saltean; si no queda ninguna, error.
+    """
+    opts = dict(opts or {})
+    hojas = hojas_excel(path)
+    if opts.get("sheet") or len(hojas) <= 1:
+        return [ingest_file(path, name, source=source, origin=origin, opts=opts)]
+    libro = uuid.uuid4().hex[:12]
+    metas: list[DatasetMeta] = []
+    for hoja in hojas:
+        try:
+            metas.append(ingest_file(
+                path, f"{name} · {hoja}", source=source,
+                origin={**(origin or {}), "libro": libro, "hojas": hojas},
+                opts={**opts, "sheet": hoja}))
+        except IngestError:
+            continue                          # hoja vacía o sólo con encabezado
+    if not metas:
+        raise IngestError("El libro de Excel no tiene ninguna hoja con datos.")
+    puntajes = {m.id: puntaje_hoja(m.id) for m in metas}
+    # sorted es estable: a igual puntaje se respeta el orden del libro
+    return sorted(metas, key=lambda m: puntajes[m.id], reverse=True)
+
+
+def hermanas(ds_id: str) -> list[dict[str, Any]]:
+    """Los otros datasets que salieron del mismo libro de Excel."""
+    try:
+        libro = (load_meta(ds_id).origin or {}).get("libro")
+    except IngestError:
+        return []
+    if not libro:
+        return []
+    return [d for d in list_datasets()
+            if d.get("id") != ds_id and (d.get("origin") or {}).get("libro") == libro]
+
+
+# ─────────────────────────────────────────────── columnas por contenido ──────
+def clasificar_columnas(ds_id: str) -> dict[str, Any]:
+    """Fechas, numéricas y categóricas del dataset, mirando también el contenido.
+
+    El tipo de Arrow manda cuando dice fecha. Si no, una columna de texto (o un
+    entero ``aaaamm`` con nombre de fecha) cuyos valores son fechas también es
+    fecha: ver :mod:`fechas`. ``formatos`` dice cómo leer cada una. Las fechas
+    salen ordenadas: primero las que se llaman fecha/date/periodo.
+    """
+    meta = load_meta(ds_id)
+    tipos = {c["name"]: str(c.get("arrow_type", "")).lower() for c in meta.columns}
+    formatos: dict[str, str] = {}
+    numericas, categoricas, dudosas = [], [], []
+    for c, t in tipos.items():
+        if any(x in t for x in ("timestamp", "date")):
+            formatos[c] = "nativa"
+        elif any(x in t for x in ("int", "double", "float", "decimal")):
+            numericas.append(c)
+            if fechas_mod.nombre_de_fecha(c):
+                dudosas.append(c)
+        else:
+            categoricas.append(c)
+            if "bool" not in t:
+                dudosas.append(c)
+    if dudosas:
+        sel = ", ".join(f'"{c}"' for c in dudosas)
+        try:
+            muestra = query(ds_id, f"SELECT {sel} FROM {{t}} LIMIT 2000")
+        except Exception:
+            muestra = pd.DataFrame()
+        for c in dudosas:
+            if c in muestra.columns:
+                f = fechas_mod.detectar(muestra[c], c)
+                if f:
+                    formatos[c] = f
+    fechas = sorted(formatos, key=lambda c: (fechas_mod.preferencia(c), list(tipos).index(c)))
+    return {"fechas": fechas,
+            "numericas": [c for c in numericas if c not in formatos],
+            "categoricas": [c for c in categoricas if c not in formatos],
+            "formatos": formatos}
+
+
 def ingest_frames(frames: Iterator[pd.DataFrame], name: str, source: str,
                   origin: dict[str, Any] | None = None,
                   parent_id: str | None = None) -> DatasetMeta:
@@ -539,6 +700,67 @@ def list_datasets() -> list[dict[str, Any]]:
 def delete_dataset(ds_id: str) -> None:
     shutil.rmtree(dataset_path(ds_id), ignore_errors=True)
     workspace.forget_dataset(ds_id)
+    if _leer_activo() == ds_id:
+        limpiar_dataset_activo()
+
+
+# ─────────────────────────────────────────────────────── dataset activo ───────
+# Una sola respuesta a «¿sobre qué datos estoy trabajando?» por workspace. Antes
+# cada pestaña guardaba su propia elección: Proyecciones y Bitácora se quedaban
+# con el primer dataset que vieron, y el archivo o la consulta SQL recién
+# cargados no les llegaban nunca. Vive en el servidor —no en el navegador— para
+# que cambiar de workspace no arrastre la elección de otro.
+ACTIVO = "activo.json"
+
+
+def _archivo_activo() -> Path:
+    return workspace.dir_for("datasets") / ACTIVO
+
+
+def _leer_activo() -> str | None:
+    try:
+        return json.loads(_archivo_activo().read_text(encoding="utf-8")).get("id") or None
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def dataset_activo() -> dict[str, Any]:
+    """El dataset sobre el que trabajan todas las pestañas.
+
+    ``origen`` dice de dónde sale: ``elegido`` (lo cargó o lo eligió el
+    usuario), ``reciente`` (no hay elección vigente y se toma el último
+    cargado) o ``None`` (el workspace no tiene datasets).
+    """
+    datasets = list_datasets()
+    por_id = {d.get("id"): d for d in datasets}
+    elegido = _leer_activo()
+    if elegido in por_id:
+        return {"id": elegido, "origen": "elegido", "dataset": por_id[elegido]}
+    if datasets:
+        return {"id": datasets[0]["id"], "origen": "reciente", "dataset": datasets[0]}
+    return {"id": None, "origen": None, "dataset": None}
+
+
+def elegir_dataset_activo(ds_id: str) -> dict[str, Any]:
+    load_meta(ds_id)                        # IngestError si no existe en este workspace
+    _archivo_activo().write_text(json.dumps({"id": ds_id}), encoding="utf-8")
+    return dataset_activo()
+
+
+def limpiar_dataset_activo() -> dict[str, Any]:
+    _archivo_activo().unlink(missing_ok=True)
+    return dataset_activo()
+
+
+def dataset_para(pedido: str | None = None) -> str:
+    """Resuelve qué dataset usa un consumidor: el pedido explícito o el activo."""
+    if pedido:
+        load_meta(pedido)
+        return pedido
+    ds_id = dataset_activo()["id"]
+    if not ds_id:
+        raise IngestError("No hay ningún dataset cargado en este workspace.")
+    return ds_id
 
 
 def glob_expr(ds_id: str) -> str:

@@ -236,6 +236,25 @@ function renderAiChip() {
   chip.style.cursor = 'pointer';
 }
 
+/* ── indicador del dataset activo ────────────────────────────────────────── */
+// Dice en todo momento sobre qué datos trabajan TODAS las pestañas.
+function renderDatasetChip() {
+  const chip = $('#dataset-chip');
+  if (!chip) return;
+  const s = store.get();
+  const ds = store.dataset();
+  clear(chip);
+  chip.className = `badge ${ds ? 'ok' : ''}`;
+  const label = ds
+    ? `${i18n.t('topbar.dataset_active')}: ${ds.name}${s.datasetOrigen === 'reciente' ? ` (${i18n.t('topbar.dataset_auto')})` : ''}`
+    : i18n.t('topbar.dataset_none');
+  chip.appendChild(document.createTextNode(label));
+  chip.title = i18n.t('topbar.dataset_hint');
+  chip.onclick = () => go('data');
+  chip.onkeydown = (e) => { if (e.key === 'Enter') go('data'); };
+  chip.style.cursor = 'pointer';
+}
+
 /* ── arranque ────────────────────────────────────────────────────────────── */
 async function start() {
   applyTheme(localStorage.getItem('mv.theme')
@@ -246,10 +265,14 @@ async function start() {
   buildTopbar();
   await buildWorkspaceSelect();
   store.subscribe((_, keys) => { if (keys.includes('ai')) renderAiChip(); });
+  store.subscribe((_, keys) => {
+    if (keys.includes('datasets') || keys.includes('datasetId')) renderDatasetChip();
+  });
 
   try {
     await store.boot();
     renderAiChip();
+    renderDatasetChip();
     $('#version').textContent = `v${store.get().health?.version || '1.0.0'}`;
   } catch (err) {
     // 401 en el navegador significa modo servidor sin credencial cargada: se
@@ -268,7 +291,7 @@ async function start() {
     const name = (location.hash.match(/#\/(\w+)/) || [])[1];
     if (name && name !== currentView) go(name);
   });
-  i18n.onChange(() => { renderAiChip(); renderAudioButton(); buildWorkspaceSelect(); });
+  i18n.onChange(() => { renderAiChip(); renderDatasetChip(); renderAudioButton(); buildWorkspaceSelect(); });
 }
 
 start();

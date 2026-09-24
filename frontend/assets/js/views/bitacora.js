@@ -19,8 +19,12 @@ const ETAPAS = ['ingesta', 'etl', 'objetivo', 'particion', 'preparacion', 'entre
 
 let nav = null;
 
-/** Fuente elegida: se conserva entre visitas a la pestaña. */
-const fuente = { dataset: null, modelo: null, lectura: 'ambas' };
+/**
+ * Fuente elegida. El dataset es el activo de la aplicación (store.datasetId);
+ * acá sólo se recuerda si el usuario pidió armarla SIN dataset (sólo modelo).
+ */
+const fuente = { sinDataset: false, modelo: null, lectura: 'ambas' };
+const datasetDeLaFuente = () => (fuente.sinDataset ? null : store.get().datasetId);
 
 function etapaLabel(etapa) {
   return ETAPAS.includes(etapa) ? t(`bit.etapa_${etapa}`) : etapa;
@@ -82,7 +86,7 @@ export default {
       el('option', { value: '', text: `— ${t('common.none')} —` }),
       ...s.datasets.map((d) => el('option', {
         value: d.id, text: d.name,
-        selected: d.id === (fuente.dataset || s.datasetId) })));
+        selected: !fuente.sinDataset && d.id === s.datasetId })));
     const mdSel = el('select', {},
       el('option', { value: '', text: `— ${t('common.none')} —` }),
       ...s.models.map((m) => el('option', {
@@ -96,16 +100,18 @@ export default {
     const self = this;
 
     const cargar = async () => {
-      fuente.dataset = dsSel.value || null;
+      const dataset = dsSel.value || null;
+      fuente.sinDataset = !dataset;
+      if (dataset) store.elegirDataset(dataset);
       fuente.modelo = mdSel.value || null;
-      if (!fuente.dataset && !fuente.modelo) {
+      if (!dataset && !fuente.modelo) {
         clear(salida).appendChild(emptyState(t('bit.pick_source')));
         return;
       }
       clear(salida).appendChild(note(t('common.loading'), 'info'));
       try {
         const q = new URLSearchParams();
-        if (fuente.dataset) q.set('dataset_id', fuente.dataset);
+        if (dataset) q.set('dataset_id', dataset);
         if (fuente.modelo) q.set('model_id', fuente.modelo);
         self.libro = await api.get(`/api/bitacora?${q}`);
         self.pintar(salida);
@@ -163,10 +169,10 @@ export default {
 
   /* ── salidas ─────────────────────────────────────────────────────────── */
   async exportar(formato) {
-    if (!fuente.dataset && !fuente.modelo) { toast(t('bit.pick_source'), 'warn'); return; }
+    if (!datasetDeLaFuente() && !fuente.modelo) { toast(t('bit.pick_source'), 'warn'); return; }
     try {
       const r = await api.post('/api/bitacora/exportar', {
-        dataset_id: fuente.dataset, model_id: fuente.modelo, formato,
+        dataset_id: datasetDeLaFuente(), model_id: fuente.modelo, formato,
       });
       audio.beep('done');
       const a = el('a', { href: withWorkspace(r.download_url), download: r.filename });
@@ -182,11 +188,11 @@ export default {
    * maqueta que pueda quedar desincronizada de la primera.
    */
   async pdf() {
-    if (!fuente.dataset && !fuente.modelo) { toast(t('bit.pick_source'), 'warn'); return; }
+    if (!datasetDeLaFuente() && !fuente.modelo) { toast(t('bit.pick_source'), 'warn'); return; }
     let url;
     try {
       const r = await api.post('/api/bitacora/exportar', {
-        dataset_id: fuente.dataset, model_id: fuente.modelo, formato: 'html',
+        dataset_id: datasetDeLaFuente(), model_id: fuente.modelo, formato: 'html',
       });
       url = withWorkspace(r.download_url);
     } catch (err) { fail(err); return; }
