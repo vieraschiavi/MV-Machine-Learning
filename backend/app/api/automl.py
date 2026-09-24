@@ -124,6 +124,23 @@ def score(body: ScoreBody) -> dict[str, Any]:
                     meta={"model_id": body.model_id, "dataset_id": body.dataset_id})
 
 
+class MonitorBody(BaseModel):
+    model_id: str
+    dataset_id: str
+
+
+@router.post("/monitor")
+def monitor(body: MonitorBody) -> dict[str, Any]:
+    """Deriva: ¿los datos nuevos se parecen a los que el modelo vio al entrenar?"""
+    L.require("scoring")
+    try:
+        return registry.monitorear(body.model_id, body.dataset_id)
+    except (FileNotFoundError, storage.IngestError) as exc:
+        raise HTTPException(404, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+
 class PredictBody(BaseModel):
     model_id: str
     rows: list[dict[str, Any]]

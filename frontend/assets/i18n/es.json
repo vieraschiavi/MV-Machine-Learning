@@ -378,7 +378,22 @@
     "calibrated": "Calibrado",
     "cases": "Casos",
     "positives": "Positivos",
-    "concentration": "Concentración por decil (lift)"
+    "concentration": "Concentración por decil (lift)",
+    "drift": "Deriva de los datos",
+    "drift_check": "Controlar deriva",
+    "drift_lead": "Compara el dataset elegido contra los datos con los que se entrenó el modelo (PSI por variable). Sirve para saber si el número sigue valiendo o toca reentrenar.",
+    "drift_reference": "entrenamiento:",
+    "drift_status": "Estado",
+    "drift_weight": "Peso en el modelo",
+    "drift_nulls": "Vacíos (antes → ahora)",
+    "drift_help": "PSI menor a 0,10: estable. Entre 0,10 y 0,25: vigilar. 0,25 o más: la población cambió. El veredicto pesa las variables que el modelo realmente usa.",
+    "drift_level_estable": "Estable",
+    "drift_level_moderada": "Vigilar",
+    "drift_level_fuerte": "Reentrenar",
+    "drift_level_falta": "Falta",
+    "drift_level_no_aplica": "No aplica",
+    "drift_level_insuficiente": "Pocas filas",
+    "drift_variable": "Variable"
   },
   "ai": {
     "title": "Motor de IA",

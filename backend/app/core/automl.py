@@ -520,8 +520,40 @@ def train(df: pd.DataFrame, cfg: TrainConfig, progress: Progress = _noop) -> dic
         "seconds": round(time.time() - t_start, 1),
         "verdict": _verdict(task, metric, champion, gap, board),
     }
+    progress(97, "Guardando la foto de los datos para vigilar la deriva")
+    report["monitoreo"] = _referencia_deriva(bundle, df, feat_cols, i_tr, i_ho, explanation)
     progress(100, "Listo")
     return {"report": report, "bundle": bundle}
+
+
+def _importancias_deriva(explanation: dict[str, Any]) -> dict[str, float]:
+    """Peso de cada variable para el veredicto de deriva: permutación si hay, si no la nativa."""
+    ranking = explanation.get("ranking") or []
+    perm = {r["column"]: r.get("permutation_drop_pct") or 0.0 for r in ranking}
+    if any(v > 0 for v in perm.values()):
+        return perm
+    return {r["column"]: r.get("native") or 0.0 for r in ranking}
+
+
+def _referencia_deriva(bundle: dict[str, Any], df: pd.DataFrame, feat_cols: list[str],
+                       i_tr, i_ho, explanation: dict[str, Any]) -> dict[str, Any]:
+    """Deja en el bundle la distribución de entrenamiento para compararla con datos futuros.
+
+    Las variables se fotografían sobre la ventana de entrenamiento (lo que el
+    modelo vio); la predicción, sobre el holdout (lo que el modelo devuelve con
+    datos que no vio). Si algo falla, el modelo se entrega igual: el monitoreo
+    es un agregado, nunca una razón para perder un entrenamiento.
+    """
+    from . import deriva as D
+    from .registry import predict_frame
+    try:
+        pred = D.serie_prediccion(predict_frame(bundle, df.iloc[i_ho]))
+        ref = D.referencia(df[feat_cols].iloc[i_tr], pred, _importancias_deriva(explanation))
+    except Exception as exc:     # noqa: BLE001 - el monitoreo nunca tumba el entrenamiento
+        return {"disponible": False, "motivo": f"No se pudo guardar la referencia: {str(exc)[:200]}"}
+    bundle["referencia_deriva"] = ref
+    return {"disponible": True, "variables": len(ref["variables"]), "filas": ref["filas"],
+            "umbrales": {"moderada": D.UMBRAL_MODERADA, "fuerte": D.UMBRAL_FUERTE}}
 
 
 def _task_label(task: str) -> str:

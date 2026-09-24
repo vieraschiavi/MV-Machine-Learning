@@ -181,7 +181,8 @@ empresa es el que confirma permisos, red y versión del driver.
 
 ## C. Que Power BI muestre el resultado
 
-Una llamada deja cuatro tablas en la carpeta que se le indique:
+Una llamada deja cuatro tablas en la carpeta que se le indique, y una quinta
+cuando se le pasan datos nuevos:
 
 ```python
 modelo.para_powerbi("/lakehouse/default/Files/mv/powerbi",
@@ -194,15 +195,22 @@ modelo.para_powerbi("/lakehouse/default/Files/mv/powerbi",
 | `metricas.parquet` | métrica y ventana | comparar selección contra holdout en un visual |
 | `importancias.parquet` | variable | qué sostiene al modelo, medido sobre el holdout |
 | `resumen.parquet` | modelo | la tarjeta del tablero: métrica, brecha y veredicto |
+| `deriva.parquet` | variable (más la predicción) | el semáforo de «¿hay que reentrenar?»: PSI contra los datos de entrenamiento |
 
 En Power BI Desktop: **Obtener datos → OneLake / Lakehouse**, se elige la carpeta
-y se cargan los cuatro archivos. Con *Direct Lake* el informe se actualiza solo
+y se cargan los archivos. Con *Direct Lake* el informe se actualiza solo
 la próxima vez que el notebook escriba.
 
 `metricas.parquet` viene en **formato largo** (`metrica · ventana · valor`)
 justamente para que un visual salga sin pivotear nada a mano: métrica en el eje,
 ventana en la leyenda, y se ve de un golpe si el modelo se sostuvo fuera de la
 ventana con la que se lo eligió.
+
+`deriva.parquet` compara los datos que se le pasan contra la foto que el modelo
+guardó al entrenar: una fila por variable con su PSI, su nivel (`estable`,
+`moderada`, `fuerte`, `falta`) y cuánto pesa en el modelo. Filtrando `nivel =
+"fuerte"` sale la lista de lo que se movió. En una celda, sin Power BI:
+`modelo.deriva(datos)["veredicto"]`.
 
 Con `formato="csv"` escribe CSV en vez de Parquet, para un Power BI que lea de
 una carpeta común en vez del Lakehouse.
@@ -252,7 +260,8 @@ familias de modelos y scoring. El notebook no es una puerta de atrás.
 |---|---|
 | Entrenar desde un DataFrame de pandas, Spark, Polars o PyArrow | probado (`test_notebook_fabric.py`) |
 | Guardar, volver a cargar y predecir igual | probado |
-| Las cuatro tablas para Power BI, en Parquet y CSV | probado |
+| Las tablas para Power BI (incluida la de deriva), en Parquet y CSV | probado |
+| Deriva: `modelo.deriva(datos)`, también con el modelo recargado | probado |
 | Topes de licencia desde el notebook | probado |
 | El notebook de ejemplo, corrido entero | probado (`test_notebook_de_ejemplo.py`) |
 | Armado de la conexión a Fabric y modos de Entra ID | probado (`test_conector_fabric.py`) |

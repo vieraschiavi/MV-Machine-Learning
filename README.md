@@ -199,12 +199,40 @@ modelo.para_powerbi("/lakehouse/default/Files/mv/powerbi", datos=datos)
 Acepta DataFrames de pandas, Spark, Polars y tablas de PyArrow. Guarda el modelo
 en una carpeta y lo vuelve a cargar para puntuar datos nuevos sin reentrenar, y
 deja cuatro tablas —predicciones, métricas, importancias y resumen— que Power BI
-lee directo del Lakehouse. Los topes de la licencia rigen igual que en la
+lee directo del Lakehouse (cinco, con la de deriva, si se le pasan datos). Los topes de la licencia rigen igual que en la
 interfaz: el notebook no es una puerta de atrás.
 
 El paso a paso está en [`docs/FABRIC_Y_POWERBI.md`](docs/FABRIC_Y_POWERBI.md) y
 el notebook listo para importar en
 [`examples/fabric/`](examples/fabric/mv_automl_en_fabric.ipynb).
+
+### 7 ter. Monitoreo de deriva: saber cuándo el modelo se puso viejo
+
+Un modelo no se rompe con un error: se pone viejo en silencio. Cambian los
+clientes, el canal o los precios, y sigue devolviendo probabilidades con el
+mismo aspecto aunque ya no valgan. Al entrenar, el programa guarda **dentro del
+modelo** una foto de los datos (cada variable sobre la ventana de
+entrenamiento, la predicción sobre el holdout). Después, contra cualquier
+dataset nuevo, mide el **PSI** (índice de estabilidad poblacional, el estándar
+de riesgo crediticio) de cada variable y de la predicción:
+
+| PSI | Lectura |
+|---|---|
+| menor a 0,10 | estable |
+| 0,10 a 0,25 | vigilar |
+| 0,25 o más | la población cambió: reentrenar |
+
+El veredicto **pesa lo que importa**: si se mueve una variable que el modelo
+casi no usa, se vigila; si se mueve una de las que lo sostienen, o la
+predicción misma, toca reentrenar. Los vacíos cuentan como tramo propio, las
+categorías que no existían se informan y los identificadores (un número de
+factura nuevo no es un cambio de población) no se miden.
+
+Está en los cuatro lugares donde se usa el modelo: el botón **Controlar
+deriva** en Resultados, `POST /api/automl/monitor`, `modelo.deriva(datos)` en el
+notebook y la tabla `deriva` que `para_powerbi` deja para el semáforo del
+tablero. Los modelos entrenados antes de esta versión no tienen la foto:
+reentrenarlos una vez la activa.
 
 ### 8. Tres idiomas y sistema de audio
 
@@ -306,8 +334,8 @@ backend/app/
                      dashboards, licenses, workspaces
   core/              storage, profiling, etl, features, automl, explain,
                      metrics, registry, connectors, exporter, ai, jobs,
-                     dashboards, ask, licensing, security, zoo/
-  tests/             193 pruebas
+                     dashboards, ask, licensing, security, deriva, zoo/
+  tests/             615 pruebas
 frontend/
   index.html         una página, sin build
   assets/css/        sistema de diseño con tema claro y oscuro
@@ -333,7 +361,7 @@ web/
 
 ```bash
 pip install pytest
-pytest                       # 193 pruebas
+pytest                       # 615 pruebas
 ruff check backend           # lint
 ```
 

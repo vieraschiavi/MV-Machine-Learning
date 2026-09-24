@@ -292,6 +292,31 @@ class Resultado:
             raise ValueError(f"No están en la tabla las columnas a conservar: {', '.join(faltan)}")
         return pd.concat([df[list(conservar)], pred], axis=1)
 
+    # ── monitoreo ────────────────────────────────────────────────────────────
+    def deriva(self, datos: Any) -> dict[str, Any]:
+        """¿Los datos nuevos se parecen a los de entrenamiento? PSI por variable y veredicto.
+
+        Pasale la tabla del último mes (o la que vayas a predecir): si el
+        veredicto es ``fuerte``, el número del modelo dejó de ser confiable y
+        toca reentrenar.
+        """
+        from .core import deriva as D
+        L.require("scoring")
+        df = _tabla(datos, "La tabla a monitorear").reset_index(drop=True)
+        ref = self.bundle.get("referencia_deriva")
+        pred = D.serie_prediccion(R.predict_frame(self.bundle, df)) if ref else None
+        return D.informe(ref, df, pred)
+
+    def tabla_deriva(self, datos: Any) -> pd.DataFrame:
+        """La deriva en una tabla: una fila por variable, más la de la predicción."""
+        inf = self.deriva(datos)
+        filas = list(inf.get("variables") or [])
+        if inf.get("prediccion"):
+            filas.append({**inf["prediccion"], "importancia": None, "importante": True})
+        cols = ["variable", "tipo", "psi", "nivel", "importancia", "importante",
+                "nulos_ref", "nulos_nuevos", "categorias_nuevas"]
+        return pd.DataFrame(filas).reindex(columns=cols)
+
     # ── persistencia ─────────────────────────────────────────────────────────
     def guardar(self, carpeta: str | Path) -> Path:
         """Deja el modelo y su ficha en una carpeta: sobrevive al notebook."""
@@ -316,6 +341,8 @@ class Resultado:
           sin pivotear nada a mano.
         * ``importancias`` — qué variable sostiene al modelo y cuánto aporta.
         * ``resumen`` — una fila con el veredicto, para la tarjeta del tablero.
+        * ``deriva`` — sólo con ``datos``: PSI de cada variable contra el
+          entrenamiento, para el semáforo de "¿hay que reentrenar?".
 
         ``datos`` es opcional: sin él escribe sólo lo que describe al modelo.
         """
@@ -326,6 +353,7 @@ class Resultado:
 
         salida: dict[str, Path] = {}
         if datos is not None:
+            datos = _tabla(datos, "La tabla a predecir")    # Spark se convierte una sola vez
             salida["predicciones"] = _escribir(
                 self.predecir(datos, conservar=conservar), ruta, "predicciones", formato)
         salida["metricas"] = _escribir(self.metricas(), ruta, "metricas", formato)
@@ -340,4 +368,6 @@ class Resultado:
             "entrenado_en": pd.Timestamp.now(tz="UTC").tz_localize(None),
         }])
         salida["resumen"] = _escribir(resumen, ruta, "resumen", formato)
+        if datos is not None and self.bundle.get("referencia_deriva"):
+            salida["deriva"] = _escribir(self.tabla_deriva(datos), ruta, "deriva", formato)
         return salida
