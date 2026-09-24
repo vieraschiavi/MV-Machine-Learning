@@ -29,6 +29,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from . import fechas as F
 from . import storage as S
 
 GRANOS = {"day": 7, "week": 52, "month": 12, "quarter": 4, "year": 1}
@@ -196,11 +197,14 @@ def serie(ds_id: str, columna_tiempo: str, columna_valor: str, grano: str = "mon
     for col in (columna_tiempo, columna_valor):
         if col not in tipos:
             raise ValueError(f"La columna «{col}» no existe en el dataset.")
-    if not any(t in tipos[columna_tiempo] for t in ("timestamp", "date")):
+    # La fecha puede venir tipada o escrita como texto/aaaamm: se reconoce por
+    # contenido y se convierte en la consulta, sin reescribir el dataset.
+    formato = S.clasificar_columnas(ds_id)["formatos"].get(columna_tiempo)
+    if formato is None:
         raise ValueError(f"«{columna_tiempo}» no es una fecha "
                          f"(es {tipos[columna_tiempo]}): no se puede agrupar por período.")
 
-    qt, qv = _q(columna_tiempo), _q(columna_valor)
+    qt, qv = F.expr_sql(_q(columna_tiempo), formato), _q(columna_valor)
     where = [f"{qt} IS NOT NULL"]
     params: list[Any] = []
     if filtro:

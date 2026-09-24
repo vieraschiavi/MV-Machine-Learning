@@ -158,7 +158,8 @@
     "ph_fabric_identity": "00000000-0000-0000-0000-000000000000",
     "fabric_secret": "Application secret",
     "ph_fabric_secret": "leave empty to sign in as yourself",
-    "fabric_hint": "Fabric authenticates through Entra ID. Leave the secret empty to sign in with your organisation account (a Microsoft window opens and multi-factor works), or enter the ID and secret of a registered application so it can run unattended. The machine needs Microsoft ODBC Driver 18 installed."
+    "fabric_hint": "Fabric authenticates through Entra ID. Leave the secret empty to sign in with your organisation account (a Microsoft window opens and multi-factor works), or enter the ID and secret of a registered application so it can run unattended. The machine needs Microsoft ODBC Driver 18 installed.",
+    "hojas_cargadas": "Sheets loaded, each as its own dataset (the most useful one is active)"
   },
   "explore": {
     "title": "Explore",
@@ -587,7 +588,8 @@
     "agg_avg": "Average",
     "agg_count": "Count",
     "agg_min": "Minimum",
-    "agg_max": "Maximum"
+    "agg_max": "Maximum",
+    "otra_hoja": "Other sheets of the same Excel file do have a date and a value. Pick one to forecast:"
   },
   "acceso": {
     "title": "Server access",

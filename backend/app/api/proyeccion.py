@@ -19,29 +19,42 @@ router = APIRouter(prefix="/api/proyeccion", tags=["proyeccion"])
 
 
 def _clasificar(ds_id: str) -> tuple[list[str], list[str], list[str]]:
-    """`(fechas, numéricas, categóricas)` del dataset, por tipo de Arrow."""
+    """`(fechas, numéricas, categóricas)` del dataset.
+
+    Antes sólo contaba como fecha lo que Arrow tipaba como fecha: un
+    ``2024-01-31`` guardado como texto, o un período ``202401``, quedaban
+    afuera y la pantalla decía «sin fecha» sobre un dataset lleno de fechas.
+    Ahora se mira el contenido (ver ``core/fechas.py``).
+    """
     try:
-        meta = storage.load_meta(ds_id)
-    except Exception as exc:
+        c = storage.clasificar_columnas(ds_id)
+    except storage.IngestError as exc:
         raise HTTPException(404, f"Dataset inexistente: {ds_id}") from exc
-    fechas, numericas, categoricas = [], [], []
-    for c in meta.columns:
-        t = str(c.get("arrow_type", "")).lower()
-        if any(x in t for x in ("timestamp", "date")):
-            fechas.append(c["name"])
-        elif any(x in t for x in ("int", "double", "float", "decimal")):
-            numericas.append(c["name"])
-        else:
-            categoricas.append(c["name"])
-    return fechas, numericas, categoricas
+    return c["fechas"], c["numericas"], c["categoricas"]
+
+
+def _otras_hojas(ds_id: str) -> list[dict[str, Any]]:
+    """Hojas del mismo libro de Excel que SÍ se pueden proyectar."""
+    out = []
+    for d in storage.hermanas(ds_id):
+        try:
+            c = storage.clasificar_columnas(d["id"])
+        except storage.IngestError:
+            continue
+        if c["fechas"] and c["numericas"]:
+            out.append({"id": d["id"], "name": d.get("name"),
+                        "sheet": (d.get("origin") or {}).get("sheet")})
+    return out
 
 
 @router.get("/columnas/{ds_id}")
 def columnas(ds_id: str) -> dict[str, Any]:
     """Qué columnas sirven de fecha y cuáles de valor, para armar el formulario."""
     fechas, numericas, categoricas = _clasificar(ds_id)
+    otras = _otras_hojas(ds_id) if not (fechas and numericas) else []
     return {"fechas": fechas, "numericas": numericas, "categoricas": categoricas,
-            "granos": sorted(P.GRANOS), "agregaciones": sorted(P.AGREGACIONES)}
+            "granos": sorted(P.GRANOS), "agregaciones": sorted(P.AGREGACIONES),
+            "otras_hojas": otras}
 
 
 class ProyectarBody(BaseModel):
@@ -73,11 +86,18 @@ def _resolver_columnas(body: ProyectarBody) -> tuple[str, str]:
     falta = " ni ".join(x for x, ok in (("una columna de fecha", tiempo),
                                         ("una columna numérica", valor)) if not ok)
     hay = ", ".join((fechas + numericas + categoricas)[:12]) or "ninguna"
-    raise HTTPException(400, (
-        f"Para proyectar hace falta {falta}, y este dataset no tiene. Columnas "
-        f"que trae: {hay}. Si es un Excel con varias hojas, puede que se haya "
-        f"cargado la hoja equivocada (por ejemplo, un diccionario de datos): "
-        f"subí la hoja que tiene la fecha y el valor."))
+    msg = f"Para proyectar hace falta {falta}, y este dataset no tiene. Columnas que trae: {hay}."
+    otras = _otras_hojas(body.dataset_id)
+    if otras:
+        # el libro trae la hoja buena: se dice cuál, en vez de mandar a re-subir
+        nombres = ", ".join(f"«{o['sheet'] or o['name']}» (dataset «{o['name']}»)"
+                            for o in otras[:6])
+        msg += f" Otras hojas del mismo Excel sí tienen fecha y valor: {nombres}. Elegí una de esas."
+    else:
+        msg += (" Si salió de un Excel con varias hojas (por ejemplo, un diccionario de "
+                "datos), subí el libro entero: cada hoja queda como un dataset aparte y "
+                "podés elegir la que tiene la fecha y el valor.")
+    raise HTTPException(400, msg)
 
 
 @router.post("")

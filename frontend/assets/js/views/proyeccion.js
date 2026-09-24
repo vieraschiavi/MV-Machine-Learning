@@ -62,6 +62,18 @@ export default {
       // `null` al servidor — el usuario veía el 422 crudo de pydantic.
       if (!c.fechas.length || !c.numericas.length) {
         salida.appendChild(note(t('proy.sin_fecha'), 'warn'));
+        // Si el dataset salió de un Excel con varias hojas, otra hoja del mismo
+        // libro puede tener la fecha y el valor: se ofrece ir directo a ella.
+        const otras = c.otras_hojas || [];
+        if (otras.length) {
+          salida.appendChild(el('div', { class: 'card' },
+            el('p', { text: t('proy.otra_hoja') }),
+            el('div', { class: 'row' }, ...otras.map((o) => el('button', {
+              class: 'btn',
+              text: o.sheet || o.name,
+              onclick: () => { dsSel.value = o.id; store.elegirDataset(o.id); cargarColumnas(); },
+            })))));
+        }
         elegido.tiempo = null;
         elegido.valor = null;
         btn.disabled = true;

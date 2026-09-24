@@ -36,6 +36,10 @@ function uploadCard() {
       bar.style.width = '100%';
       bar.classList.add('done');
       status.textContent = `${res.dataset.name} · ${num(res.dataset.rows)} ${t('common.rows')} · ${res.dataset.n_columns} ${t('common.columns')}`;
+      // Un Excel de varias hojas deja un dataset por hoja; queda activa la más útil.
+      if ((res.hojas || []).length > 1) {
+        status.textContent += ` · ${t('data.hojas_cargadas')}: ${res.hojas.map((h) => h.sheet || h.name).join(', ')}`;
+      }
       audio.beep('success');
       toast(`${res.dataset.name}: ${num(res.dataset.rows)} ${t('common.rows')}`, 'ok', t('common.success'));
       await store.refreshDatasets();

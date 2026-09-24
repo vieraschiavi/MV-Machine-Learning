@@ -24,7 +24,7 @@ def _tmp(filename: str) -> Path:
     return workspace.dir_for("uploads") / f"{uuid.uuid4().hex[:10]}__{safe}"
 
 
-def _ingestar(archivo: Path, nombre: str) -> storage.DatasetMeta:
+def _ingestar(archivo: Path, nombre: str, hoja: str | None = None) -> list[storage.DatasetMeta]:
     """Leer el archivo y escribir el Parquet: minutos de trabajo bloqueante.
 
     Vive en una función aparte porque las rutas de subida son `async` y esto
@@ -32,17 +32,40 @@ def _ingestar(archivo: Path, nombre: str) -> storage.DatasetMeta:
     atiende a todo el servidor: mientras un usuario sube su archivo, nadie más
     recibe respuesta. Medido sobre 9 MB, la latencia del resto pasaba de 3 ms a
     955 ms, y escala con el tamaño —justo lo que este producto no limita—.
+
+    Un Excel de varias hojas devuelve un dataset por hoja, el más útil primero
+    (ver ``storage.ingest_workbook``). Los topes de la licencia se aplican hoja
+    por hoja en ese orden: si no entran todas, se queda la mejor.
     """
-    L.check_count(len(storage.list_datasets()), "max_datasets")
-    meta = storage.ingest_file(archivo, nombre, source="upload")
-    try:
-        L.check_rows(meta.rows)
-    except PermissionError:
-        storage.delete_dataset(meta.id)     # no se deja a medias en el workspace
-        raise
+    previos = len(storage.list_datasets())
+    L.check_count(previos, "max_datasets")
+    opts = {"sheet": hoja} if hoja else None
+    if archivo.suffix.lower() in storage.EXCEL_EXT:
+        metas = storage.ingest_workbook(archivo, nombre, source="upload", opts=opts)
+    else:
+        metas = [storage.ingest_file(archivo, nombre, source="upload", opts=opts)]
+    guardadas: list[storage.DatasetMeta] = []
+    primer_error: PermissionError | None = None
+    for m in metas:
+        try:
+            L.check_count(previos + len(guardadas), "max_datasets")
+            L.check_rows(m.rows)
+            guardadas.append(m)
+        except PermissionError as exc:
+            storage.delete_dataset(m.id)     # no se deja a medias en el workspace
+            primer_error = primer_error or exc
+    if not guardadas:
+        raise primer_error or storage.IngestError("El archivo no produjo datos.")
     # lo que el usuario acaba de cargar pasa a ser el dataset de TODAS las pestañas
-    storage.elegir_dataset_activo(meta.id)
-    return meta
+    storage.elegir_dataset_activo(guardadas[0].id)
+    return guardadas
+
+
+def _respuesta(metas: list[storage.DatasetMeta]) -> dict[str, Any]:
+    """`dataset` es el activo (como siempre); `hojas`, todo lo que dejó el libro."""
+    return {"dataset": metas[0].to_dict(),
+            "hojas": [{"id": m.id, "name": m.name, "rows": m.rows,
+                       "sheet": (m.origin or {}).get("sheet")} for m in metas]}
 
 
 @router.get("")
@@ -75,7 +98,8 @@ def limpiar_activo() -> dict[str, Any]:
 
 @router.post("/upload-stream")
 async def upload_stream(request: Request, filename: str = Query(...),
-                        name: str | None = Query(None)) -> dict[str, Any]:
+                        name: str | None = Query(None),
+                        sheet: str | None = Query(None)) -> dict[str, Any]:
     """Sube por streaming crudo: el archivo nunca se carga entero en memoria.
 
     Es la vía que usa la interfaz. No hay tope de tamaño: el límite es el
@@ -91,8 +115,8 @@ async def upload_stream(request: Request, filename: str = Query(...),
                     written += len(chunk)
         if written == 0:
             raise HTTPException(400, "El archivo llegó vacío.")
-        meta = await run_in_threadpool(_ingestar, dest, name or Path(filename).stem)
-        return {"dataset": meta.to_dict(), "bytes_received": written}
+        metas = await run_in_threadpool(_ingestar, dest, name or Path(filename).stem, sheet)
+        return {**_respuesta(metas), "bytes_received": written}
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc
     finally:
@@ -101,16 +125,17 @@ async def upload_stream(request: Request, filename: str = Query(...),
 
 @router.post("/upload")
 async def upload_multipart(file: UploadFile = File(...),
-                           name: str | None = Form(None)) -> dict[str, Any]:
+                           name: str | None = Form(None),
+                           sheet: str | None = Form(None)) -> dict[str, Any]:
     """Alternativa multipart, para clientes que no puedan mandar el cuerpo crudo."""
     dest = _tmp(file.filename or "dataset.csv")
     try:
         with dest.open("wb") as fh:
             while chunk := await file.read(4 * 1024 * 1024):
                 fh.write(chunk)
-        meta = await run_in_threadpool(
-            _ingestar, dest, name or Path(file.filename or "dataset").stem)
-        return {"dataset": meta.to_dict()}
+        metas = await run_in_threadpool(
+            _ingestar, dest, name or Path(file.filename or "dataset").stem, sheet)
+        return _respuesta(metas)
     except storage.IngestError as exc:
         raise HTTPException(400, str(exc)) from exc
     finally:

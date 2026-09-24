@@ -158,7 +158,8 @@
     "ph_fabric_identity": "00000000-0000-0000-0000-000000000000",
     "fabric_secret": "Segredo do aplicativo",
     "ph_fabric_secret": "vazio para entrar com o seu usuário",
-    "fabric_hint": "O Fabric autentica pelo Entra ID. Deixe o segredo vazio para entrar com o seu usuário da organização (abre a janela da Microsoft e aceita duplo fator), ou informe o ID e o segredo de um aplicativo registrado para rodar sem ninguém na frente. O equipamento precisa do driver ODBC 18 da Microsoft instalado."
+    "fabric_hint": "O Fabric autentica pelo Entra ID. Deixe o segredo vazio para entrar com o seu usuário da organização (abre a janela da Microsoft e aceita duplo fator), ou informe o ID e o segredo de um aplicativo registrado para rodar sem ninguém na frente. O equipamento precisa do driver ODBC 18 da Microsoft instalado.",
+    "hojas_cargadas": "Planilhas carregadas, cada uma como um dataset (ficou ativa a mais útil)"
   },
   "explore": {
     "title": "Exploração",
@@ -587,7 +588,8 @@
     "agg_avg": "Média",
     "agg_count": "Contar",
     "agg_min": "Mínimo",
-    "agg_max": "Máximo"
+    "agg_max": "Máximo",
+    "otra_hoja": "Outras planilhas do mesmo Excel têm uma data e um valor. Escolha uma para projetar:"
   },
   "acceso": {
     "title": "Acesso ao servidor",
