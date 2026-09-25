@@ -217,10 +217,42 @@ function diagnosticsPanel(r) {
   return box.children.length ? box : emptyState(t('common.empty'));
 }
 
+const DRIFT_KIND = { estable: 'ok', moderada: 'warn', fuerte: 'bad', falta: 'bad' };
+
+/** Deriva: PSI de cada variable contra la foto de entrenamiento y qué hacer. */
+function driftCard(inf) {
+  if (!inf.disponible) return note(inf.motivo, 'warn');
+  const level = (n) => badge(t(`results.drift_level_${n}`), DRIFT_KIND[n] || '');
+  const rows = [...(inf.prediccion ? [inf.prediccion] : []), ...inf.variables];
+  const c = inf.conteo;
+  return el('div', { class: 'card' },
+    el('div', { class: 'card-head' },
+      el('div', {}, el('h3', { text: t('results.drift') }),
+        el('div', { class: 'card-sub', text: `${num(inf.filas_nuevas)} ${t('common.rows')} · `
+          + `${t('results.drift_reference')} ${num(inf.filas_referencia)}` })),
+      level(inf.veredicto.nivel)),
+    note(inf.veredicto.texto, DRIFT_KIND[inf.veredicto.nivel] || ''),
+    el('div', { class: 'grid grid-4 mt-2' },
+      ...['estable', 'moderada', 'fuerte', 'falta'].map((k) => el('div', { class: `stat ${DRIFT_KIND[k]}` },
+        el('div', { class: 'stat-label', text: t(`results.drift_level_${k}`) }),
+        el('div', { class: 'stat-value', text: num(c[k]) })))),
+    el('div', { class: 'mt-2' }, table([
+      { key: 'variable', label: t('results.drift_variable'), mono: true },
+      { key: 'psi', label: 'PSI', align: 'right', format: (v) => (v == null ? '—' : dec(v, 3)) },
+      { key: 'nivel', label: t('results.drift_status'), render: (v) => level(v) },
+      { key: 'importancia', label: t('results.drift_weight'), align: 'right',
+        format: (v) => (v == null ? '—' : pct(v)) },
+      { key: 'nulos_nuevos', label: t('results.drift_nulls'), align: 'right',
+        format: (v, r) => (v == null ? '—' : `${pct(r.nulos_ref)} → ${pct(v)}`) },
+    ], rows, { compact: true, maxHeight: '420px' })),
+    el('div', { class: 'small mt-2', text: t('results.drift_help') }));
+}
+
 function actionsBar(r, host) {
   const narrateBtn = el('button', { class: 'btn' }, icon('ai', 15), t('results.narrate_result'));
   const speakBtn = el('button', { class: 'btn' }, icon('play', 15), t('topbar.narrate'));
   const scoreBtn = el('button', { class: 'btn' }, t('results.score_dataset'));
+  const driftBtn = el('button', { class: 'btn' }, t('results.drift_check'));
   const exportBtn = el('button', { class: 'btn btn-primary' }, icon('download', 15), t('export.excel'));
   const out = el('div', { class: 'mt-2' });
 
@@ -285,10 +317,37 @@ function actionsBar(r, host) {
     });
   };
 
+  driftBtn.onclick = async () => {
+    const s = store.get();
+    const sel = el('select', {}, ...s.datasets.map((d) => el('option', {
+      value: d.id, text: `${d.name} · ${num(d.rows)}`, selected: d.id === s.datasetId })));
+    const { modal } = await import('../ui.js');
+    modal({
+      title: t('results.drift_check'),
+      body: el('div', {}, el('p', { class: 'small', text: t('results.drift_lead') }),
+        el('div', { class: 'field' }, el('label', { text: t('nav.data') }), sel)),
+      actions: [
+        { label: t('common.cancel'), kind: 'ghost' },
+        {
+          label: t('common.run'), kind: 'primary',
+          onClick: async () => {
+            driftBtn.disabled = true;
+            clear(out).appendChild(el('div', { class: 'row' }, el('span', { class: 'spinner' })));
+            try {
+              const inf = await api.post('/api/automl/monitor',
+                { model_id: s.modelId, dataset_id: sel.value });
+              clear(out).appendChild(driftCard(inf));
+            } catch (err) { clear(out); fail(err); } finally { driftBtn.disabled = false; }
+          },
+        },
+      ],
+    });
+  };
+
   exportBtn.onclick = () => nav('export');
 
   return el('div', { class: 'card' },
-    el('div', { class: 'row' }, speakBtn, narrateBtn, scoreBtn, el('span', { class: 'spacer' }), exportBtn),
+    el('div', { class: 'row' }, speakBtn, narrateBtn, scoreBtn, driftBtn, el('span', { class: 'spacer' }), exportBtn),
     out);
 }
 

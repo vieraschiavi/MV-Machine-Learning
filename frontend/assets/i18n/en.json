@@ -378,7 +378,22 @@
     "calibrated": "Calibrated",
     "cases": "Cases",
     "positives": "Positives",
-    "concentration": "Concentration by decile (lift)"
+    "concentration": "Concentration by decile (lift)",
+    "drift": "Data drift",
+    "drift_check": "Check drift",
+    "drift_lead": "Compares the chosen dataset against the data the model was trained on (PSI per variable). It tells you whether the score still holds or it is time to retrain.",
+    "drift_reference": "training:",
+    "drift_status": "Status",
+    "drift_weight": "Weight in the model",
+    "drift_nulls": "Missing (before → now)",
+    "drift_help": "PSI below 0.10: stable. Between 0.10 and 0.25: watch. 0.25 or more: the population changed. The verdict weighs the variables the model actually uses.",
+    "drift_level_estable": "Stable",
+    "drift_level_moderada": "Watch",
+    "drift_level_fuerte": "Retrain",
+    "drift_level_falta": "Missing",
+    "drift_level_no_aplica": "N/A",
+    "drift_level_insuficiente": "Too few rows",
+    "drift_variable": "Variable"
   },
   "ai": {
     "title": "AI engine",

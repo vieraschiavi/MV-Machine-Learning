@@ -123,7 +123,9 @@ def test_guardar_en_una_ruta_de_onelake_explica_que_hacer(modelo):
 def test_para_powerbi_deja_las_tres_tablas(modelo, ventas, tmp_path):
     salida = modelo.para_powerbi(tmp_path / "pbi", datos=ventas.head(50),
                                  conservar=["cliente", "zona"])
-    assert set(salida) == {"predicciones", "metricas", "importancias", "resumen"}
+    # con datos nuevos también va la deriva: el tablero muestra si el modelo
+    # sigue midiendo la misma población con la que se entrenó
+    assert set(salida) == {"predicciones", "metricas", "importancias", "resumen", "deriva"}
 
     pred = pd.read_parquet(salida["predicciones"])
     assert len(pred) == 50
@@ -148,6 +150,32 @@ def test_para_powerbi_sin_datos_no_escribe_predicciones(modelo, tmp_path):
     salida = modelo.para_powerbi(tmp_path / "pbi_solo_metricas")
     assert "predicciones" not in salida
     assert set(salida) == {"metricas", "importancias", "resumen"}
+
+
+def test_la_deriva_contra_los_mismos_datos_es_estable(modelo, ventas):
+    inf = modelo.deriva(ventas)
+    assert inf["disponible"] is True
+    assert inf["veredicto"]["nivel"] == "estable"
+
+
+def test_la_deriva_detecta_datos_nuevos_corridos(modelo, ventas):
+    corridos = ventas.assign(visitas=ventas.visitas + 15)
+    inf = modelo.deriva(corridos)
+    assert inf["veredicto"]["nivel"] == "fuerte"
+    assert inf["variables"][0]["variable"] == "visitas"
+
+
+def test_la_tabla_de_deriva_para_powerbi(modelo, ventas, tmp_path):
+    salida = modelo.para_powerbi(tmp_path / "pbi_deriva", datos=ventas.assign(visitas=ventas.visitas + 15))
+    tabla = pd.read_parquet(salida["deriva"])
+    assert {"variable", "psi", "nivel", "importancia"} <= set(tabla.columns)
+    assert "(predicción)" in set(tabla["variable"])
+    assert tabla.loc[tabla.variable == "visitas", "nivel"].iloc[0] == "fuerte"
+
+
+def test_la_deriva_viaja_con_el_modelo_guardado(modelo, ventas, tmp_path):
+    recargado = N.cargar(modelo.guardar(tmp_path / "con_deriva"))
+    assert recargado.deriva(ventas)["veredicto"]["nivel"] == "estable"
 
 
 def test_para_powerbi_en_csv(modelo, ventas, tmp_path):

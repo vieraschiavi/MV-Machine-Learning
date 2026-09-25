@@ -144,6 +144,27 @@ def _slug(v: Any) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", str(v)).strip("_").lower() or "clase"
 
 
+MAX_FILAS_MONITOREO = 200_000
+
+
+def monitorear(model_id: str, dataset_id: str,
+               max_filas: int = MAX_FILAS_MONITOREO) -> dict[str, Any]:
+    """Compara un dataset nuevo contra la foto de entrenamiento guardada en el modelo.
+
+    Con tablas enormes alcanza una muestra: el PSI por deciles se estabiliza
+    mucho antes de las 200.000 filas.
+    """
+    from . import deriva as D
+    bundle, card_ = load(model_id)
+    ref = bundle.get("referencia_deriva")
+    datos = S.load_frame(dataset_id, max_rows=max_filas)
+    pred = D.serie_prediccion(predict_frame(bundle, datos)) if ref else None
+    out = D.informe(ref, datos, pred)
+    out.update({"model_id": model_id, "dataset_id": dataset_id,
+                "modelo": card_.get("name"), "objetivo": card_.get("target")})
+    return out
+
+
 def score_dataset(model_id: str, dataset_id: str, name: str | None = None,
                   keep_columns: list[str] | None = None) -> dict[str, Any]:
     """Aplica el modelo a un dataset entero, por bloques, sin límite de tamaño."""
