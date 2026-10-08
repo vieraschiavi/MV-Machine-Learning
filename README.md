@@ -45,7 +45,16 @@ interfaz son módulos ES nativos.
 * **Servidores SQL**: Microsoft Fabric (endpoint SQL, con identidad de Entra
   ID), SQL Server, PostgreSQL, MySQL/MariaDB, SQLite, DuckDB y cualquier otro
   motor vía URL de SQLAlchemy (Oracle, Snowflake, BigQuery, Redshift…). Explorás esquemas y tablas, escribís el `SELECT`, ves la vista
-  previa y extraés. **El conector es de sólo lectura**, y eso se decide por
+  previa y extraés. Con **varias tablas marcadas** se extraen de una vez: un
+  dataset por tabla, y una sin permiso no frena las demás.
+* **Azure Analysis Services (el MDW) y modelos de Power BI Premium**: habla
+  DAX, no SQL, así que se lee con `EVALUATE` (o `DEFINE … EVALUATE`) en sólo
+  lectura. «Explorar tablas» lista los modelos del servidor y las tablas del
+  elegido. Usa el conector de Microsoft (ADOMD.NET, con usuario corporativo,
+  ventana de Microsoft con MFA o token) que trae Adium All in One: funciona con
+  MV AutoML Studio abierto desde la suite (`backend/app/core/conector_aas.py`).
+  Desde la suite, además, lo traído en «Conectar una fuente» —una o varias
+  fuentes a la vez— entra directo como datasets, sin pasar por un Excel. **El conector es de sólo lectura**, y eso se decide por
   lista blanca: la consulta tiene que empezar con `SELECT` (o con un `WITH` que
   termine en `SELECT`). Enumerar los verbos que escriben no alcanzaba —`VACUUM
   INTO` copiaba la base entera a un archivo sin ser un `INSERT` ni un `UPDATE`—.
