@@ -26,6 +26,7 @@ class Profile(BaseModel):
     url: str | None = None
     tds_version: str | None = None
     odbc_driver: str | None = None      # Fabric: versión del driver ODBC instalado
+    auth: str | None = None             # Analysis Services: usuario, ventana o token
 
     def to_dict(self) -> dict[str, Any]:
         d = self.model_dump()
@@ -87,12 +88,13 @@ def describe(profile_id: str, table: str, schema: str | None = None) -> dict[str
 class QueryBody(BaseModel):
     sql: str
     limit: int = 100
+    esquema: str | None = None          # Analysis Services: el modelo elegido en «Explorar tablas»
 
 
 @router.post("/{profile_id}/preview")
 def preview(profile_id: str, body: QueryBody) -> dict[str, Any]:
     try:
-        return C.preview(C.get_profile(profile_id), body.sql, body.limit)
+        return C.preview(C.get_profile(profile_id), body.sql, body.limit, body.esquema)
     except C.ConnectionError_ as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -101,6 +103,7 @@ class ExtractBody(BaseModel):
     sql: str
     name: str
     max_rows: int | None = None
+    esquema: str | None = None
 
 
 @router.post("/{profile_id}/extract")
@@ -113,10 +116,42 @@ def extract(profile_id: str, body: ExtractBody) -> dict[str, Any]:
     L.require("sql_connectors")
 
     def work(progress):
-        out = C.extract(profile, body.sql, body.name, progress, body.max_rows)
+        out = C.extract(profile, body.sql, body.name, progress, body.max_rows, body.esquema)
         # lo extraído por SQL pasa a ser el dataset de todas las pestañas
         storage.elegir_dataset_activo(out["dataset"]["id"])
         return out
 
     return jobs.run("extract", f"Extracción SQL · {body.name}", work,
+                    meta={"connection": profile_id})
+
+
+class Tabla(BaseModel):
+    name: str
+    schema_: str | None = None
+
+
+class ExtractManyBody(BaseModel):
+    tables: list[Tabla]
+    max_rows: int | None = None
+
+
+@router.post("/{profile_id}/extract-many")
+def extract_many(profile_id: str, body: ExtractManyBody) -> dict[str, Any]:
+    """Varias tablas del mismo servidor (o del mismo modelo del MDW) de una vez: un dataset por tabla."""
+    try:
+        profile = C.get_profile(profile_id)
+    except C.ConnectionError_ as exc:
+        raise HTTPException(404, str(exc)) from exc
+    if not body.tables:
+        raise HTTPException(400, "Elegí al menos una tabla.")
+
+    L.require("sql_connectors")
+    tablas = [{"name": t.name, "schema": t.schema_} for t in body.tables]
+
+    def work(progress):
+        out = C.extract_many(profile, tablas, progress, body.max_rows)
+        storage.elegir_dataset_activo(out["datasets"][0]["id"])
+        return out
+
+    return jobs.run("extract", f"Extracción de {len(tablas)} tabla(s)", work,
                     meta={"connection": profile_id})

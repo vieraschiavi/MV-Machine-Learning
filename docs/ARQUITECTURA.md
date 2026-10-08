@@ -46,7 +46,8 @@ omisión) y la interfaz avisa cuántas filas se usaron sobre cuántas hay.
 | `core/explain.py` | Importancia nativa, permutación sobre el holdout y SHAP con dirección del efecto |
 | `core/metrics.py` | Métricas con dirección, formato y explicación en lenguaje llano |
 | `core/registry.py` | Guardado de modelos, ficha, predicción puntual y scoring por bloques |
-| `core/connectors.py` | SQL Server, PostgreSQL, MySQL, SQLite, DuckDB y URL libre de SQLAlchemy; sólo lectura |
+| `core/connectors.py` | SQL Server, PostgreSQL, MySQL, SQLite, DuckDB y URL libre de SQLAlchemy; sólo lectura; extracción de varias tablas (un dataset por tabla) |
+| `core/conector_aas.py` | Azure Analysis Services / Power BI Premium por DAX (`EVALUATE`), con el conector ADOMD.NET de Adium All in One; sólo lectura |
 | `core/exporter.py` | Excel corporativo, CSV y Parquet |
 | `core/ai.py` | Cinco proveedores de IA: catálogo de modelos, verificación y asistencias |
 | `core/jobs.py` | Trabajos en segundo plano con progreso observable por SSE |

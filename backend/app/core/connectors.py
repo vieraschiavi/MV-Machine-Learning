@@ -27,6 +27,7 @@ from urllib.parse import quote_plus, urlencode
 import pandas as pd
 
 from ..config import settings  # noqa: F401
+from . import conector_aas as AASC
 from . import storage as S
 from . import workspace
 
@@ -46,8 +47,11 @@ ENGINES: dict[str, dict[str, Any]] = {
     "mysql": {"label": "MySQL / MariaDB", "driver": "mysql+pymysql", "port": 3306},
     "sqlite": {"label": "SQLite", "driver": "sqlite", "port": None},
     "duckdb": {"label": "DuckDB", "driver": "duckdb", "port": None},
+    "aas": {"label": "Azure Analysis Services / Power BI (MDW)", "driver": None, "port": None},
     "custom": {"label": "URL de SQLAlchemy", "driver": None, "port": None},
 }
+# Analysis Services no es SQL: va por DAX con el conector de la suite (``conector_aas``).
+AAS = "aas"
 
 # Lista blanca: la consulta tiene que SER una lectura. Es lo único que no
 # depende de acordarse de todos los verbos que escriben —«VACUUM INTO» copió
@@ -140,6 +144,8 @@ def build_url(p: dict[str, Any]) -> str:
         return url
     if eng not in ENGINES:
         raise ConnectionError_(f"Motor no soportado: {eng}")
+    if eng == AAS:
+        raise ConnectionError_("Analysis Services no es una base SQL: se lee con DAX (EVALUATE), no por URL.")
     if eng in ("sqlite", "duckdb"):
         path = p.get("database") or ":memory:"
         return f"{'sqlite' if eng == 'sqlite' else 'duckdb'}:///{path}"
@@ -247,6 +253,9 @@ def _friendly(exc: Exception) -> str:
 def test_connection(p: dict[str, Any]) -> dict[str, Any]:
     from sqlalchemy import text
 
+    if p.get("engine") == AAS:
+        return AASC.test_connection(p)
+
     t0 = time.time()
     engine = make_engine(p)
     try:
@@ -270,6 +279,12 @@ def test_connection(p: dict[str, Any]) -> dict[str, Any]:
 # ─────────────────────────────────────────────────────────── metadatos ────────
 def list_tables(p: dict[str, Any], schema: str | None = None) -> dict[str, Any]:
     from sqlalchemy import inspect
+
+    if p.get("engine") == AAS:
+        try:
+            return AASC.list_tables(p, schema)
+        except AASC.ErrorAAS as exc:
+            raise ConnectionError_(str(exc)) from exc
 
     engine = make_engine(p)
     try:
@@ -299,6 +314,14 @@ def list_tables(p: dict[str, Any], schema: str | None = None) -> dict[str, Any]:
 def describe_table(p: dict[str, Any], table: str, schema: str | None = None) -> dict[str, Any]:
     from sqlalchemy import inspect
 
+    if p.get("engine") == AAS:
+        try:
+            df = AASC.leer(p, AASC.consulta_de_tabla(table), 1, schema)
+        except AASC.ErrorAAS as exc:
+            raise ConnectionError_(str(exc)) from exc
+        return {"table": table, "schema": schema,
+                "columns": [{"name": str(c), "type": str(t), "nullable": True} for c, t in df.dtypes.items()]}
+
     engine = make_engine(p)
     try:
         insp = inspect(engine)
@@ -311,17 +334,26 @@ def describe_table(p: dict[str, Any], table: str, schema: str | None = None) -> 
         engine.dispose()
 
 
-def preview(p: dict[str, Any], sql: str, limit: int = 100) -> dict[str, Any]:
+def _filas(df: pd.DataFrame, limit: int) -> dict[str, Any]:
+    return {"columns": [str(c) for c in df.columns],
+            "rows": json.loads(df.head(limit).to_json(orient="records", date_format="iso")),
+            "n": int(len(df))}
+
+
+def preview(p: dict[str, Any], sql: str, limit: int = 100, schema: str | None = None) -> dict[str, Any]:
     from sqlalchemy import text
 
+    if p.get("engine") == AAS:
+        try:
+            return _filas(AASC.leer(p, sql, limit, schema), limit)
+        except AASC.ErrorAAS as exc:
+            raise ConnectionError_(str(exc)) from exc
     guard(sql)
     engine = make_engine(p)
     try:
         with engine.connect() as con:
             df = pd.read_sql(text(_wrap_limit(sql, limit, p.get("engine"))), con)
-        return {"columns": list(df.columns),
-                "rows": json.loads(df.head(limit).to_json(orient="records", date_format="iso")),
-                "n": int(len(df))}
+        return _filas(df, limit)
     except Exception as exc:
         raise ConnectionError_(_friendly(exc)) from exc
     finally:
@@ -375,11 +407,33 @@ def _wrap_limit(sql: str, limit: int, engine: str | None) -> str:
 
 
 # ─────────────────────────────────────────────────────────── extracción ───────
+def _extract_aas(p: dict[str, Any], consulta: str, name: str, progress, max_rows: int | None,
+                 schema: str | None) -> dict[str, Any]:
+    """Analysis Services devuelve el resultado entero (ADOMD no tiene cursor): se ingesta por bloques igual."""
+    t0 = time.time()
+    progress(5.0, "Consultando Analysis Services…")
+    try:
+        df = AASC.leer(p, consulta, max_rows, schema)
+    except AASC.ErrorAAS as exc:
+        raise ConnectionError_(str(exc)) from exc
+    progress(60.0, f"{len(df):,} filas leídas")
+    paso = max(int(settings.chunk_rows), 1)
+    bloques = (df.iloc[i:i + paso] for i in range(0, max(len(df), 1), paso))
+    meta = S.ingest_frames(
+        bloques, name, source="aas",
+        origin={"connection": p.get("id"), "engine": AAS, "host": p.get("host"),
+                "database": schema or p.get("database"), "sql": consulta})
+    return {"dataset": meta.to_dict(), "seconds": round(time.time() - t0, 1)}
+
+
 def extract(p: dict[str, Any], sql: str, name: str,
-            progress=lambda *_: None, max_rows: int | None = None) -> dict[str, Any]:
+            progress=lambda *_: None, max_rows: int | None = None,
+            schema: str | None = None) -> dict[str, Any]:
     """Trae el resultado de la consulta y lo materializa como dataset."""
     from sqlalchemy import text
 
+    if p.get("engine") == AAS:
+        return _extract_aas(p, sql, name, progress, max_rows, schema)
     guard(sql)
     engine = make_engine(p, timeout=60)
     t0 = time.time()
@@ -411,3 +465,41 @@ def extract(p: dict[str, Any], sql: str, name: str,
         raise ConnectionError_(_friendly(exc)) from exc
     finally:
         engine.dispose()
+
+
+def consulta_de_tabla(p: dict[str, Any], table: str, schema: str | None = None) -> str:
+    """La consulta que trae una tabla entera, con los nombres citados como los escribe ese motor."""
+    if p.get("engine") == AAS:
+        return AASC.consulta_de_tabla(table)
+    engine = make_engine(p)
+    try:
+        q = engine.dialect.identifier_preparer
+        return f"SELECT * FROM {q.quote_schema(schema) + '.' if schema else ''}{q.quote(table)}"
+    finally:
+        engine.dispose()
+
+
+def extract_many(p: dict[str, Any], tables: list[dict[str, Any]], progress=lambda *_: None,
+                 max_rows: int | None = None) -> dict[str, Any]:
+    """Varias tablas de una vez: un dataset por tabla. Una que falla no tira las demás; se informa."""
+    if not tables:
+        raise ConnectionError_("Elegí al menos una tabla.")
+    hechos, errores = [], []
+    t0 = time.time()
+    for i, tb in enumerate(tables):
+        nombre, schema = str(tb.get("name") or ""), tb.get("schema") or None
+        base = 100.0 * i / len(tables)
+        tramo = 100.0 / len(tables)
+
+        def avance(pct, msg, _base=base, _tramo=tramo, _n=nombre):
+            progress(min(99.0, _base + _tramo * float(pct) / 100.0), f"{_n}: {msg}")
+
+        try:
+            out = extract(p, consulta_de_tabla(p, nombre, schema), nombre, avance, max_rows, schema)
+            hechos.append(out["dataset"])
+        except Exception as exc:        # una tabla sin permiso no frena las otras
+            errores.append({"table": nombre, "error": str(exc)[:300]})
+    if not hechos:
+        raise ConnectionError_("No se pudo extraer ninguna tabla: "
+                               + "; ".join(f"{e['table']}: {e['error']}" for e in errores))
+    return {"datasets": hechos, "errors": errores, "seconds": round(time.time() - t0, 1)}

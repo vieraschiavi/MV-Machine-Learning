@@ -7,6 +7,8 @@ import { $, el, clear, icon, toast, fail, table, badge, confirmDialog, emptyStat
 
 let nav = null;
 let conn = { engine: 'postgresql' };
+// Analysis Services: el modelo elegido en «Explorar tablas» (los modelos del servidor se listan como esquemas).
+let esquema = null;
 
 /* ── subida de archivos ──────────────────────────────────────────────────── */
 function uploadCard() {
@@ -78,6 +80,8 @@ function sqlCard(rerender) {
   const result = el('div');
   const tablesBox = el('div', { class: 'mt-2' });
   const sqlBox = el('textarea', { class: 'mono', rows: '5', placeholder: 'SELECT * FROM esquema.tabla' });
+  const queryLabel = el('label', { text: t('data.query') });
+  const queryHint = el('div', { class: 'hint', text: `${t('data.query_hint')} ${t('data.read_only_note')}` });
   const nameInput = el('input', { type: 'text', placeholder: t('data.extract_name') });
   const job = jobPanel();
   job.root.classList.add('hidden');
@@ -106,6 +110,23 @@ function sqlCard(rerender) {
       add('database', 'data.fabric_database', 'text', t('data.ph_fabric_database'));
       add('username', 'data.fabric_identity', 'text', t('data.ph_fabric_identity'));
       add('password', 'data.fabric_secret', 'password', t('data.ph_fabric_secret'));
+    } else if (eng === 'aas') {
+      // Analysis Services (el MDW) habla DAX, no SQL: servidor asazure://, modelo y cómo entrar.
+      conn.port = null;
+      conn.auth = conn.auth || 'usuario';
+      add('host', 'data.aas_server', 'text', t('data.ph_aas_server'));
+      add('database', 'data.aas_model', 'text', t('data.ph_aas_model'));
+      const authSel = el('select', {},
+        ...['usuario', 'ventana', 'token'].map((a) => el('option',
+          { value: a, text: t(`data.aas_auth_${a}`), selected: a === conn.auth })));
+      authSel.onchange = () => { conn.auth = authSel.value; renderFields(); };
+      fields.appendChild(el('div', { class: 'field' }, el('label', { text: t('data.aas_auth') }), authSel));
+      if (conn.auth === 'usuario') {
+        add('username', 'data.username', 'text', t('data.ph_aas_user'));
+        add('password', 'data.password', 'password');
+      } else if (conn.auth === 'token') {
+        add('password', 'data.aas_token', 'password');
+      }
     } else if (eng === 'sqlite' || eng === 'duckdb') {
       add('database', 'data.database', 'text', t('data.ph_file'));
     } else {
@@ -118,7 +139,13 @@ function sqlCard(rerender) {
   }
   function renderAll() {
     renderFields();
-    engineHint.textContent = engineSel.value === 'fabric' ? t('data.fabric_hint') : '';
+    const eng = engineSel.value;
+    engineHint.textContent = eng === 'fabric' ? t('data.fabric_hint') : eng === 'aas' ? t('data.aas_hint') : '';
+    sqlBox.placeholder = eng === 'aas' ? t('data.aas_query_ph') : 'SELECT * FROM esquema.tabla';
+    queryLabel.textContent = t(eng === 'aas' ? 'data.aas_query' : 'data.query');
+    queryHint.textContent = eng === 'aas' ? t('data.aas_query_hint')
+      : `${t('data.query_hint')} ${t('data.read_only_note')}`;
+    if (eng !== 'aas') esquema = null;
   }
   engineSel.onchange = renderAll;
   renderAll();
@@ -128,6 +155,7 @@ function sqlCard(rerender) {
   const browseBtn = el('button', { class: 'btn' }, t('data.browse_tables'));
   const previewBtn = el('button', { class: 'btn' }, t('common.preview'));
   const extractBtn = el('button', { class: 'btn btn-primary' }, t('data.extract'));
+  const esAAS = () => conn.engine === 'aas';
 
   const payload = () => ({ ...conn, port: conn.port ? Number(conn.port) : null });
 
@@ -160,29 +188,76 @@ function sqlCard(rerender) {
         const sel = el('select', { style: 'max-width:240px' },
           ...r.schemas.map((s) => el('option', { value: s, text: s, selected: s === r.schema })));
         sel.onchange = async () => {
-          const rr = await api.get(`/api/connections/${conn.id}/tables?schema=${encodeURIComponent(sel.value)}`);
-          renderTables(rr);
+          try {
+            const rr = await api.get(`/api/connections/${conn.id}/tables?schema=${encodeURIComponent(sel.value)}`);
+            esquema = rr.schema;
+            renderTables(rr);
+          } catch (err) { fail(err); }
         };
-        tablesBox.appendChild(el('div', { class: 'field' }, el('label', { text: t('data.schema') }), sel));
+        if (esAAS() && !r.schema) sel.prepend(el('option', { value: '', text: '—', selected: true }));
+        tablesBox.appendChild(el('div', { class: 'field' },
+          el('label', { text: t(esAAS() ? 'data.aas_model' : 'data.schema') }), sel));
       }
+      esquema = esAAS() ? r.schema : null;
       renderTables(r);
     } catch (err) { fail(err); } finally { browseBtn.disabled = false; }
 
     function renderTables(r) {
       const list = el('div', { class: 'item-list', style: 'max-height:280px;overflow:auto' });
+      const elegidas = new Map();
+      const multiBtn = el('button', { class: 'btn btn-primary', disabled: true }, t('data.extract_selected'));
+      const contar = () => {
+        multiBtn.disabled = !elegidas.size;
+        multiBtn.textContent = `${t('data.extract_selected')}${elegidas.size ? ` (${elegidas.size})` : ''}`;
+      };
       (r.tables || []).forEach((tb) => {
+        // Una casilla por tabla: varias tablas del mismo servidor o del mismo modelo, un dataset por tabla.
+        const marca = el('input', { type: 'checkbox', 'aria-label': tb.name });
+        marca.onclick = (e) => e.stopPropagation();
+        marca.onchange = () => {
+          if (marca.checked) elegidas.set(`${tb.schema || ''}.${tb.name}`, tb);
+          else elegidas.delete(`${tb.schema || ''}.${tb.name}`);
+          contar();
+        };
         list.appendChild(el('div', {
           class: 'item',
-          onClick: () => { sqlBox.value = `SELECT * FROM ${tb.schema ? `${tb.schema}.` : ''}${tb.name}`; },
+          onClick: () => {
+            sqlBox.value = esAAS()
+              ? `EVALUATE '${String(tb.name).replace(/'/g, "''")}'`
+              : `SELECT * FROM ${tb.schema ? `${tb.schema}.` : ''}${tb.name}`;
+            if (!nameInput.value) nameInput.value = tb.name;
+          },
         },
+          marca,
           icon('db', 15),
           el('div', { class: 'item-main' },
             el('div', { class: 'item-title', text: tb.name }),
             el('div', { class: 'item-meta', text: `${tb.type}${tb.schema ? ` · ${tb.schema}` : ''}` }))));
       });
-      const prev = tablesBox.querySelector('.item-list');
-      if (prev) prev.remove();
-      tablesBox.appendChild(list.children.length ? list : emptyState(t('common.empty')));
+      multiBtn.onclick = async () => {
+        multiBtn.disabled = true;
+        job.root.classList.remove('hidden');
+        job.reset();
+        try {
+          const tablas = [...elegidas.values()].map((tb) => ({ name: tb.name, schema_: tb.schema || null }));
+          const rr = await api.runJob(`/api/connections/${conn.id}/extract-many`, { tables: tablas },
+            (j) => job.update(j));
+          const filas = rr.datasets.reduce((a, d) => a + (d.rows || 0), 0);
+          toast(`${rr.datasets.length} dataset(s) · ${num(filas)} ${t('common.rows')}`, 'ok', t('common.success'));
+          (rr.errors || []).forEach((e) => toast(`${e.table}: ${e.error}`, 'warn'));
+          audio.beep('done');
+          await store.refreshDatasets();
+          await store.elegirDataset(rr.datasets[0].id);
+          rerender();
+        } catch (err) { fail(err); } finally { contar(); }
+      };
+      tablesBox.querySelectorAll('.item-list, .empty-state, .multi-row').forEach((n) => n.remove());
+      const vacio = esAAS() && !r.schema ? t('data.aas_pick_model') : t('common.empty');
+      tablesBox.appendChild(list.children.length ? list : emptyState(vacio));
+      if (list.children.length) {
+        tablesBox.appendChild(el('div', { class: 'row mt-1 multi-row' },
+          el('div', { class: 'hint', style: 'flex:1', text: t('data.extract_selected_hint') }), multiBtn));
+      }
     }
   };
 
@@ -190,7 +265,8 @@ function sqlCard(rerender) {
     if (!conn.id) { toast(t('data.save_connection'), 'warn'); return; }
     previewBtn.disabled = true;
     try {
-      const r = await api.post(`/api/connections/${conn.id}/preview`, { sql: sqlBox.value, limit: 50 });
+      const r = await api.post(`/api/connections/${conn.id}/preview`,
+        { sql: sqlBox.value, limit: 50, esquema });
       clear(result).appendChild(table(
         r.columns.map((c) => ({ key: c, label: c })), r.rows, { compact: true, maxHeight: '320px' }));
     } catch (err) { fail(err); } finally { previewBtn.disabled = false; }
@@ -203,7 +279,7 @@ function sqlCard(rerender) {
     job.reset();
     try {
       const r = await api.runJob(`/api/connections/${conn.id}/extract`,
-        { sql: sqlBox.value, name: nameInput.value || 'Extracción SQL' },
+        { sql: sqlBox.value, name: nameInput.value || 'Extracción SQL', esquema },
         (j) => job.update(j));
       toast(`${num(r.dataset.rows)} ${t('common.rows')}`, 'ok', t('common.success'));
       audio.beep('done');
@@ -224,8 +300,7 @@ function sqlCard(rerender) {
     result,
     tablesBox,
     el('div', { class: 'field mt-2' },
-      el('label', { text: t('data.query') }), sqlBox,
-      el('div', { class: 'hint', text: `${t('data.query_hint')} ${t('data.read_only_note')}` })),
+      queryLabel, sqlBox, queryHint),
     el('div', { class: 'row' },
       el('div', { style: 'flex:1;min-width:220px' }, nameInput),
       previewBtn, extractBtn),
@@ -266,7 +341,7 @@ function datasetList() {
     class: `item ${d.id === s.datasetId ? 'selected' : ''}`,
     onClick: () => { store.elegirDataset(d.id); audio.beep('click'); toast(`${t('data.selected')}: ${d.name}`, 'ok'); },
   },
-    icon(d.source === 'sql' ? 'db' : 'file', 16),
+    icon(d.source === 'sql' || d.source === 'aas' ? 'db' : 'file', 16),
     el('div', { class: 'item-main' },
       el('div', { class: 'item-title', text: d.name }),
       el('div', { class: 'item-meta',
