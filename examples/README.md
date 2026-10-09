@@ -44,6 +44,20 @@ Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
 la auditoría antes de entrenar.
 
+## Portafolio y mercado
+
+[`generar_portafolio.py`](generar_portafolio.py) escribe dos archivos
+**inventados** de punta a punta (marcas, una molécula ficticia combinada con
+genéricos reales, ventas y tasas):
+
+| Archivo | Qué ejercita |
+|---|---|
+| `portafolio_sintetico.csv` | Ventas YTD de dos años por país, área terapéutica, marca y presentación (mono, dobles y triple): la matriz de contribución, el índice de mix y el siguiente motor |
+| `estudios_mercado_sintetico.csv` | Embudo de hipertensión de tres países por sexo, con rango y fuente: el agente de mercado, el mercado latente y el lanzamiento |
+
+Se recorren en la pestaña **Portafolio y mercado**
+([guía](../docs/PORTAFOLIO_Y_MERCADO.md)).
+
 ## Notebook para Microsoft Fabric
 
 [`fabric/mv_automl_en_fabric.ipynb`](fabric/mv_automl_en_fabric.ipynb) entrena

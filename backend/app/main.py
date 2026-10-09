@@ -28,6 +28,7 @@ from .api import (
     ingenieria,
     jobs,
     licenses,
+    mercado,
     proyeccion,
     workspaces,
 )
@@ -62,7 +63,8 @@ app.add_middleware(
 
 for r in (datasets.router, connectors.router, etl.router, automl.router,
           ai.router, exports.router, jobs.router, workspaces.router, licenses.router,
-          dashboards.router, ingenieria.router, bitacora.router, proyeccion.router):
+          dashboards.router, ingenieria.router, bitacora.router, proyeccion.router,
+          mercado.router):
     app.include_router(r)
 
 

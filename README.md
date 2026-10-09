@@ -243,6 +243,30 @@ notebook y la tabla `deriva` que `para_powerbi` deja para el semáforo del
 tablero. Los modelos entrenados antes de esta versión no tienen la foto:
 reentrenarlos una vez la activa.
 
+### 7 quáter. Portafolio y mercado: contribución, mercado latente y lanzamientos
+
+Dos piezas para la planificación comercial de un portafolio (pensado para
+laboratorios, sirve para cualquier negocio con familias de productos):
+
+* **Matriz de contribución y mix** — la lámina de «motores de crecimiento por
+  mercado», calculada: contribución de cada país, molécula o marca (alta, media,
+  baja), índice de evolución del mix (monoterapia → dobles → triple), lectura
+  estratégica (escala, dirección, diversidad) y la banda **proteger · acelerar ·
+  desarrollar**, con el **siguiente motor** de cada mercado. Por área
+  terapéutica, con selector.
+* **Agente de mercado** — proyecta con un embudo epidemiológico por país y
+  segmento: tratados, diagnosticados sin tratamiento y gente con la enfermedad
+  que **no consulta** (el mercado latente que no aparece en ninguna base). Los
+  supuestos salen de estudios de mercado; a falta de ellos, el motor de IA
+  propone una primera versión con la casuística del área terapéutica, marcada
+  «a validar». Devuelve rango P10–P90, tornado de supuestos, curva de
+  lanzamiento y el contraste contra las ventas reales.
+
+Está en la pestaña **Portafolio y mercado**, en `mv.contribucion` /
+`mv.mercado` desde un notebook, y sale a Power BI con tablas, tema, medidas DAX
+y la matriz de burbujas para Deneb
+([guía](docs/PORTAFOLIO_Y_MERCADO.md)).
+
 ### 8. Tres idiomas y sistema de audio
 
 Español, inglés y portugués, con los tres diccionarios verificados por una
@@ -407,6 +431,9 @@ pipeline por motivos que no son del código.
   notebook de Microsoft Fabric, conectar el programa al endpoint SQL con
   identidad de Entra ID y dejar la salida lista para el tablero. Incluye lo que
   se probó y lo que no.
+* [Portafolio y mercado](docs/PORTAFOLIO_Y_MERCADO.md) — matriz de
+  contribución y mix, agente de mercado (actual y latente) y cómo armar en
+  Power BI la página con el formato de la lámina de contribución.
 * [Puesta en producción](docs/PRODUCCION.md) — paso a paso por plataforma para
   dejar el cobro, las licencias y el panel andando, sin correr un solo comando.
 * [Análisis del negocio](docs/MV-AutoML-Studio-Analisis.xlsx) — calificación por

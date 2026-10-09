@@ -1,0 +1,45 @@
+{
+  "name": "MV Portafolio y mercado",
+  "dataColors": ["#1F2E6E", "#2E9FB8", "#6CB54A", "#B9D23A", "#D64545", "#F2A93B", "#7A869A", "#3D5AFE"],
+  "background": "#FFFFFF",
+  "foreground": "#24324F",
+  "tableAccent": "#1F2E6E",
+  "good": "#6CB54A",
+  "neutral": "#F2A93B",
+  "bad": "#D64545",
+  "maximum": "#1F2E6E",
+  "center": "#2E9FB8",
+  "minimum": "#EAF4F7",
+  "textClasses": {
+    "title": {"fontFace": "Segoe UI Semibold", "fontSize": 14, "color": "#24324F"},
+    "header": {"fontFace": "Segoe UI Semibold", "fontSize": 12, "color": "#24324F"},
+    "label": {"fontFace": "Segoe UI", "fontSize": 10, "color": "#4A5672"},
+    "callout": {"fontFace": "Segoe UI Bold", "fontSize": 28, "color": "#2E9FB8"}
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{"show": true, "color": {"solid": {"color": "#F5F8FB"}}, "transparency": 0}],
+        "border": [{"show": false}],
+        "visualHeader": [{"show": false}]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{"color": {"solid": {"color": "#FFFFFF"}}, "transparency": 0}]
+      }
+    },
+    "scatterChart": {
+      "*": {
+        "bubbles": [{"bubbleSize": 40}],
+        "categoryLabels": [{"show": true, "color": {"solid": {"color": "#24324F"}}, "fontSize": 9}]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [{"color": {"solid": {"color": "#2E9FB8"}}, "fontSize": 26}],
+        "categoryLabels": [{"show": true, "color": {"solid": {"color": "#24324F"}}, "fontSize": 10}]
+      }
+    }
+  }
+}

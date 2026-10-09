@@ -14,6 +14,7 @@ import ingenieria from './views/ingenieria.js';
 import bitacora from './views/bitacora.js';
 import model from './views/model.js';
 import proyeccionView from './views/proyeccion.js';
+import portafolioView from './views/portafolio.js';
 import results from './views/results.js';
 import aiView from './views/ai.js';
 import exportView from './views/export.js';
@@ -29,6 +30,7 @@ const VIEWS = {
   bitacora: { icon: 'bitacora', section: null, mod: bitacora },
   model: { icon: 'model', section: 'section_ml', mod: model },
   proyeccion: { icon: 'proyeccion', section: null, mod: proyeccionView },
+  portafolio: { icon: 'portafolio', section: null, mod: portafolioView },
   results: { icon: 'results', section: null, mod: results },
   ai: { icon: 'ai', section: 'section_system', mod: aiView },
   export: { icon: 'export', section: null, mod: exportView },

@@ -371,3 +371,13 @@ class Resultado:
         if datos is not None and self.bundle.get("referencia_deriva"):
             salida["deriva"] = _escribir(self.tabla_deriva(datos), ruta, "deriva", formato)
         return salida
+
+
+# ───────────────────────────────────────────────────── portafolio y mercado ──
+# Al final y no arriba: el módulo de portafolio usa los ayudantes de éste.
+from .notebook_portafolio import (  # noqa: E402,F401
+    contribucion,
+    mercado,
+    portafolio_para_powerbi,
+    proponer_supuestos,
+)

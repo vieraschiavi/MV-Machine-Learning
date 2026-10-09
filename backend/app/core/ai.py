@@ -430,6 +430,10 @@ def narrate(payload: dict, kind: str, lang: str = "es",
         "etl": "Explicá qué transformaciones se aplicaron y por qué, y qué riesgo quedó abierto.",
         "training": "Explicá qué tan bueno es el modelo en el holdout ciego, qué variables mandan, "
                     "y qué decisión de negocio se puede tomar con esto. Sé honesto sobre las limitaciones.",
+        "mercado": "Explicá, país por país, cuánto del mercado ya está tratado y cuánto es latente "
+                   "(sin diagnóstico o sin tratamiento), qué conviene proteger, acelerar o desarrollar, "
+                   "y qué supuesto hay que validar primero. Si el nivel de evidencia no es «estudios», "
+                   "decí claramente que la proyección es una hipótesis.",
     }.get(kind, "Resumí el contenido.")
     prompt = (f"Idioma de la respuesta: {idioma}.\n{consigna}\n"
               f"Máximo 200 palabras, en párrafos cortos, sin emojis, sin viñetas decorativas.\n\n"

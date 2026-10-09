@@ -1,0 +1,108 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Medidas del tablero «Portafolio y mercado» (MV AutoML Studio).
+//
+// Se pegan en Power BI Desktop: Modelado → Nueva medida, una por una, o en la
+// vista TMDL. Suponen las tablas con el nombre de los archivos que escribe
+// `mv.portafolio_para_powerbi(...)`: portafolio_entidades, portafolio_mix,
+// portafolio_kpis, portafolio_lectura, portafolio_grupos y mercado_*.
+//
+// Las contribuciones ya vienen calculadas DENTRO de cada área terapéutica
+// (columna `grupo`). Por eso el segmentador de `grupo` va en selección única:
+// sumar contribuciones de dos áreas mezcla denominadores distintos.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Area elegida =
+    SELECTEDVALUE ( portafolio_entidades[grupo], "Todas" )
+
+Ventas =
+    SUM ( portafolio_entidades[ventas] )
+
+Contribucion =
+    SUM ( portafolio_entidades[contribucion] )
+
+Indice de mix =
+    AVERAGE ( portafolio_entidades[indice_mix] )
+
+Etiqueta burbuja =
+    SELECTEDVALUE ( portafolio_entidades[entidad] ) & UNICHAR ( 10 )
+        & FORMAT ( [Contribucion], "0.0%" )
+
+// Formato condicional del color de la burbuja (Formato → Burbujas → fx → Valor de campo)
+Color accion =
+    SWITCH (
+        SELECTEDVALUE ( portafolio_entidades[accion] ),
+        "proteger", "#1F2E6E",
+        "acelerar", "#2E9FB8",
+        "desarrollar", "#D64545",
+        "#7A869A"
+    )
+
+// ── tarjetas de arriba ──────────────────────────────────────────────────────
+Ventas total =
+    CALCULATE ( MAX ( portafolio_kpis[valor] ), portafolio_kpis[kpi] = "ventas_total" )
+
+Concentracion top =
+    CALCULATE ( MAX ( portafolio_kpis[valor] ), portafolio_kpis[kpi] = "concentracion_top" )
+
+Texto concentracion =
+    CALCULATE ( MAX ( portafolio_kpis[texto] ), portafolio_kpis[kpi] = "concentracion_top" )
+
+Combinaciones =
+    CALCULATE ( MAX ( portafolio_kpis[valor] ), portafolio_kpis[kpi] = "combinaciones" )
+
+Texto combinaciones =
+    CALCULATE ( MAX ( portafolio_kpis[texto] ), portafolio_kpis[kpi] = "combinaciones" )
+
+// ── lectura estratégica (una tarjeta de texto por bloque) ───────────────────
+Lectura escala =
+    CALCULATE ( MAX ( portafolio_lectura[titulo] ), portafolio_lectura[bloque] = "ESCALA" )
+        & UNICHAR ( 10 )
+        & CALCULATE ( MAX ( portafolio_lectura[texto] ), portafolio_lectura[bloque] = "ESCALA" )
+
+Lectura direccion =
+    CALCULATE ( MAX ( portafolio_lectura[titulo] ), portafolio_lectura[bloque] = "DIRECCIÓN" )
+        & UNICHAR ( 10 )
+        & CALCULATE ( MAX ( portafolio_lectura[texto] ), portafolio_lectura[bloque] = "DIRECCIÓN" )
+
+Lectura diversidad =
+    CALCULATE ( MAX ( portafolio_lectura[titulo] ), portafolio_lectura[bloque] = "DIVERSIDAD" )
+        & UNICHAR ( 10 )
+        & CALCULATE ( MAX ( portafolio_lectura[texto] ), portafolio_lectura[bloque] = "DIVERSIDAD" )
+
+// ── banda de abajo: proteger / acelerar / desarrollar ───────────────────────
+Lista proteger =
+    CONCATENATEX (
+        FILTER ( portafolio_entidades, portafolio_entidades[accion] = "proteger" ),
+        portafolio_entidades[entidad] & " · " & portafolio_entidades[siguiente_motor],
+        UNICHAR ( 10 ), portafolio_entidades[contribucion], DESC
+    )
+
+Lista acelerar =
+    CONCATENATEX (
+        FILTER ( portafolio_entidades, portafolio_entidades[accion] = "acelerar" ),
+        portafolio_entidades[entidad] & " · " & portafolio_entidades[siguiente_motor],
+        UNICHAR ( 10 ), portafolio_entidades[contribucion], DESC
+    )
+
+Lista desarrollar =
+    CONCATENATEX (
+        FILTER ( portafolio_entidades, portafolio_entidades[accion] = "desarrollar" ),
+        portafolio_entidades[entidad] & " · " & portafolio_entidades[siguiente_motor],
+        UNICHAR ( 10 ), portafolio_entidades[contribucion], DESC
+    )
+
+// ── página de mercado ───────────────────────────────────────────────────────
+Pacientes en clase P50 =
+    CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "en_clase" )
+
+Mercado latente P50 =
+    CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "latente" )
+
+Latente sobre prevalentes =
+    DIVIDE (
+        [Mercado latente P50],
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "prevalentes" )
+    )
+
+Supuestos a validar =
+    CALCULATE ( COUNTROWS ( mercado_supuestos ), mercado_supuestos[origen] = "IA (a validar)" )
