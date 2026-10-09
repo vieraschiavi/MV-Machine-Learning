@@ -50,6 +50,18 @@ def _div(a: Any, b: Any) -> Any:
     return a / b if b > 0 else np.nan
 
 
+def a_fecha(serie: pd.Series) -> pd.Series:
+    """Fechas sin zona horaria: «2026-10-01» y «2026-10-01T13:00:00Z» se comparan entre sí."""
+    return pd.to_datetime(serie, errors="coerce", utc=True).dt.tz_localize(None)
+
+
+def _ventana(inter: pd.DataFrame, hoy: pd.Timestamp) -> pd.DataFrame:
+    """Los envíos de los últimos 30 días, hoy entero incluido (un envío de hoy a las 9 cuenta)."""
+    fin = hoy.normalize() + pd.Timedelta(days=1)
+    return inter[(inter["evento"] == "envio") & (inter["fecha"] >= fin - pd.Timedelta(days=VENTANA_DIAS))
+                 & (inter["fecha"] < fin)]
+
+
 def preparar_interacciones(df: pd.DataFrame | None) -> tuple[pd.DataFrame, list[str]]:
     if df is None or df.empty:
         return pd.DataFrame(columns=COLUMNAS_INTERACCIONES), []
@@ -64,13 +76,13 @@ def preparar_interacciones(df: pd.DataFrame | None) -> tuple[pd.DataFrame, list[
     if raros.any():
         avisos.append(f"Se ignoraron {int(raros.sum())} interacción(es) con eventos desconocidos "
                       f"({', '.join(sorted(set(d.loc[raros, 'evento']))[:5])}). Válidos: {', '.join(EVENTOS)}.")
-    d["fecha"] = pd.to_datetime(d["fecha"], errors="coerce")
+    d["fecha"] = a_fecha(d["fecha"])
     sin_fecha = d["fecha"].isna() & ~raros
     if sin_fecha.any():
         avisos.append(f"Se ignoraron {int(sin_fecha.sum())} interacción(es) sin fecha válida.")
     d = d[~raros & ~sin_fecha]
-    d["id_contacto"] = d["id_contacto"].astype(str)
-    d["id_contenido"] = d["id_contenido"].astype(str)
+    d["id_contacto"] = K.normalizar_id(d["id_contacto"])
+    d["id_contenido"] = K.normalizar_id(d["id_contenido"])
     return d[COLUMNAS_INTERACCIONES].reset_index(drop=True), avisos
 
 
@@ -132,8 +144,7 @@ def recomendar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones:
     eleg = elegibilidad if elegibilidad is not None else K.matriz_elegibilidad(contactos, contenidos, ajustes)
     cand = eleg.loc[eleg["motivo"] == "", ["id_contacto", "id_contenido"]]
     inter = interacciones
-    desde = hoy - pd.Timedelta(days=VENTANA_DIAS)
-    recientes = inter[(inter["evento"] == "envio") & (inter["fecha"] > desde) & (inter["fecha"] <= hoy)]
+    recientes = _ventana(inter, hoy)
     # Fuera: lo enviado hace poco, en lo que ya se inscribió o canjeó, y lo que motivó una queja.
     fuera = pd.concat([recientes[["id_contacto", "id_contenido"]],
                        inter.loc[inter["evento"].isin(CONVERSION + ("queja",)), ["id_contacto", "id_contenido"]]])
@@ -267,8 +278,7 @@ def auditoria(contactos: pd.DataFrame, contenidos: pd.DataFrame, inter: pd.DataF
     irregulares = (env[env["motivo"] != ""].groupby(["id_contenido", "motivo"]).size()
                    .rename("envios").reset_index())
     irregulares["descripcion"] = irregulares["motivo"].map(K.MOTIVOS)
-    desde = hoy - pd.Timedelta(days=VENTANA_DIAS)
-    rec = inter[(inter["evento"] == "envio") & (inter["fecha"] > desde) & (inter["fecha"] <= hoy)]
+    rec = _ventana(inter, hoy)
     por = rec.groupby("id_contacto").size()
     tope = por.index.map(lambda i: K.politica(tipo_ct["pais"].get(i, ""), ajustes).frecuencia_max_30d)
     excedidos = por[por.values > np.asarray(tope)]
@@ -276,6 +286,11 @@ def auditoria(contactos: pd.DataFrame, contenidos: pd.DataFrame, inter: pd.DataF
                   .rename("contactos_sobre_el_tope").reset_index()
                   if len(excedidos) else pd.DataFrame(columns=["pais", "contactos_sobre_el_tope"]))
     return {"bloqueos": bloqueos, "envios_no_elegibles": irregulares, "frecuencia_excedida": frecuencia}
+
+
+COLUMNAS_POLITICAS = ["pais", "ley_datos", "autoridad_sanitaria", "promocion_receta_a_publico",
+                      "promocion_venta_libre_a_publico", "doble_optin_obligatorio", "frecuencia_max_30d",
+                      "validado_por_legal"]
 
 
 def politicas_usadas(contactos: pd.DataFrame, ajustes: dict | None = None) -> pd.DataFrame:
@@ -288,7 +303,7 @@ def politicas_usadas(contactos: pd.DataFrame, ajustes: dict | None = None) -> pd
                       "doble_optin_obligatorio": q.doble_optin_obligatorio,
                       "frecuencia_max_30d": q.frecuencia_max_30d,
                       "validado_por_legal": q.validado_por_legal})
-    return pd.DataFrame(filas)
+    return pd.DataFrame(filas, columns=COLUMNAS_POLITICAS)
 
 
 # ── derechos de la persona ──────────────────────────────────────────────────
@@ -336,7 +351,12 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
                       "(¿suprimidos?): no se usan.")
         inter = inter[~ajenos]
     ct = _bajas_por_evento(ct, inter, avisos)
-    hoy = pd.Timestamp(hoy) if hoy else (inter["fecha"].max() if not inter.empty else pd.Timestamp.today())
+    if hoy:
+        hoy = a_fecha(pd.Series([hoy])).iloc[0]
+        if pd.isna(hoy):
+            raise ValueError("La fecha de hoy no se entiende: usá AAAA-MM-DD.")
+    else:
+        hoy = inter["fecha"].max() if not inter.empty else pd.Timestamp.today()
     hoy = hoy.normalize()
     eleg = K.matriz_elegibilidad(ct, co, ajustes)
     pol = politicas_usadas(ct, ajustes)
@@ -356,6 +376,9 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
                     "recomendaciones": len(rec), "personas_con_recomendacion": int(rec["id_contacto"].nunique()),
                     "personalizadas": int(rec["personalizado"].sum()) if len(rec) else 0},
         "recomendaciones": rec, "embudo": emb, "contenidos": kpis_contenidos(co, inter),
+        # Lo que el motor usó de verdad (bajas por evento aplicadas, interacciones de suprimidos fuera):
+        # el modelo para Fabric sale de acá y no de volver a preparar las tablas crudas.
+        "_preparado": {"contactos": ct, "contenidos": co, "interacciones": inter},
         "bloqueos": aud["bloqueos"], "envios_no_elegibles": aud["envios_no_elegibles"],
         "frecuencia_excedida": aud["frecuencia_excedida"], "politicas": pol,
     }
@@ -365,6 +388,8 @@ def a_json(r: dict[str, Any], max_recomendaciones: int = 500) -> dict[str, Any]:
     """El resultado de `analizar` con las tablas como listas (las recomendaciones, recortadas)."""
     out: dict[str, Any] = {}
     for k, v in r.items():
+        if k.startswith("_"):
+            continue
         if isinstance(v, pd.DataFrame):
             v = v.head(max_recomendaciones) if k == "recomendaciones" else v
             out[k] = v.astype(object).where(v.notna(), None).to_dict("records")

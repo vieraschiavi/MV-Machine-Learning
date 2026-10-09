@@ -29,6 +29,7 @@ import unicodedata
 from dataclasses import dataclass, field, replace
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 TIPOS_CONTENIDO = ("concientizacion", "programa_paciente", "promocion_marca", "beneficio",
@@ -101,7 +102,12 @@ for _p in _BASE:
 def politica(pais: Any, ajustes: dict[str, dict[str, Any]] | None = None) -> Politica:
     """La política de un país, con los ajustes que haya validado legal."""
     base = POLITICAS.get(_clave(pais), replace(GENERICA, pais=str(pais)))
-    extra = (ajustes or {}).get(base.pais) or (ajustes or {}).get(str(pais)) or {}
+    extra: dict[str, Any] = {}
+    for k, v in (ajustes or {}).items():
+        # «Mexico», «MX» y «México» son el mismo país: el ajuste de legal no se pierde por cómo se escribió.
+        if _clave(k) in (_clave(pais), _clave(base.pais)) or POLITICAS.get(_clave(k)) == base:
+            extra = v or {}
+            break
     validos = {k: v for k, v in extra.items() if k in Politica.__dataclass_fields__ and k != "pais"}
     return replace(base, **validos)
 
@@ -110,9 +116,40 @@ def politica(pais: Any, ajustes: dict[str, dict[str, Any]] | None = None) -> Pol
 _SI = {"1", "si", "sí", "s", "true", "verdadero", "x", "yes", "y", "acepta", "ok"}
 
 
+_NO = {"0", "no", "n", "false", "falso", "rechaza"}
+
+
+def _vacio(v: Any) -> bool:
+    return v is None or (isinstance(v, float) and v != v) or _clave(v) == ""
+
+
+def _si(v: Any) -> bool:
+    if isinstance(v, bool | np.bool_):
+        return bool(v)
+    if isinstance(v, int | float | np.integer | np.floating):
+        return not _vacio(v) and v != 0
+    return _clave(v) in _SI
+
+
 def _bool(serie: pd.Series) -> pd.Series:
     """Consentimiento como booleano. Lo vacío o dudoso es «no»: no se presume."""
-    return serie.map(lambda v: _clave(v) in _SI if not isinstance(v, bool) else v).astype(bool)
+    return serie.map(_si).astype(bool)
+
+
+def _baja(serie: pd.Series) -> tuple[pd.Series, int]:
+    """La baja al revés que el consentimiento: lo que no es claramente «no» se respeta como baja."""
+    dudosa = serie.map(lambda v: not _vacio(v) and not _si(v) and _clave(v) not in _NO
+                       and not (isinstance(v, int | float | np.integer | np.floating) and v == 0))
+    return (serie.map(_si) | dudosa).astype(bool), int(dudosa.sum())
+
+
+def normalizar_id(serie: pd.Series) -> pd.Series:
+    """Ids como texto comparable entre tablas: 1, 1.0 y «1» son el mismo contacto."""
+    def uno(v: Any) -> str:
+        if isinstance(v, float | np.floating) and v == v and float(v).is_integer():
+            return str(int(v))
+        return "" if _vacio(v) else str(v).strip()
+    return serie.map(uno)
 
 
 def _lista(serie: pd.Series) -> pd.Series:
@@ -133,13 +170,21 @@ def preparar_contactos(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         avisos.append("Se descartaron columnas que identifican a la persona (" + ", ".join(ident)
                       + "): la analítica trabaja con un id seudónimo; el contacto vive en el CRM.")
         d = d.drop(columns=ident)
-    for c in CONSENTIMIENTOS + ("doble_optin", "baja"):
+    if d.empty:
+        raise ValueError("La tabla de contactos está vacía.")
+    for c in CONSENTIMIENTOS + ("doble_optin",):
         d[c] = _bool(d[c]) if c in d.columns else False
+    d["baja"], dudosas = _baja(d["baja"]) if "baja" in d.columns else (False, 0)
+    if dudosas:
+        avisos.append(f"{dudosas} valor(es) de «baja» no se entendieron (ni sí ni no): se tomaron como baja.")
+    d["pais"] = d["pais"].map(lambda v: "(sin país)" if _vacio(v) else str(v).strip())
     d["tipo"] = d.get("tipo", pd.Series("paciente", index=d.index)).fillna("paciente").map(_clave)
     d.loc[~d["tipo"].isin(TIPOS_CONTACTO), "tipo"] = "paciente"
     for c in ("areas_interes", "productos_recetados"):
         d[c] = _lista(d[c]) if c in d.columns else [frozenset()] * len(d)
-    d["id_contacto"] = d["id_contacto"].astype(str)
+    d["id_contacto"] = normalizar_id(d["id_contacto"])
+    if (d["id_contacto"] == "").any():
+        raise ValueError(f"{int((d['id_contacto'] == '').sum())} contacto(s) sin id_contacto.")
     dup = d.duplicated("id_contacto", keep="last")
     if dup.any():
         avisos.append(f"{int(dup.sum())} contacto(s) repetido(s): vale la última fila.")
@@ -171,6 +216,21 @@ def _condicion(x: Any) -> str:
     return "" if not k else _CONDICION.get(k, "receta")
 
 
+_AUDIENCIA = {"": "todos", "todos": "todos", "todas": "todos", "all": "todos", "general": "todos",
+              "profesional": "profesional", "profesionales": "profesional", "hcp": "profesional",
+              "medico": "profesional", "medicos": "profesional", "medica": "profesional",
+              "medicas": "profesional", "prof": "profesional", "paciente": "paciente",
+              "pacientes": "paciente", "cuidador": "paciente", "cuidadores": "paciente",
+              "publico": "publico", "consumidor": "publico", "consumidores": "publico"}
+
+
+def _audiencia(x: Any) -> str:
+    k = _clave(x)
+    if k not in _AUDIENCIA:
+        raise ValueError(f"Audiencia desconocida: «{x}». Usá profesional, paciente, publico o todos.")
+    return _AUDIENCIA[k]
+
+
 def preparar_contenidos(df: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
     d.columns = [_clave(c).replace(" ", "_") for c in d.columns]
@@ -187,11 +247,17 @@ def preparar_contenidos(df: pd.DataFrame) -> pd.DataFrame:
         d[c] = d[c].fillna(defecto) if c in d.columns else defecto
     d["area_clave"] = d["area_terapeutica"].map(_clave)
     d["producto_clave"] = d["producto"].map(_clave)
-    d["condicion_venta"] = d["condicion_venta"].map(_condicion)
-    d["audiencia"] = d["audiencia"].map(_clave).replace("", "todos")
+    # Con producto y sin condición de venta, se asume receta: el lado prudente.
+    d["condicion_venta"] = [_condicion(c) or ("receta" if _clave(p) else "")
+                            for c, p in zip(d["condicion_venta"], d["producto"], strict=True)]
+    d["audiencia"] = d["audiencia"].map(_audiencia)
     d["paises_set"] = d["paises"].map(lambda s: frozenset(_clave(x) for x in str(s).replace(",", ";").split(";")
                                                           if _clave(x)) or frozenset({"*"}))
-    d["id_contenido"] = d["id_contenido"].astype(str)
+    d["id_contenido"] = normalizar_id(d["id_contenido"])
+    rep = d["id_contenido"][d["id_contenido"].duplicated()].unique()
+    if len(rep):
+        raise ValueError(f"id_contenido repetido en el catálogo: {', '.join(map(str, rep[:5]))}. Cada "
+                         "contenido tiene que tener un id propio.")
     return d.reset_index(drop=True)
 
 
@@ -231,7 +297,9 @@ def motivo_bloqueo(contactos: pd.DataFrame, c: pd.Series, ajustes: dict | None =
         ("sin_doble_optin", pol.map(lambda p: p.doble_optin_obligatorio) & ~contactos["doble_optin"]),
         ("pais", todos("*" not in paises) & ~ctx["claves_pais"].map(lambda s: bool(s & paises))),
         ("audiencia", _audiencia_mal(c, prof)),
-        ("receta_al_publico", todos(c["tipo"] == "promocion_marca" and receta)
+        # Un producto bajo receta no se nombra al público en ningún tipo de contenido, salvo el
+        # programa o el beneficio de quien declaró que se lo recetaron (lo controla la regla final).
+        ("receta_al_publico", todos(receta and bool(c["producto_clave"]) and not pide_receta)
          & ~prof & ~pol.map(lambda p: p.promocion_receta_a_publico)),
         ("venta_libre_al_publico", todos(comercial and c["condicion_venta"] == "venta_libre")
          & ~prof & ~pol.map(lambda p: p.promocion_venta_libre_a_publico)),
@@ -296,6 +364,6 @@ def plantillas() -> dict[str, pd.DataFrame]:
     return {"contactos": contactos, "contenidos": contenidos, "interacciones": interacciones}
 
 
-__all__ = ["COMERCIALES", "CONSENTIMIENTOS", "MOTIVOS", "POLITICAS", "TIPOS_CONTACTO",
+__all__ = ["normalizar_id", "COMERCIALES", "CONSENTIMIENTOS", "MOTIVOS", "POLITICAS", "TIPOS_CONTACTO",
            "TIPOS_CONTENIDO", "Politica", "matriz_elegibilidad", "motivo_bloqueo", "plantillas",
            "politica", "preparar_contactos", "preparar_contenidos"]

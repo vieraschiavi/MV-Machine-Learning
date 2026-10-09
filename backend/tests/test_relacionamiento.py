@@ -143,3 +143,26 @@ def test_el_ejemplo_sintetico_corre_entero_y_sale_a_json():
     j = R.a_json(r, max_recomendaciones=50)
     assert len(j["recomendaciones"]) == 50 and isinstance(j["embudo"], list)
     assert all(v is None or v == v for f in j["contenidos"] for v in f.values())   # sin NaN
+
+
+# ── bordes que encontró la revisión ─────────────────────────────────────────
+def test_los_envios_de_hoy_cuentan_para_el_tope_y_para_no_repetir():
+    inter = pd.DataFrame([*_ev("1", "X1", "2026-10-01 09:00", "envio"), *_ev("1", "X2", "2026-10-01 09:00", "envio"),
+                          *_ev("1", "X3", "2026-10-01 09:00", "envio"), *_ev("1", "A", "2026-10-01 10:00", "envio")])
+    r = R.analizar(pd.DataFrame([_ct("1")]), CONTENIDOS, inter, hoy="2026-10-01")
+    assert r["recomendaciones"].empty                       # 4 de 4 envíos del mes
+    r = R.analizar(pd.DataFrame([_ct("1")]), CONTENIDOS, inter, hoy="2026-10-01",
+                   ajustes={"Uruguay": {"frecuencia_max_30d": 3}})
+    assert r["frecuencia_excedida"]["contactos_sobre_el_tope"].sum() == 1
+
+
+def test_fechas_con_zona_horaria_y_ids_numericos():
+    inter = pd.DataFrame([{"id_contacto": 1, "id_contenido": "A", "fecha": "2026-09-01T12:00:00Z", "evento": "envio"},
+                          {"id_contacto": 1, "id_contenido": "A", "fecha": "2026-09-01T12:05:00Z", "evento": "baja"}])
+    ct = pd.DataFrame([_ct(1.0)])          # el CSV con un vacío deja el id como 1.0
+    r = R.analizar(ct, CONTENIDOS, inter, hoy="2026-10-01")
+    assert r["recomendaciones"].empty and bool(r["_preparado"]["contactos"]["baja"].iloc[0])
+
+
+def test_politicas_con_columnas_aunque_no_haya_paises():
+    assert list(R.politicas_usadas(pd.DataFrame({"pais": []}))) == R.COLUMNAS_POLITICAS

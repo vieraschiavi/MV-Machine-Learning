@@ -18,7 +18,7 @@ from typing import Any, Literal
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from ..core import consentimiento as K
 from ..core import programa_relacionamiento as PR
@@ -55,6 +55,13 @@ class AjustePais(BaseModel):
     frecuencia_max_30d: int | None = Field(None, ge=0, le=30)
     validado_por_legal: bool | None = None
 
+    @model_validator(mode="after")
+    def _rx_solo_con_legal(self) -> AjustePais:
+        # Abrir la promoción de receta al público es la regla más delicada: no se acepta sin el visto de legal.
+        if self.promocion_receta_a_publico and not self.validado_por_legal:
+            raise ValueError("promocion_receta_a_publico sólo se puede habilitar con validado_por_legal: true.")
+        return self
+
 
 class AnalizarBody(BaseModel):
     contactos_dataset_id: str
@@ -76,7 +83,8 @@ def _frame(ds_id: str | None) -> pd.DataFrame | None:
     if not ds_id:
         return None
     try:
-        return storage.load_frame(storage.dataset_para(ds_id))
+        # Entera, sin muestreo: una muestra perdería bajas y envíos, y el tope de frecuencia mentiría.
+        return storage.query(storage.dataset_para(ds_id), "SELECT * FROM {t}")
     except storage.IngestError as exc:
         raise HTTPException(404, str(exc)) from exc
 

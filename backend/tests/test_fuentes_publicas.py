@@ -173,3 +173,55 @@ def test_modelo_vacio_o_formato_raro():
         F.escribir("/tmp/no-se-usa", {})
     with pytest.raises(ValueError, match="formato"):
         F.escribir("/tmp/no-se-usa", {"x": pd.DataFrame()}, formato="xlsx")
+
+
+# ── bordes que encontró la revisión ─────────────────────────────────────────
+def test_supresion_complementaria_y_de_captados_chicos():
+    # 10 mujeres y 2 hombres en Pocitos: suprimir sólo a los hombres se despejaría restando del total.
+    ct = pd.concat([_contactos(10, 0), _contactos(0, 2).assign(barrio="Pocitos")], ignore_index=True)
+    cob = T.cobertura(ct, T.preparar_poblacion(_censo()), T.preparar_prevalencias(PREV), "Cardio",
+                      por_barrio=True, segmentar=("sexo",)).set_index(["barrio", "sexo"])
+    assert cob.loc[("Pocitos", "Hombres"), "celda_suprimida"] and cob.loc[("Pocitos", "Mujeres"), "celda_suprimida"]
+    # 12 personas pero sólo 3 con el área declarada: el dato de salud chico tampoco se publica.
+    ct = pd.concat([_contactos(3, 0), _contactos(9, 0).assign(areas_interes=[frozenset()] * 9)], ignore_index=True)
+    fila = T.cobertura(ct, T.preparar_poblacion(_censo()), T.preparar_prevalencias(PREV), "Cardio",
+                       por_barrio=True).set_index("barrio").loc["Pocitos"]
+    assert fila["captados_area"] == "<10"
+
+
+def test_prevalencias_parciales_y_repetidas():
+    prev = pd.DataFrame([{"pais": "Uruguay", "area_terapeutica": "Cardio", "sexo": "Total", "rango_edad": "40-59",
+                          "prevalencia": 0.2},
+                         {"pais": "Uruguay", "area_terapeutica": "Cardio", "sexo": "Total", "rango_edad": "40-59",
+                          "prevalencia": 0.4}])
+    cob = T.cobertura(_contactos(1, 0), T.preparar_poblacion(_censo()),
+                      T.preparar_prevalencias(prev), "Cardio")
+    assert cob["poblacion"].iloc[0] == 4400 and cob["casos_estimados"].iloc[0] == 1320   # 4400 × 0,30
+
+
+def test_profesionales_y_bajas_no_son_captados_del_area():
+    ct = _contactos(12, 0)
+    ct.loc[:5, "tipo"] = "profesional"
+    ct.loc[6:7, "baja"] = True
+    fila = T.cobertura(ct, T.preparar_poblacion(_censo()), T.preparar_prevalencias(PREV), "Cardio",
+                       por_barrio=True, k_minimo=1).set_index("barrio").loc["Pocitos"]
+    assert fila["en_base"] == 12 and fila["captados_area"] == 4
+
+
+def test_el_modelo_sale_de_lo_que_uso_el_motor():
+    from app.core import programa_relacionamiento as PR
+    ct = pd.DataFrame([{"id_contacto": "1", "pais": "Uruguay", "consiente_contacto": "si"}])
+    co = pd.DataFrame([{"id_contenido": "A", "tipo": "concientizacion"}])
+    inter = pd.DataFrame([{"id_contacto": "1", "id_contenido": "A", "fecha": "2026-09-01", "evento": "baja"},
+                          {"id_contacto": "SUPRIMIDO", "id_contenido": "A", "fecha": "2026-09-01", "evento": "envio"}])
+    t = PR.modelo(PR.analizar(ct, co, inter, hoy="2026-10-01"))
+    assert bool(t["dim_contacto"]["baja"].iloc[0])
+    assert "SUPRIMIDO" not in set(t["fact_interacciones"]["contacto_key"])
+
+
+def test_escucha_sin_temas_se_saltea_con_aviso():
+    from app.core import programa_relacionamiento as PR
+    ct = pd.DataFrame([{"id_contacto": "1", "pais": "Uruguay", "consiente_contacto": "si"}])
+    co = pd.DataFrame([{"id_contenido": "A", "tipo": "concientizacion"}])
+    r = PR.analizar(ct, co, escucha=pd.DataFrame({"fecha": ["2026-01-01"], "texto": ["hola"]}))
+    assert any("escucha se salteó" in a for a in r["avisos"])

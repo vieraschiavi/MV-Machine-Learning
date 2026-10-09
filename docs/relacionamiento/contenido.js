@@ -30,7 +30,7 @@ const KPIS = [
   ['4', 'consentimientos por separado: contacto, comercial, salud y personalización'],
   ['11', 'reglas que se chequean antes de recomendar nada'],
   ['0', 'medicamentos bajo receta promocionados al público'],
-  ['57', 'pruebas automáticas sobre el programa'],
+  ['81', 'pruebas automáticas sobre el programa'],
 ];
 
 const SECCIONES = [
@@ -167,7 +167,7 @@ const SECCIONES = [
       { t: 'p', x: 'En la pestaña **Relacionamiento** se eligen las tablas (las dos propias son obligatorias; las públicas, opcionales) y se analiza. Arriba, el resumen; el último número dice cuántos envíos del historial hoy no cumplirían.' },
       { t: 'img', src: 'img/tarjetas.png', pie: 'Contactos y su porcentaje contactable, recomendaciones y envíos a revisar con compliance.' },
       { t: 'img', src: 'img/embudo_bloqueos.png', pie: 'El embudo de la base y por qué no se envía lo que no se envía. El motivo más común en el ejemplo es «área no declarada»: el programa no infiere enfermedades.' },
-      { t: 'img', src: 'img/cobertura.png', pie: 'El mercado sin alcanzar: casos estimados con censo y prevalencias contra la base. Las celdas con menos de 10 personas no se publican.' },
+      { t: 'img', src: 'img/cobertura.png', pie: 'El mercado sin alcanzar: casos estimados con censo y prevalencias contra la base. Los conteos de 1 a 9 (en la base o captados del área) no se publican, y si queda una sola celda oculta en una zona se oculta también la siguiente, para que no se despeje restando.' },
       { t: 'img', src: 'img/politicas.png', pie: 'Las reglas por país, con su ley, autoridad, tope de envíos y si legal ya las validó.' },
     ],
   },
@@ -217,11 +217,11 @@ const SECCIONES = [
     para: 'legal',
     bloques: [
       { t: 'table', head: ['Riesgo', 'Control en el programa'], ancho: [36, 64], filas: [
-        ['Promocionar un producto bajo receta al público', 'Regla «receta al público» antes del puntaje; condición de venta desconocida = receta.'],
+        ['Promocionar un producto bajo receta al público', 'Regla «receta al público» antes del puntaje, para cualquier tipo de contenido que nombre un producto bajo receta; condición de venta vacía o desconocida = receta.'],
         ['Usar un dato de salud sin permiso', 'Se descarta al cargar y se avisa; el área exige consentimiento de salud.'],
         ['Inferir una enfermedad', 'Sólo lo declarado; el nivel socioeconómico es el de la zona, no el de la persona.'],
-        ['Reidentificar a alguien en una tabla agregada', 'Supresión de celdas chicas (menos de 10 en la base, menos de 5 menciones en la escucha), también en la brecha.'],
-        ['Cansar o molestar', 'Tope de envíos por país, ventana de 30 días, exclusión tras una queja, baja en un clic.'],
+        ['Reidentificar a alguien en una tabla agregada', 'Supresión de conteos chicos (de 1 a 9 en la base o en los captados del área; menos de 5 menciones en la escucha), también en la brecha, con supresión complementaria dentro de cada zona.'],
+        ['Cansar o molestar', 'Tope de envíos por país (los de hoy cuentan), ventana de 30 días, exclusión tras una queja, baja en un clic; una baja que no se entiende se respeta como baja.'],
         ['Un evento adverso en redes', 'Conteo por producto y aviso a farmacovigilancia, que revisa caso por caso en la herramienta de escucha.'],
         ['Derechos de la persona', '`acceso` (todo lo que la base tiene de alguien) y `suprimir` (borra y deja una huella para que no se vuelva a importar).'],
         ['Envíos pasados que hoy no cumplen', 'Auditoría con el motivo, para revisar con compliance.'],
@@ -251,7 +251,7 @@ const SECCIONES = [
         ['¿No es más lento que comprar una base?', 'Al principio sí. Pero una base comprada con datos de salud no se puede usar legalmente, y una propia se puede usar todos los días, con mejor respuesta porque la gente eligió estar.'],
         ['¿Podemos usar el nivel económico para ofrecer productos caros?', 'El del barrio, sí, para planificar campañas y contenidos de venta libre. No se infiere el de la persona ni se usa para negarle información.'],
         ['¿Y si alguien escribe en redes que toma nuestro producto?', 'Cuenta como mención agregada. Si describe un posible efecto adverso, farmacovigilancia lo revisa en la herramienta de escucha. No se lo contacta para venderle.'],
-        ['¿Qué pasa si legal dice que un país permite más?', 'Se carga el ajuste para ese país (por ejemplo, otro tope de envíos) y queda marcado como validado. El código no cambia.'],
+        ['¿Qué pasa si legal dice que un país permite más?', 'Se carga el ajuste para ese país (por ejemplo, otro tope de envíos) y queda marcado como validado. El código no cambia. Abrir la promoción de receta al público exige, además, el visto de legal en el mismo ajuste.'],
         ['¿Sirve para médicos?', 'Sí: a profesionales registrados se les puede promocionar productos bajo receta y enviar educación médica; el recomendador los trata como otra audiencia.'],
       ] },
     ],

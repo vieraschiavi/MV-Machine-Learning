@@ -77,3 +77,17 @@ def test_exportar_el_zip_con_powerbi_y_modelo_fabric(client, ids):
     assert "medidas_relacionamiento.dax" in nombres and "relacionamiento_cobertura.csv" in nombres
     assert "modelo_fabric/crear_tablas.sql" in nombres and "modelo_fabric/dim_contacto.csv" in nombres
     assert not any(n.endswith(".part") for n in nombres)
+
+
+def test_rx_al_publico_solo_con_el_visto_de_legal_y_contactos_vacios(client, ids, tmp_path):
+    base = {"contactos_dataset_id": ids["contactos_dataset_id"], "contenidos_dataset_id": ids["contenidos_dataset_id"]}
+    r = client.post("/api/relacionamiento/analizar", json={
+        **base, "ajustes": {"Uruguay": {"promocion_receta_a_publico": True}}})
+    assert r.status_code == 422 and "validado_por_legal" in r.text
+    vacio = tmp_path / "contactos_vacios.csv"
+    vacio.write_text("id_contacto,pais,consiente_contacto\n", encoding="utf-8")
+    with vacio.open("rb") as f:
+        up = client.post("/api/datasets/upload", files={"file": ("contactos_vacios.csv", f)})
+    if up.status_code == 200:          # si la ingesta acepta una tabla sin filas, el análisis no da 500
+        r = client.post("/api/relacionamiento/analizar", json={**base, "contactos_dataset_id": up.json()["dataset"]["id"]})
+        assert r.status_code == 400, r.text

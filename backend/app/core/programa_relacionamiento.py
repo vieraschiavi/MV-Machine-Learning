@@ -19,7 +19,6 @@ from typing import Any
 
 import pandas as pd
 
-from . import consentimiento as K
 from . import escucha as S
 from . import modelo_fabric as F
 from . import powerbi_relacionamiento as P
@@ -35,8 +34,7 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
     """Todo el análisis. Devuelve tablas (DataFrames), avisos y lo necesario para el modelo."""
     r = R.analizar(contactos, contenidos, interacciones, hoy=hoy, ajustes=ajustes, por_contacto=por_contacto)
     avisos = list(r["avisos"])
-    ct, _ = K.preparar_contactos(contactos)
-    co = K.preparar_contenidos(contenidos)
+    ct, co = r["_preparado"]["contactos"], r["_preparado"]["contenidos"]
     pob = T.preparar_poblacion(poblacion) if poblacion is not None else None
     pv = T.preparar_prevalencias(prevalencias) if prevalencias is not None else None
     if pob is not None:
@@ -54,13 +52,16 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
     r["escucha_menciones"] = r["escucha_terminos"] = r["farmacovigilancia"] = pd.DataFrame()
     if escucha is not None:
         productos = [p for p in co["producto"].astype(str) if p.strip()]
-        e = S.agregar(escucha, temas or S.temas_del_catalogo(co), productos=productos)
+        temas = temas or S.temas_del_catalogo(co)
+    if escucha is not None and not temas:
+        avisos.append("La escucha se salteó: el catálogo no tiene áreas ni productos y no se indicaron temas.")
+    elif escucha is not None:
+        e = S.agregar(escucha, temas, productos=productos)
         r["escucha_menciones"], r["escucha_terminos"] = e["menciones"], e["terminos"]
         r["farmacovigilancia"], r["escucha_publicaciones"] = e["farmacovigilancia"], e["publicaciones"]
         avisos += e["avisos"]
     r["avisos"] = avisos
-    r["_preparado"] = {"contactos": ct, "contenidos": co, "poblacion": pob, "prevalencias": pv,
-                       "interacciones": R.preparar_interacciones(interacciones)[0]}
+    r["_preparado"] = {**r["_preparado"], "contactos": ct, "poblacion": pob, "prevalencias": pv}
     return r
 
 

@@ -102,17 +102,26 @@ def enriquecer(contactos: pd.DataFrame, poblacion: pd.DataFrame) -> pd.DataFrame
 
 
 def _casos(poblacion: pd.DataFrame, prevalencias: pd.DataFrame, area: str) -> pd.DataFrame:
-    """Casos estimados por zona: población × prevalencia por sexo y edad (o la total del país)."""
+    """Casos estimados por zona: población × la prevalencia más específica que haya.
+
+    Orden: sexo y edad exactos → sexo exacto con edad «Total» → edad exacta con
+    sexo «Total» → total del país. Si dos fuentes dan el mismo estrato, se promedian
+    (no se duplica la población).
+    """
     pv = prevalencias[prevalencias["area_terapeutica_k"] == _clave(area)]
     if pv.empty:
         raise ValueError(f"No hay prevalencias para el área «{area}».")
+    pv = pv.groupby(["pais_k", "sexo_k", "rango_edad_k"], as_index=False)["prevalencia"].mean()
     p = poblacion.copy()
-    exacta = pv[(pv["sexo_k"] != TOTAL) & (pv["rango_edad_k"] != TOTAL)]
-    total = pv[(pv["sexo_k"] == TOTAL) & (pv["rango_edad_k"] == TOTAL)][["pais_k", "prevalencia"]]
-    p = p.merge(exacta[["pais_k", "sexo_k", "rango_edad_k", "prevalencia"]], how="left",
-                on=["pais_k", "sexo_k", "rango_edad_k"])
-    p = p.merge(total.rename(columns={"prevalencia": "prev_total"}), how="left", on="pais_k")
-    p["prevalencia"] = p["prevalencia"].fillna(p["prev_total"])
+    p["prevalencia"] = np.nan
+    niveles = [(["sexo_k", "rango_edad_k"], (pv["sexo_k"] != TOTAL) & (pv["rango_edad_k"] != TOTAL)),
+               (["sexo_k"], (pv["sexo_k"] != TOTAL) & (pv["rango_edad_k"] == TOTAL)),
+               (["rango_edad_k"], (pv["sexo_k"] == TOTAL) & (pv["rango_edad_k"] != TOTAL)),
+               ([], (pv["sexo_k"] == TOTAL) & (pv["rango_edad_k"] == TOTAL))]
+    for claves, mascara in niveles:
+        tabla = pv[mascara][["pais_k", *claves, "prevalencia"]].rename(columns={"prevalencia": "_p"})
+        p = p.merge(tabla, how="left", on=["pais_k", *claves])
+        p["prevalencia"] = p["prevalencia"].fillna(p.pop("_p"))
     p["casos"] = p["poblacion"] * p["prevalencia"]
     return p
 
@@ -144,14 +153,22 @@ def cobertura(contactos: pd.DataFrame, poblacion: pd.DataFrame, prevalencias: pd
         origen = SEGMENTOS[seg]
         c[f"{seg}_k"] = c[origen].map(_clave) if origen in c.columns else ""
     area_k = _clave(area)
-    c["del_area"] = c["areas_interes"].map(lambda s: area_k in s) & c["consiente_salud"].astype(bool)
+    # Captados = pacientes o cuidadores alcanzables que declararon el área con permiso de salud.
+    # Los profesionales no son casos, y quien pidió la baja ya no está al alcance.
+    c["del_area"] = (c["areas_interes"].map(lambda s: area_k in s) & c["consiente_salud"].astype(bool)
+                     & (c["tipo"] != "profesional") & ~c["baja"].astype(bool))
     base = c.groupby(grupo).agg(en_base=("id_contacto", "size"), captados_area=("del_area", "sum")).reset_index()
     t = casos.merge(base, how="left", on=grupo).fillna({"en_base": 0, "captados_area": 0})
     t["penetracion"] = t["captados_area"] / t["casos_estimados"].where(t["casos_estimados"] > 0)
     t["brecha"] = (t["casos_estimados"] - t["captados_area"]).clip(lower=0).round()
     t["casos_estimados"] = t["casos_estimados"].round()
     # Celdas chicas: no se publica el número (se podría reidentificar a alguien cruzando tablas).
-    chica = t["en_base"] < k_minimo
+    # Cuenta la base, los captados del área (dato de salud) y su complemento.
+    resto = t["en_base"] - t["captados_area"]
+    # Un cero no identifica a nadie: se suprimen los conteos de 1 a k−1.
+    chica = (t["en_base"].between(1, k_minimo - 1) | t["captados_area"].between(1, k_minimo - 1)
+             | resto.between(1, k_minimo - 1))
+    chica = _complementaria(t, chica, grupo, por_barrio, bool(segmentar))
     for col in ("en_base", "captados_area"):
         t[col] = t[col].astype(int).astype(object).where(~chica, f"<{k_minimo}")
     t.loc[chica, "penetracion"] = np.nan
@@ -163,6 +180,26 @@ def cobertura(contactos: pd.DataFrame, poblacion: pd.DataFrame, prevalencias: pd
     cols = ["area_terapeutica", *[nombres[k] for k in grupo], "poblacion", "casos_estimados", "en_base",
             "captados_area", "penetracion", "brecha", "celda_suprimida"]
     return t[cols].reset_index(drop=True)
+
+
+def _complementaria(t: pd.DataFrame, chica: pd.Series, grupo: list[str], por_barrio: bool,
+                    segmentado: bool) -> pd.Series:
+    """Si en un grupo queda una sola celda suprimida, se suprime también la siguiente más chica.
+
+    Si no, se despeja restando del total del grupo (que otra corrida publica).
+    """
+    padre = grupo[:3 if por_barrio else 2] if segmentado else grupo[:-1]
+    chica = chica.copy()
+    if not padre:
+        padre_s = pd.Series(0, index=t.index)
+    else:
+        padre_s = t[padre].astype(str).agg("|".join, axis=1)
+    for _, idx in t.groupby(padre_s).groups.items():
+        sup = chica.loc[idx]
+        libres = t.loc[idx][~sup & (t.loc[idx, "en_base"] > 0)]
+        if sup.sum() == 1 and len(libres):
+            chica.loc[libres["en_base"].idxmin()] = True
+    return chica
 
 
 def resumen(cob: pd.DataFrame, top: int = 5) -> dict[str, Any]:

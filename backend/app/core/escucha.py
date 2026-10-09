@@ -101,7 +101,7 @@ def preparar(df: pd.DataFrame) -> tuple[pd.DataFrame, list[str]]:
         avisos.append("Se descartaron columnas que identifican a quien publicó (" + ", ".join(fuera)
                       + "): la escucha se analiza agregada.")
         d = d.drop(columns=fuera)
-    d["fecha"] = pd.to_datetime(d["fecha"], errors="coerce")
+    d["fecha"] = pd.to_datetime(d["fecha"], errors="coerce", utc=True).dt.tz_localize(None)
     d = d.dropna(subset=["fecha"])
     d["pais"] = d["pais"].fillna("(sin país)") if "pais" in d.columns else "(sin país)"
     d["texto"] = d["texto"].map(lambda s: _clave(limpiar(s)))

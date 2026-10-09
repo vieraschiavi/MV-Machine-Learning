@@ -54,7 +54,7 @@ Para cada par persona × contenido, el **primer** motivo que bloquea:
 | `sin_doble_optin` | el país la exige (ajuste de legal) y no la tiene |
 | `pais` | el contenido no está habilitado en su país |
 | `audiencia` | educación médica a quien no es profesional; programa o beneficio a un profesional |
-| `receta_al_publico` | promoción de marca de un producto bajo receta a quien no es profesional |
+| `receta_al_publico` | cualquier contenido que nombre un producto bajo receta, a quien no es profesional (salvo programa o beneficio de una receta declarada); con producto y sin condición de venta se asume receta |
 | `venta_libre_al_publico` | promoción de venta libre donde legal no la habilitó |
 | `sin_consentimiento_marketing` | promoción o beneficio sin permiso comercial |
 | `sin_consentimiento_salud` | contenido de un área (o programa) sin permiso de salud |
@@ -63,7 +63,14 @@ Para cada par persona × contenido, el **primer** motivo que bloquea:
 
 Las políticas por país (`Politica`) traen ley, autoridad sanitaria, tope de
 envíos en 30 días (4), doble opt-in y promoción al público. Legal ajusta por
-país con `ajustes={"Uruguay": {"frecuencia_max_30d": 2, "validado_por_legal": True}}`.
+país con `ajustes={"Uruguay": {"frecuencia_max_30d": 2, "validado_por_legal": True}}` (el país
+se reconoce con o sin tildes y por su código: «Mexico», «MX»). Habilitar
+`promocion_receta_a_publico` exige `validado_por_legal: true` en el mismo ajuste.
+
+Los consentimientos aceptan sí/no, 1/0 y verdadero/falso; lo vacío es «no». La
+`baja` al revés: un valor que no es claramente «no» se respeta como baja, con
+aviso. Los ids se normalizan igual en todas las tablas (`1`, `1.0` y `"1"` son
+el mismo contacto) y las fechas con zona horaria se pasan a UTC.
 
 ## Recomendador (`core/relacionamiento.py`)
 
@@ -93,8 +100,12 @@ Cada recomendación trae su porqué en texto.
 
 * `core/territorio.py` — `enriquecer` (NSE de la zona declarada), `cobertura`
   (casos estimados con censo × prevalencia contra captados del área, por
-  ciudad o barrio y opcionalmente sexo, edad o NSE; supresión de celdas con
-  menos de 10 personas, también en la brecha).
+  ciudad o barrio y opcionalmente sexo, edad o NSE). Captados = pacientes o
+  cuidadores sin baja, con el área declarada y permiso de salud. Los conteos de
+  1 a 9 (en la base, en los captados o en su complemento) se suprimen, también
+  en la brecha, con supresión complementaria dentro de cada zona. La
+  prevalencia usa el estrato más específico (sexo y edad → sexo → edad → total)
+  y promedia fuentes repetidas.
 * `core/escucha.py` — menciones por país, semana y tema con sentimiento
   (léxico es/pt con negación), términos frecuentes y conteo de **posibles
   eventos adversos** por producto propio para farmacovigilancia. Sin autores ni

@@ -73,11 +73,12 @@ export default {
   formulario(s) {
     const datasets = s.datasets.map((d) => [d.id, d.name]);
     const tablas = TABLAS.map((k) => {
+      // '' = todavía sin elegir (se propone el dataset que se llama como la tabla);
+      // null = el usuario eligió «ninguna» y se respeta.
       if (cfg.ids[k] && !datasets.some(([id]) => id === cfg.ids[k])) cfg.ids[k] = '';
-      // Si un dataset se llama como la tabla (p. ej. «relacionamiento_contactos»), se propone solo.
-      if (!cfg.ids[k]) cfg.ids[k] = (s.datasets.find((d) => PISTAS[k].test(d.name)) || {}).id || '';
+      if (cfg.ids[k] === '') cfg.ids[k] = (s.datasets.find((d) => PISTAS[k].test(d.name)) || {}).id || '';
       const primera = ['', t(OBLIGATORIAS.includes(k) ? 'rel.elegir' : 'rel.ninguna')];
-      return campo(t(`rel.tabla_${k}`), sel([primera, ...datasets], cfg.ids[k], (v) => { cfg.ids[k] = v; }));
+      return campo(t(`rel.tabla_${k}`), sel([primera, ...datasets], cfg.ids[k] || '', (v) => { cfg.ids[k] = v || null; }));
     });
     const area = el('input', { type: 'text', value: cfg.area, placeholder: t('rel.area_ph') });
     area.oninput = () => { cfg.area = area.value; };
