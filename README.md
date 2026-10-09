@@ -455,6 +455,7 @@ pipeline por motivos que no son del código.
   para gerentes, técnicos y legal: de dónde salen los datos, qué se puede decir
   a quién y por qué canal, cómo se pide el consentimiento y cómo se mide.
   Detalle técnico en [RELACIONAMIENTO.md](docs/RELACIONAMIENTO.md).
+  Para presentar: [presentación gerencial](docs/relacionamiento/Relacionamiento-Presentacion-Gerencial.pptx).
 * [Portafolio y mercado](docs/PORTAFOLIO_Y_MERCADO.md) — matriz de
   contribución y mix, agente de mercado (actual y latente) y cómo armar en
   Power BI la página con el formato de la lámina de contribución.
