@@ -381,3 +381,7 @@ from .notebook_portafolio import (  # noqa: E402,F401
     portafolio_para_powerbi,
     proponer_supuestos,
 )
+from .notebook_relacionamiento import (  # noqa: E402,F401
+    relacionamiento,
+    relacionamiento_para_powerbi,
+)

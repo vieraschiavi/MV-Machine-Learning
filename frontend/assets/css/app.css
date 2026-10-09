@@ -562,3 +562,7 @@ pre.code {
 .port-lectura h3 { margin: 0 0 4px; font-size: 12px; letter-spacing: .04em; color: #2e9fb8; }
 .port-lectura p { margin: 0; font-size: 13px; color: var(--text-2); }
 @media (max-width: 720px) { .port-acciones { grid-template-columns: 1fr; } }
+
+/* ── relacionamiento ─────────────────────────────────────────────────────── */
+.rel-check { display: inline-flex; align-items: center; gap: 6px; margin-right: 16px; font-size: 13px; cursor: pointer; }
+.rel-check input { margin: 0; }

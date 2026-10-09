@@ -1,0 +1,1501 @@
+id_contacto,pais,ciudad,barrio,sexo,rango_edad,tipo,canal_captacion,fecha_alta,consiente_contacto,consiente_marketing,consiente_salud,consiente_perfilado,doble_optin,baja,areas_interes,productos_recetados,canal_preferido
+C-00001,Argentina,Buenos Aires,,Mujeres,40-59,paciente,landing,2025-10-18,si,si,si,no,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-00002,Argentina,Buenos Aires,,Mujeres,40-59,profesional,evento médico,2026-05-28,si,no,si,no,no,no,Diabetes;Bienestar,;Glucofin,sms
+C-00003,Colombia,Medellín,,Mujeres,40-59,cuidador,programa,2026-05-08,no,no,no,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00004,México,Ciudad de México,,Hombres,40-59,paciente,landing,2026-07-24,si,si,no,no,si,no,Diabetes,,email
+C-00005,Perú,Lima,,Mujeres,60+,profesional,evento médico,2026-07-13,no,no,no,no,si,no,Diabetes,;Glucofin,email
+C-00006,Argentina,Buenos Aires,,Hombres,60+,paciente,landing,2026-09-18,si,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00007,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,programa,2026-01-22,si,no,no,si,si,no,,,sms
+C-00008,Argentina,Córdoba,,Hombres,40-59,paciente,landing,2025-10-14,si,si,si,si,si,no,Salud ósea,,whatsapp
+C-00009,México,Ciudad de México,,Hombres,40-59,paciente,farmacia,2026-04-21,si,no,si,no,si,no,Salud ósea,,email
+C-00010,Perú,Lima,,Hombres,18-39,paciente,farmacia,2026-01-29,si,no,si,si,si,no,,,email
+C-00011,Chile,Santiago,,Hombres,60+,paciente,landing,2025-12-29,si,si,si,si,no,no,,,whatsapp
+C-00012,Brasil,São Paulo,,Hombres,40-59,cuidador,evento médico,2025-11-05,si,si,si,si,si,no,Bienestar,,email
+C-00013,Chile,Valparaíso,,Hombres,60+,paciente,programa,2026-02-24,si,no,si,si,si,no,Diabetes;Bienestar,;Glucofin,whatsapp
+C-00014,Colombia,Bogotá,,Hombres,18-39,profesional,evento médico,2026-08-06,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00015,Argentina,Rosario,,Mujeres,60+,paciente,landing,2025-12-23,si,si,si,si,no,no,Diabetes,,whatsapp
+C-00016,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2026-01-01,si,no,si,si,si,no,Diabetes,,email
+C-00017,Uruguay,Montevideo,Malvín,Mujeres,60+,paciente,landing,2026-07-26,si,si,si,si,si,no,Diabetes;Cardiometabólica,,email
+C-00018,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-08-24,si,no,si,si,no,no,Bienestar,,whatsapp
+C-00019,Colombia,Bogotá,,Hombres,18-39,paciente,farmacia,2025-12-12,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00020,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2026-07-08,si,no,si,si,si,no,,,whatsapp
+C-00021,Chile,Valparaíso,,Mujeres,40-59,paciente,programa,2025-11-03,si,no,si,si,no,no,Bienestar;Cardiometabólica,,whatsapp
+C-00022,Perú,Lima,,Hombres,18-39,paciente,evento médico,2026-07-07,si,si,si,si,no,no,Cardiometabólica,Vasotril,email
+C-00023,Perú,Lima,,Mujeres,60+,paciente,landing,2026-03-13,si,si,no,no,si,no,,,sms
+C-00024,México,Guadalajara,,Hombres,60+,paciente,programa,2025-10-15,si,no,si,no,no,no,Cardiometabólica,,email
+C-00025,Argentina,Córdoba,,Hombres,40-59,paciente,evento médico,2026-07-18,si,no,no,si,si,no,,,email
+C-00026,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-01-23,si,si,si,si,si,no,Bienestar,,email
+C-00027,Argentina,Rosario,,Hombres,60+,paciente,farmacia,2025-10-27,si,si,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00028,Perú,Lima,,Hombres,40-59,profesional,farmacia,2026-02-03,no,no,no,no,si,no,Diabetes;Bienestar,;Glucofin,email
+C-00029,Chile,Valparaíso,,Hombres,60+,cuidador,landing,2026-09-04,si,si,si,si,si,no,Salud ósea;Diabetes,,whatsapp
+C-00030,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2026-01-28,si,no,si,si,no,si,Diabetes;Cardiometabólica,Vasotril,email
+C-00031,Uruguay,Montevideo,Pocitos,Hombres,60+,paciente,programa,2026-03-31,si,si,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00032,México,Monterrey,,Mujeres,18-39,profesional,landing,2025-11-14,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-00033,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2025-12-29,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00034,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-08-11,si,no,si,si,no,no,Cardiometabólica;Diabetes,,whatsapp
+C-00035,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-02-14,si,si,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,sms
+C-00036,Brasil,São Paulo,,Hombres,18-39,paciente,farmacia,2026-09-20,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,email
+C-00037,Argentina,Rosario,,Mujeres,18-39,profesional,landing,2026-02-22,si,no,si,si,si,no,Cardiometabólica,,email
+C-00038,Argentina,Rosario,,Mujeres,60+,profesional,evento médico,2026-05-15,si,si,si,si,no,no,Salud ósea;Diabetes,,email
+C-00039,Colombia,Medellín,,Mujeres,60+,profesional,programa,2026-07-22,si,si,si,si,si,no,Diabetes,,email
+C-00040,México,Ciudad de México,,Mujeres,18-39,paciente,evento médico,2026-04-17,si,no,si,no,no,no,Diabetes;Cardiometabólica,,whatsapp
+C-00041,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2026-02-02,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00042,Brasil,São Paulo,,Hombres,60+,paciente,evento médico,2025-10-13,si,si,si,si,si,no,Bienestar;Diabetes,;Glucofin,email
+C-00043,Argentina,Buenos Aires,,Hombres,60+,cuidador,programa,2026-05-31,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00044,Colombia,Medellín,,Hombres,40-59,paciente,programa,2026-09-24,si,si,no,no,no,no,Bienestar,,email
+C-00045,Colombia,Bogotá,,Hombres,60+,paciente,farmacia,2025-10-26,no,no,no,no,si,no,,,email
+C-00046,México,Ciudad de México,,Hombres,60+,paciente,programa,2025-11-09,si,si,no,si,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-00047,Brasil,Rio de Janeiro,,Mujeres,60+,cuidador,farmacia,2026-04-08,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00048,Chile,Valparaíso,,Mujeres,60+,paciente,landing,2025-12-03,si,no,si,no,no,no,Cardiometabólica,,email
+C-00049,México,Monterrey,,Hombres,60+,cuidador,farmacia,2026-08-31,si,no,si,si,no,no,,,whatsapp
+C-00050,México,Guadalajara,,Hombres,60+,cuidador,farmacia,2026-01-31,si,si,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,sms
+C-00051,México,Ciudad de México,,Mujeres,60+,cuidador,programa,2026-03-17,si,no,si,no,si,no,,,whatsapp
+C-00052,Argentina,Rosario,,Hombres,18-39,cuidador,evento médico,2026-05-06,si,si,no,si,no,no,Salud ósea,,email
+C-00053,Argentina,Buenos Aires,,Hombres,40-59,paciente,evento médico,2026-04-12,si,si,si,no,si,no,Diabetes,,whatsapp
+C-00054,Uruguay,Montevideo,Pocitos,Hombres,60+,cuidador,farmacia,2026-04-20,si,si,si,no,si,no,,,email
+C-00055,México,Ciudad de México,,Mujeres,60+,paciente,landing,2026-09-22,si,no,si,no,si,no,,,email
+C-00056,Uruguay,Montevideo,Cordón,Hombres,18-39,profesional,landing,2025-10-26,si,si,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00057,Colombia,Bogotá,,Mujeres,40-59,cuidador,evento médico,2026-07-22,si,si,no,si,si,no,Salud ósea,,email
+C-00058,Colombia,Medellín,,Hombres,40-59,paciente,landing,2026-06-17,si,si,no,no,no,no,Cardiometabólica,Vasotril,whatsapp
+C-00059,México,Ciudad de México,,Mujeres,18-39,cuidador,evento médico,2026-02-25,si,si,si,no,si,no,,,email
+C-00060,Brasil,São Paulo,,Mujeres,18-39,paciente,landing,2025-10-11,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00061,Chile,Valparaíso,,Hombres,60+,profesional,farmacia,2026-01-07,si,no,no,no,si,no,,,email
+C-00062,Colombia,Medellín,,Hombres,18-39,paciente,programa,2025-11-03,si,si,si,no,si,no,Cardiometabólica,,whatsapp
+C-00063,Colombia,Medellín,,Hombres,40-59,paciente,programa,2026-06-03,si,no,si,no,si,no,,,whatsapp
+C-00064,Chile,Santiago,,Hombres,40-59,paciente,evento médico,2026-02-05,si,no,si,si,si,no,Cardiometabólica,,email
+C-00065,Colombia,Medellín,,Hombres,18-39,profesional,landing,2026-07-09,si,no,no,no,no,no,,,email
+C-00066,Colombia,Medellín,,Mujeres,60+,paciente,evento médico,2026-04-06,si,si,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00067,Perú,Lima,,Hombres,40-59,paciente,landing,2026-02-14,si,no,si,no,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-00068,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-04-21,si,no,no,si,si,no,Bienestar;Cardiometabólica,Vasotril,email
+C-00069,México,Monterrey,,Hombres,40-59,cuidador,evento médico,2026-07-31,si,no,no,si,si,no,,,sms
+C-00070,Colombia,Bogotá,,Hombres,60+,paciente,evento médico,2025-10-16,si,si,no,si,si,no,Cardiometabólica,,email
+C-00071,Uruguay,Montevideo,Cerro,Mujeres,18-39,paciente,programa,2026-04-30,si,no,si,si,si,no,,,whatsapp
+C-00072,Uruguay,Montevideo,Malvín,Mujeres,40-59,paciente,evento médico,2026-08-27,si,si,si,si,no,no,,,whatsapp
+C-00073,México,Guadalajara,,Mujeres,18-39,paciente,evento médico,2025-10-10,si,si,si,no,si,no,,,sms
+C-00074,Colombia,Medellín,,Hombres,40-59,cuidador,farmacia,2026-04-08,si,si,si,no,si,no,,,email
+C-00075,Brasil,São Paulo,,Mujeres,18-39,paciente,programa,2025-12-24,si,si,no,si,si,no,Cardiometabólica;Diabetes,;Glucofin,sms
+C-00076,Chile,Valparaíso,,Hombres,60+,paciente,evento médico,2026-07-02,si,si,si,si,si,no,,,email
+C-00077,Colombia,Bogotá,,Mujeres,18-39,paciente,farmacia,2026-05-25,si,si,si,no,si,no,Cardiometabólica,Vasotril,sms
+C-00078,Chile,Valparaíso,,Hombres,40-59,profesional,landing,2026-01-25,si,no,si,no,si,no,Cardiometabólica,,email
+C-00079,Uruguay,Montevideo,Malvín,Hombres,18-39,profesional,programa,2025-12-06,si,no,si,si,no,no,,,email
+C-00080,México,Monterrey,,Hombres,18-39,paciente,evento médico,2026-05-24,si,no,si,no,no,no,Cardiometabólica,Vasotril,email
+C-00081,Brasil,São Paulo,,Mujeres,60+,paciente,farmacia,2026-06-07,si,si,no,si,no,no,,,email
+C-00082,Brasil,São Paulo,,Mujeres,40-59,paciente,evento médico,2025-10-29,si,no,no,si,si,no,,,email
+C-00083,Uruguay,Montevideo,Cerro,Mujeres,60+,paciente,evento médico,2025-11-26,si,si,si,no,si,no,,,email
+C-00084,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2026-01-09,no,no,no,no,no,no,,,email
+C-00085,Colombia,Medellín,,Hombres,40-59,paciente,evento médico,2025-10-11,si,no,si,no,si,si,,,sms
+C-00086,México,Monterrey,,Hombres,60+,paciente,evento médico,2025-12-15,si,si,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,sms
+C-00087,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-05-21,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00088,Colombia,Medellín,,Mujeres,60+,profesional,farmacia,2025-10-20,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00089,Argentina,Rosario,,Mujeres,18-39,cuidador,evento médico,2026-02-11,si,si,no,no,si,no,Salud ósea;Bienestar,,email
+C-00090,Chile,Valparaíso,,Mujeres,60+,paciente,landing,2026-05-29,no,no,no,no,si,no,Cardiometabólica;Bienestar,Vasotril,sms
+C-00091,Chile,Valparaíso,,Mujeres,60+,paciente,programa,2026-03-25,si,no,si,no,si,no,,,email
+C-00092,México,Monterrey,,Mujeres,40-59,paciente,landing,2026-06-27,si,no,no,si,si,no,,,sms
+C-00093,Colombia,Bogotá,,Mujeres,18-39,paciente,farmacia,2026-04-23,si,no,no,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00094,México,Monterrey,,Hombres,60+,paciente,landing,2026-09-29,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00095,Chile,Santiago,,Mujeres,18-39,cuidador,evento médico,2025-11-23,si,no,no,no,si,no,Bienestar,,sms
+C-00096,Chile,Santiago,,Hombres,18-39,cuidador,programa,2025-12-01,si,no,si,no,si,no,,,whatsapp
+C-00097,México,Ciudad de México,,Mujeres,18-39,paciente,evento médico,2026-06-28,si,no,si,no,si,no,Diabetes;Salud ósea,;Glucofin,sms
+C-00098,Brasil,Rio de Janeiro,,Hombres,18-39,cuidador,evento médico,2026-08-16,si,no,si,si,no,no,,,whatsapp
+C-00099,México,Monterrey,,Hombres,18-39,cuidador,farmacia,2026-04-04,si,no,si,no,si,no,Cardiometabólica,Vasotril,sms
+C-00100,Chile,Santiago,,Mujeres,40-59,profesional,landing,2025-11-21,si,si,si,si,si,no,Diabetes,,email
+C-00101,México,Monterrey,,Mujeres,60+,cuidador,landing,2026-01-12,si,no,si,si,no,no,,,whatsapp
+C-00102,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-01-15,si,si,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00103,México,Ciudad de México,,Mujeres,18-39,profesional,programa,2026-01-11,no,no,no,no,no,no,Cardiometabólica,,email
+C-00104,México,Monterrey,,Hombres,18-39,paciente,landing,2025-10-06,no,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00105,Chile,Valparaíso,,Mujeres,60+,cuidador,farmacia,2026-05-23,si,si,no,no,si,no,Cardiometabólica,,email
+C-00106,México,Guadalajara,,Mujeres,18-39,paciente,evento médico,2026-06-16,si,si,si,si,no,no,Cardiometabólica,Vasotril,whatsapp
+C-00107,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,farmacia,2026-02-19,no,no,no,no,si,no,Diabetes,,email
+C-00108,Perú,Lima,,Hombres,60+,paciente,evento médico,2026-06-22,si,si,si,si,si,no,,,email
+C-00109,Colombia,Medellín,,Mujeres,40-59,cuidador,landing,2025-11-23,si,si,si,no,si,no,Cardiometabólica;Salud ósea,,sms
+C-00110,México,Monterrey,,Hombres,60+,paciente,farmacia,2026-05-16,no,no,no,no,si,no,Diabetes,;Glucofin,email
+C-00111,Perú,Lima,,Mujeres,60+,paciente,evento médico,2026-08-14,si,si,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00112,Uruguay,Montevideo,Pocitos,Hombres,18-39,paciente,evento médico,2026-02-12,si,no,si,no,si,no,Salud ósea;Diabetes,,whatsapp
+C-00113,México,Guadalajara,,Hombres,60+,paciente,programa,2025-12-21,si,no,si,si,si,no,Diabetes;Bienestar,;Glucofin,email
+C-00114,Argentina,Córdoba,,Mujeres,60+,paciente,evento médico,2025-11-07,si,si,no,si,no,no,Diabetes,,whatsapp
+C-00115,Uruguay,Montevideo,Malvín,Mujeres,40-59,paciente,landing,2026-04-01,si,no,si,si,si,no,,,email
+C-00116,Brasil,Rio de Janeiro,,Mujeres,40-59,paciente,programa,2026-03-23,si,no,no,no,no,no,Cardiometabólica,,email
+C-00117,Uruguay,Montevideo,Cerro,Hombres,18-39,paciente,evento médico,2026-07-16,si,no,no,si,no,no,,,sms
+C-00118,Colombia,Medellín,,Mujeres,40-59,profesional,programa,2025-12-04,no,no,no,no,si,no,Diabetes,,email
+C-00119,México,Monterrey,,Mujeres,18-39,cuidador,programa,2026-03-12,no,no,no,no,no,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00120,Brasil,Rio de Janeiro,,Mujeres,60+,cuidador,programa,2026-08-30,no,no,no,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00121,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2025-12-27,si,si,no,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-00122,México,Guadalajara,,Hombres,40-59,paciente,farmacia,2026-09-17,si,no,si,no,no,no,,,email
+C-00123,Perú,Lima,,Hombres,60+,paciente,evento médico,2026-05-29,si,no,no,si,si,no,,,email
+C-00124,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-09-29,si,no,si,si,si,no,Bienestar,,sms
+C-00125,Colombia,Bogotá,,Mujeres,40-59,cuidador,farmacia,2025-12-27,si,no,si,si,no,no,Cardiometabólica,,email
+C-00126,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-02-09,si,si,si,si,si,no,,,sms
+C-00127,Colombia,Bogotá,,Hombres,60+,paciente,landing,2026-04-16,no,no,no,no,si,no,Diabetes,;Glucofin,email
+C-00128,Uruguay,Montevideo,Malvín,Mujeres,60+,profesional,farmacia,2026-03-09,si,no,si,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00129,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-07-12,si,no,si,si,si,no,,,whatsapp
+C-00130,México,Guadalajara,,Mujeres,60+,paciente,programa,2025-10-11,si,no,si,si,no,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,email
+C-00131,Brasil,São Paulo,,Hombres,40-59,paciente,programa,2026-02-16,si,no,si,si,no,no,,,whatsapp
+C-00132,Perú,Lima,,Mujeres,40-59,profesional,landing,2026-03-02,si,no,si,no,si,no,Diabetes,,email
+C-00133,Argentina,Rosario,,Hombres,18-39,paciente,landing,2025-10-07,no,no,no,no,si,no,,,email
+C-00134,Argentina,Rosario,,Mujeres,60+,profesional,evento médico,2026-09-28,si,si,no,no,si,no,,,email
+C-00135,Argentina,Córdoba,,Hombres,60+,profesional,farmacia,2025-12-05,si,si,si,no,si,no,Salud ósea,,email
+C-00136,Perú,Lima,,Hombres,60+,paciente,evento médico,2026-02-15,si,si,si,no,si,no,Cardiometabólica;Salud ósea,,whatsapp
+C-00137,Argentina,Buenos Aires,,Mujeres,18-39,profesional,programa,2025-10-03,si,si,no,no,si,no,Diabetes,,whatsapp
+C-00138,México,Monterrey,,Mujeres,40-59,paciente,programa,2025-10-16,si,si,si,si,si,no,Diabetes,,email
+C-00139,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-06-07,si,no,si,no,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-00140,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-01-27,no,no,no,no,si,no,Salud ósea,,email
+C-00141,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-01-22,si,si,si,si,no,no,,,sms
+C-00142,Argentina,Córdoba,,Mujeres,18-39,paciente,farmacia,2025-11-19,si,no,si,no,si,no,Diabetes,,whatsapp
+C-00143,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-02-26,si,no,si,si,si,no,Cardiometabólica;Diabetes,,email
+C-00144,Argentina,Buenos Aires,,Hombres,40-59,paciente,evento médico,2026-07-13,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00145,México,Monterrey,,Hombres,60+,paciente,evento médico,2026-08-05,si,no,si,si,si,no,Diabetes,,whatsapp
+C-00146,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2026-03-12,si,si,si,si,si,no,,,whatsapp
+C-00147,Colombia,Bogotá,,Hombres,60+,cuidador,evento médico,2025-10-20,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00148,Uruguay,Montevideo,Malvín,Mujeres,60+,paciente,programa,2026-04-13,si,si,no,no,no,no,Diabetes,,email
+C-00149,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2026-03-09,si,si,no,si,si,no,Diabetes;Salud ósea,,email
+C-00150,México,Ciudad de México,,Mujeres,40-59,profesional,landing,2025-11-23,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00151,Brasil,Rio de Janeiro,,Mujeres,60+,profesional,programa,2026-03-18,si,no,si,si,si,no,Cardiometabólica;Bienestar,,email
+C-00152,México,Ciudad de México,,Mujeres,60+,paciente,landing,2025-10-01,si,si,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00153,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-09-26,si,si,si,no,si,no,Diabetes;Bienestar,;Glucofin,email
+C-00154,Colombia,Bogotá,,Hombres,60+,profesional,landing,2026-07-12,si,si,si,si,no,no,Salud ósea,,email
+C-00155,Perú,Lima,,Hombres,60+,paciente,programa,2026-06-11,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00156,México,Monterrey,,Hombres,40-59,paciente,programa,2026-08-24,si,no,si,no,si,no,,,email
+C-00157,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2026-06-25,si,si,no,no,si,no,Diabetes,;Glucofin,email
+C-00158,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2025-12-04,si,no,si,si,si,no,Diabetes;Bienestar,,whatsapp
+C-00159,Colombia,Bogotá,,Hombres,18-39,paciente,programa,2026-07-17,si,si,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00160,Colombia,Bogotá,,Mujeres,60+,paciente,programa,2026-01-23,si,si,si,si,si,no,Salud ósea,,email
+C-00161,Argentina,Córdoba,,Hombres,60+,paciente,farmacia,2026-06-12,si,si,si,no,si,no,Cardiometabólica;Salud ósea,,whatsapp
+C-00162,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,paciente,programa,2026-05-02,si,no,si,si,no,no,Salud ósea,,email
+C-00163,Chile,Santiago,,Hombres,18-39,profesional,programa,2026-03-10,si,si,si,no,si,no,Diabetes;Bienestar,;Glucofin,email
+C-00164,Argentina,Buenos Aires,,Mujeres,18-39,cuidador,landing,2026-03-29,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00165,Argentina,Córdoba,,Mujeres,60+,paciente,evento médico,2026-06-08,si,si,si,si,si,no,Diabetes,,email
+C-00166,Argentina,Buenos Aires,,Hombres,60+,paciente,evento médico,2026-04-05,si,si,si,si,si,no,Diabetes,,email
+C-00167,Colombia,Bogotá,,Hombres,18-39,paciente,landing,2026-07-20,si,si,si,no,si,no,Diabetes;Bienestar,,sms
+C-00168,Uruguay,Montevideo,Cordón,Hombres,40-59,paciente,farmacia,2026-06-25,si,si,no,si,si,no,,,email
+C-00169,Colombia,Bogotá,,Hombres,40-59,paciente,programa,2026-03-20,si,si,no,no,si,no,Bienestar,,email
+C-00170,Argentina,Córdoba,,Mujeres,40-59,paciente,landing,2025-11-21,no,no,no,no,si,no,Diabetes,,whatsapp
+C-00171,México,Monterrey,,Mujeres,18-39,paciente,programa,2026-03-29,si,si,si,no,si,no,,,email
+C-00172,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,farmacia,2026-09-13,si,si,si,si,si,no,Diabetes,,email
+C-00173,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-03-24,si,si,no,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00174,México,Guadalajara,,Mujeres,60+,profesional,evento médico,2026-08-15,si,no,no,no,si,no,,,email
+C-00175,México,Guadalajara,,Hombres,60+,paciente,evento médico,2026-06-01,si,si,no,si,si,no,Cardiometabólica,,whatsapp
+C-00176,Colombia,Medellín,,Mujeres,60+,paciente,landing,2026-01-17,no,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00177,Uruguay,Montevideo,Cordón,Hombres,40-59,paciente,evento médico,2026-01-23,si,no,si,si,si,no,Bienestar,,whatsapp
+C-00178,México,Guadalajara,,Hombres,60+,paciente,programa,2025-11-06,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-00179,Argentina,Rosario,,Hombres,40-59,paciente,farmacia,2025-10-24,si,no,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00180,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2025-10-01,si,no,si,si,no,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00181,Chile,Santiago,,Hombres,40-59,cuidador,programa,2025-10-31,si,si,si,no,si,no,,,sms
+C-00182,Colombia,Medellín,,Hombres,40-59,cuidador,landing,2025-12-11,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00183,Uruguay,Montevideo,Pocitos,Hombres,18-39,paciente,landing,2026-02-09,si,si,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00184,Uruguay,Montevideo,Malvín,Hombres,60+,paciente,evento médico,2025-11-03,si,no,si,no,si,no,,,email
+C-00185,Argentina,Rosario,,Mujeres,18-39,paciente,evento médico,2026-09-07,si,si,si,si,si,no,,,email
+C-00186,Colombia,Medellín,,Mujeres,40-59,cuidador,farmacia,2025-11-11,si,no,si,no,si,no,,,email
+C-00187,Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,cuidador,programa,2025-10-22,si,si,si,no,si,no,Bienestar;Diabetes,,sms
+C-00188,México,Guadalajara,,Hombres,18-39,paciente,landing,2025-12-12,si,no,no,no,si,no,,,email
+C-00189,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2025-11-25,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00190,Chile,Santiago,,Mujeres,60+,paciente,farmacia,2026-06-30,si,no,si,si,no,no,Bienestar;Diabetes,;Glucofin,email
+C-00191,México,Ciudad de México,,Mujeres,40-59,paciente,evento médico,2026-09-20,si,no,no,si,si,no,Diabetes,;Glucofin,email
+C-00192,México,Guadalajara,,Hombres,40-59,paciente,landing,2026-07-22,si,no,no,no,si,no,,,email
+C-00193,Chile,Santiago,,Mujeres,18-39,paciente,programa,2026-03-28,si,si,si,si,si,no,Salud ósea,,email
+C-00194,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2026-08-26,si,si,si,si,no,no,,,sms
+C-00195,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-07-19,si,si,si,no,si,no,,,sms
+C-00196,Uruguay,Montevideo,Cordón,Mujeres,18-39,cuidador,landing,2026-06-06,si,no,no,si,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00197,Chile,Valparaíso,,Mujeres,60+,paciente,programa,2025-11-01,si,si,si,no,si,no,,,email
+C-00198,México,Guadalajara,,Hombres,40-59,paciente,landing,2026-04-15,si,no,si,no,no,no,Bienestar;Cardiometabólica,,email
+C-00199,Uruguay,Montevideo,Cerro,Hombres,40-59,paciente,landing,2026-05-21,si,no,si,no,si,no,Salud ósea,,whatsapp
+C-00200,México,Ciudad de México,,Mujeres,60+,paciente,programa,2025-11-19,si,si,si,si,no,no,,,email
+C-00201,Colombia,Bogotá,,Hombres,60+,profesional,evento médico,2026-07-17,si,si,si,no,si,no,Cardiometabólica;Bienestar,,email
+C-00202,Brasil,São Paulo,,Mujeres,18-39,paciente,programa,2025-12-11,si,si,si,no,si,no,,,email
+C-00203,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-03-20,si,si,no,si,si,no,Bienestar;Cardiometabólica,Vasotril,email
+C-00204,Argentina,Córdoba,,Mujeres,40-59,paciente,evento médico,2026-03-16,si,no,no,si,si,no,Salud ósea;Diabetes,,email
+C-00205,México,Guadalajara,,Mujeres,40-59,profesional,farmacia,2026-09-15,si,si,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00206,México,Guadalajara,,Hombres,60+,paciente,landing,2025-10-18,si,no,si,si,si,no,Cardiometabólica,,sms
+C-00207,Chile,Valparaíso,,Mujeres,60+,paciente,programa,2026-07-19,si,si,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00208,Perú,Lima,,Hombres,60+,profesional,evento médico,2026-03-31,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-00209,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,evento médico,2026-05-24,no,no,no,no,si,no,Bienestar,,whatsapp
+C-00210,Uruguay,Montevideo,Cordón,Mujeres,18-39,paciente,farmacia,2026-09-07,si,si,si,si,si,no,Bienestar;Diabetes,;Glucofin,email
+C-00211,México,Guadalajara,,Mujeres,18-39,paciente,farmacia,2025-10-18,si,no,si,si,si,no,,,whatsapp
+C-00212,México,Monterrey,,Hombres,40-59,paciente,landing,2025-12-10,si,no,si,si,si,no,,,whatsapp
+C-00213,Argentina,Buenos Aires,,Mujeres,60+,paciente,programa,2026-06-17,si,no,no,no,no,no,Diabetes,,whatsapp
+C-00214,Colombia,Medellín,,Mujeres,40-59,cuidador,farmacia,2026-05-19,si,si,si,no,si,no,Salud ósea,,email
+C-00215,México,Monterrey,,Hombres,60+,cuidador,programa,2026-02-23,si,si,si,si,si,no,Bienestar;Cardiometabólica,Vasotril,email
+C-00216,México,Ciudad de México,,Mujeres,18-39,paciente,programa,2026-07-03,si,no,no,no,si,no,,,email
+C-00217,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2026-04-15,si,no,si,no,si,no,,,whatsapp
+C-00218,México,Monterrey,,Hombres,40-59,paciente,farmacia,2026-05-16,si,si,no,si,no,no,Diabetes,;Glucofin,email
+C-00219,México,Ciudad de México,,Hombres,60+,paciente,farmacia,2025-10-24,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00220,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-09-25,si,si,si,si,no,no,,,email
+C-00221,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-03-12,si,no,si,si,no,no,Bienestar,,email
+C-00222,México,Monterrey,,Mujeres,60+,cuidador,programa,2026-01-30,si,si,si,si,no,no,Diabetes,,email
+C-00223,Colombia,Medellín,,Mujeres,40-59,cuidador,landing,2026-06-09,si,si,no,si,si,no,,,whatsapp
+C-00224,Colombia,Bogotá,,Mujeres,18-39,paciente,evento médico,2026-06-03,si,no,si,no,no,no,,,email
+C-00225,Argentina,Córdoba,,Hombres,40-59,paciente,landing,2026-06-16,si,no,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,email
+C-00226,Uruguay,Montevideo,Pocitos,Hombres,60+,paciente,landing,2025-11-27,si,si,si,no,si,si,Salud ósea,,email
+C-00227,México,Guadalajara,,Hombres,60+,paciente,farmacia,2025-12-27,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-00228,Chile,Valparaíso,,Mujeres,60+,paciente,landing,2026-03-26,si,no,si,si,si,no,Diabetes,,whatsapp
+C-00229,México,Ciudad de México,,Hombres,18-39,paciente,programa,2026-05-18,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00230,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2026-07-02,si,no,si,si,no,no,Diabetes,,email
+C-00231,Colombia,Medellín,,Mujeres,60+,paciente,landing,2026-08-31,si,no,si,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00232,Colombia,Bogotá,,Hombres,18-39,paciente,programa,2026-03-29,si,si,si,si,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-00233,Argentina,Rosario,,Hombres,60+,paciente,evento médico,2026-01-15,si,no,no,si,no,no,,,email
+C-00234,Chile,Valparaíso,,Mujeres,40-59,paciente,programa,2025-10-16,si,si,no,no,si,no,Bienestar,,sms
+C-00235,Argentina,Córdoba,,Mujeres,18-39,cuidador,farmacia,2026-09-14,si,si,si,no,si,si,Cardiometabólica;Diabetes,,email
+C-00236,Colombia,Medellín,,Hombres,40-59,profesional,landing,2025-11-04,si,no,si,si,si,no,Diabetes;Bienestar,;Glucofin,whatsapp
+C-00237,Brasil,Rio de Janeiro,,Hombres,60+,paciente,programa,2025-10-01,si,si,si,no,no,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00238,México,Monterrey,,Mujeres,40-59,paciente,landing,2026-01-14,si,no,si,no,si,no,,,whatsapp
+C-00239,México,Guadalajara,,Hombres,60+,profesional,landing,2026-01-01,si,si,no,no,no,no,,,email
+C-00240,México,Guadalajara,,Mujeres,40-59,profesional,landing,2026-01-07,si,si,si,si,si,no,,,sms
+C-00241,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,programa,2025-10-05,no,no,no,no,si,no,Diabetes,,email
+C-00242,México,Monterrey,,Hombres,60+,paciente,farmacia,2026-09-08,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00243,México,Guadalajara,,Mujeres,60+,paciente,farmacia,2026-04-08,si,no,si,si,si,no,Cardiometabólica;Diabetes,,email
+C-00244,Chile,Valparaíso,,Hombres,60+,paciente,programa,2026-01-16,si,si,si,si,no,no,,,whatsapp
+C-00245,México,Ciudad de México,,Mujeres,40-59,paciente,programa,2026-08-21,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00246,Chile,Valparaíso,,Hombres,60+,paciente,landing,2026-01-23,si,si,si,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00247,México,Monterrey,,Mujeres,40-59,paciente,landing,2026-03-04,si,si,no,si,si,no,Bienestar,,whatsapp
+C-00248,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2025-12-29,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00249,Brasil,Rio de Janeiro,,Mujeres,60+,profesional,programa,2025-11-15,si,si,si,si,si,no,Cardiometabólica,,email
+C-00250,Perú,Lima,,Hombres,18-39,paciente,landing,2026-01-18,si,no,si,si,si,no,Cardiometabólica,,email
+C-00251,Chile,Valparaíso,,Mujeres,40-59,cuidador,farmacia,2026-05-29,si,no,si,no,no,si,Cardiometabólica;Diabetes,,whatsapp
+C-00252,México,Monterrey,,Mujeres,60+,profesional,landing,2025-10-18,si,si,si,no,si,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00253,Colombia,Medellín,,Mujeres,18-39,paciente,programa,2026-07-05,si,si,no,no,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-00254,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2026-06-26,si,si,si,si,no,no,,,whatsapp
+C-00255,Uruguay,Montevideo,Malvín,Hombres,18-39,paciente,programa,2026-08-19,si,si,si,si,si,no,Cardiometabólica,,email
+C-00256,Chile,Santiago,,Mujeres,18-39,paciente,evento médico,2026-08-23,si,no,si,si,si,no,,,whatsapp
+C-00257,Argentina,Buenos Aires,,Hombres,18-39,paciente,landing,2026-06-07,si,no,no,si,si,no,Diabetes,,email
+C-00258,Argentina,Córdoba,,Hombres,60+,paciente,farmacia,2026-08-14,si,si,si,si,si,no,Salud ósea;Diabetes,,email
+C-00259,México,Guadalajara,,Mujeres,18-39,paciente,farmacia,2026-03-16,si,si,si,no,no,no,Bienestar,,email
+C-00260,Chile,Valparaíso,,Mujeres,40-59,paciente,programa,2026-03-04,no,no,no,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00261,Chile,Valparaíso,,Hombres,18-39,profesional,evento médico,2026-01-14,si,si,no,no,no,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00262,Brasil,São Paulo,,Mujeres,18-39,paciente,landing,2026-07-29,si,si,si,si,si,no,,,email
+C-00263,Argentina,Buenos Aires,,Hombres,18-39,profesional,farmacia,2026-03-07,no,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00264,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-01-06,si,no,no,no,si,no,Diabetes,,sms
+C-00265,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2026-03-19,si,si,no,si,si,no,Diabetes,,email
+C-00266,Perú,Lima,,Hombres,18-39,paciente,landing,2026-06-15,si,si,si,no,no,no,Diabetes,,email
+C-00267,México,Ciudad de México,,Mujeres,40-59,cuidador,programa,2026-03-02,si,no,si,si,si,no,,,email
+C-00268,México,Guadalajara,,Mujeres,60+,paciente,evento médico,2026-05-14,si,no,si,no,si,no,Cardiometabólica,,email
+C-00269,Colombia,Medellín,,Hombres,40-59,paciente,landing,2025-11-03,si,si,no,si,si,no,Diabetes,;Glucofin,email
+C-00270,Colombia,Bogotá,,Hombres,40-59,paciente,evento médico,2026-01-30,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00271,Argentina,Córdoba,,Hombres,40-59,paciente,evento médico,2025-12-16,si,no,no,si,si,no,Salud ósea,,email
+C-00272,Colombia,Medellín,,Mujeres,40-59,cuidador,farmacia,2026-09-14,si,si,si,no,si,no,Salud ósea;Diabetes,,whatsapp
+C-00273,México,Ciudad de México,,Hombres,40-59,paciente,evento médico,2026-03-10,si,si,no,si,no,no,Cardiometabólica,,email
+C-00274,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2026-04-23,no,no,no,no,si,si,Cardiometabólica,,email
+C-00275,Chile,Santiago,,Hombres,40-59,paciente,landing,2025-11-19,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00276,Brasil,Rio de Janeiro,,Mujeres,40-59,profesional,evento médico,2026-03-30,si,no,si,si,si,no,,,email
+C-00277,México,Guadalajara,,Hombres,60+,paciente,programa,2026-04-26,si,si,si,si,no,no,,,sms
+C-00278,México,Ciudad de México,,Mujeres,18-39,cuidador,evento médico,2026-01-08,si,no,si,no,no,no,Cardiometabólica;Diabetes,,email
+C-00279,Argentina,Rosario,,Hombres,40-59,profesional,landing,2025-12-04,si,no,no,no,si,no,Bienestar,,email
+C-00280,Uruguay,Montevideo,Malvín,Hombres,40-59,paciente,evento médico,2026-07-31,si,si,no,no,si,no,Cardiometabólica;Diabetes,,email
+C-00281,Argentina,Rosario,,Mujeres,40-59,cuidador,programa,2026-03-03,si,si,si,no,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00282,Colombia,Bogotá,,Mujeres,18-39,paciente,programa,2026-09-12,si,no,si,si,no,no,Diabetes,,email
+C-00283,Colombia,Medellín,,Hombres,40-59,paciente,farmacia,2026-05-02,si,no,si,si,si,no,Cardiometabólica,,email
+C-00284,Argentina,Rosario,,Hombres,40-59,paciente,programa,2026-08-20,si,si,si,si,si,no,,,whatsapp
+C-00285,Argentina,Buenos Aires,,Hombres,60+,paciente,landing,2026-09-14,si,si,si,no,si,no,,,whatsapp
+C-00286,México,Guadalajara,,Hombres,40-59,paciente,farmacia,2026-04-22,si,no,si,si,si,no,Bienestar;Cardiometabólica,,whatsapp
+C-00287,Argentina,Rosario,,Hombres,40-59,paciente,evento médico,2026-04-24,no,no,no,no,si,no,,,email
+C-00288,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-03-05,si,si,si,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00289,Chile,Santiago,,Mujeres,60+,paciente,farmacia,2026-04-07,si,si,si,si,si,no,,,email
+C-00290,Argentina,Córdoba,,Mujeres,40-59,paciente,programa,2026-01-26,si,si,no,si,si,no,,,email
+C-00291,Chile,Valparaíso,,Mujeres,18-39,paciente,landing,2026-08-12,si,si,si,si,no,no,,,email
+C-00292,Colombia,Medellín,,Hombres,40-59,cuidador,programa,2026-07-16,si,si,no,no,no,no,,,email
+C-00293,México,Ciudad de México,,Hombres,40-59,paciente,evento médico,2026-03-31,si,si,si,si,si,no,,,email
+C-00294,Uruguay,Montevideo,Cerro,Mujeres,40-59,paciente,farmacia,2026-06-19,si,no,si,no,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00295,México,Guadalajara,,Hombres,40-59,paciente,landing,2026-04-24,si,no,si,si,si,no,Diabetes,,email
+C-00296,México,Ciudad de México,,Mujeres,60+,profesional,programa,2026-01-10,si,no,no,si,si,no,Cardiometabólica,Vasotril,sms
+C-00297,Colombia,Bogotá,,Mujeres,18-39,paciente,landing,2025-12-07,si,no,si,si,si,no,Diabetes;Bienestar,;Glucofin,email
+C-00298,México,Monterrey,,Hombres,18-39,profesional,landing,2025-11-05,si,si,no,si,si,no,Bienestar,,email
+C-00299,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2025-10-28,si,no,no,si,no,no,,,sms
+C-00300,México,Monterrey,,Hombres,18-39,paciente,evento médico,2026-06-05,si,no,si,no,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-00301,Chile,Santiago,,Mujeres,40-59,paciente,farmacia,2026-02-12,si,no,si,no,si,no,,,email
+C-00302,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-01-08,si,si,no,no,si,no,,,whatsapp
+C-00303,México,Ciudad de México,,Mujeres,18-39,paciente,landing,2026-04-05,si,no,si,no,si,no,,,whatsapp
+C-00304,México,Monterrey,,Hombres,60+,paciente,landing,2026-09-01,si,si,no,no,si,no,,,whatsapp
+C-00305,Argentina,Córdoba,,Hombres,40-59,paciente,programa,2026-06-04,si,no,no,no,si,no,,,whatsapp
+C-00306,México,Ciudad de México,,Hombres,60+,cuidador,landing,2025-11-13,si,no,si,si,si,no,Diabetes,,email
+C-00307,Chile,Valparaíso,,Mujeres,18-39,paciente,evento médico,2025-10-31,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00308,Colombia,Bogotá,,Hombres,40-59,paciente,programa,2026-05-03,si,no,no,no,si,no,Salud ósea;Cardiometabólica,,email
+C-00309,Chile,Santiago,,Hombres,60+,paciente,landing,2026-04-19,si,si,si,no,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-00310,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-01-09,si,si,si,no,si,no,Salud ósea,,email
+C-00311,México,Ciudad de México,,Mujeres,18-39,paciente,farmacia,2025-11-26,si,si,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00312,Chile,Valparaíso,,Mujeres,60+,paciente,programa,2025-10-05,si,si,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00313,Argentina,Rosario,,Mujeres,60+,paciente,farmacia,2026-06-29,si,no,si,si,si,no,Bienestar,,email
+C-00314,México,Monterrey,,Hombres,40-59,paciente,programa,2026-09-14,si,si,no,si,si,no,Diabetes,,email
+C-00315,Chile,Valparaíso,,Mujeres,60+,paciente,farmacia,2025-11-01,si,si,no,no,no,no,Diabetes,,email
+C-00316,Chile,Santiago,,Hombres,40-59,cuidador,evento médico,2026-06-18,si,no,si,no,si,no,Salud ósea,,sms
+C-00317,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,landing,2026-08-09,si,si,no,si,si,no,Diabetes,;Glucofin,sms
+C-00318,México,Monterrey,,Mujeres,60+,paciente,programa,2026-01-06,si,no,si,si,si,no,Salud ósea,,email
+C-00319,México,Monterrey,,Mujeres,60+,paciente,programa,2026-07-17,si,no,no,no,si,no,,,whatsapp
+C-00320,México,Monterrey,,Hombres,60+,paciente,landing,2026-07-10,si,si,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00321,Argentina,Córdoba,,Mujeres,60+,profesional,farmacia,2026-06-11,si,si,no,si,si,no,Cardiometabólica,Vasotril,sms
+C-00322,México,Monterrey,,Hombres,60+,paciente,evento médico,2026-01-29,si,si,si,si,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00323,México,Ciudad de México,,Mujeres,18-39,paciente,farmacia,2026-05-27,si,no,si,si,si,no,,,email
+C-00324,Brasil,Rio de Janeiro,,Mujeres,18-39,cuidador,evento médico,2025-11-06,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00325,Argentina,Córdoba,,Hombres,40-59,profesional,farmacia,2026-09-03,si,no,si,no,si,no,Salud ósea;Diabetes,,email
+C-00326,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2025-10-02,si,si,no,si,si,no,,,email
+C-00327,Argentina,Rosario,,Hombres,40-59,paciente,farmacia,2025-10-24,no,no,no,no,si,no,Salud ósea,,whatsapp
+C-00328,Uruguay,Montevideo,Malvín,Hombres,40-59,paciente,farmacia,2026-08-22,si,si,si,si,si,no,Cardiometabólica,,email
+C-00329,Colombia,Bogotá,,Hombres,18-39,paciente,farmacia,2025-12-07,si,no,si,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00330,Chile,Santiago,,Mujeres,40-59,paciente,programa,2026-09-14,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00331,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-04-29,si,no,no,si,si,no,Cardiometabólica,,email
+C-00332,Colombia,Medellín,,Mujeres,40-59,paciente,evento médico,2026-05-19,si,si,si,no,si,no,Diabetes,,whatsapp
+C-00333,Colombia,Bogotá,,Mujeres,60+,profesional,programa,2026-06-05,si,si,si,no,si,no,Diabetes;Cardiometabólica,,sms
+C-00334,Argentina,Buenos Aires,,Mujeres,60+,paciente,evento médico,2026-01-20,si,si,no,si,si,no,Cardiometabólica,,email
+C-00335,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,paciente,landing,2026-02-08,si,si,si,no,no,no,Cardiometabólica;Bienestar,Vasotril,whatsapp
+C-00336,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-09-17,no,no,no,no,si,no,Bienestar,,email
+C-00337,Chile,Valparaíso,,Hombres,60+,paciente,landing,2026-03-07,si,si,si,no,si,si,,,email
+C-00338,Argentina,Córdoba,,Mujeres,40-59,cuidador,evento médico,2026-03-03,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00339,México,Ciudad de México,,Mujeres,40-59,paciente,landing,2026-08-18,si,no,si,no,si,no,,,email
+C-00340,Brasil,São Paulo,,Mujeres,40-59,profesional,farmacia,2026-05-15,si,si,si,si,si,no,,,whatsapp
+C-00341,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2026-01-11,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00342,Chile,Santiago,,Mujeres,60+,profesional,farmacia,2026-08-20,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00343,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2026-08-08,si,si,si,no,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-00344,Uruguay,Montevideo,Cerro,Mujeres,40-59,profesional,farmacia,2026-05-25,si,no,si,si,no,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00345,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,landing,2026-04-01,si,si,no,no,no,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00346,México,Monterrey,,Hombres,40-59,paciente,landing,2025-12-19,si,no,si,si,si,no,Salud ósea,,email
+C-00347,Uruguay,Montevideo,Pocitos,Hombres,40-59,profesional,landing,2025-12-10,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00348,Argentina,Córdoba,,Mujeres,40-59,profesional,evento médico,2026-03-25,si,no,si,si,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00349,Uruguay,Montevideo,Cordón,Hombres,60+,profesional,evento médico,2025-12-18,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00350,Argentina,Córdoba,,Hombres,40-59,cuidador,evento médico,2026-07-18,si,no,si,si,si,no,Bienestar,,email
+C-00351,Argentina,Córdoba,,Hombres,60+,paciente,programa,2025-12-19,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00352,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2026-03-09,si,no,si,si,si,no,Bienestar,,email
+C-00353,México,Guadalajara,,Mujeres,40-59,paciente,evento médico,2026-05-10,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00354,Perú,Lima,,Mujeres,18-39,paciente,farmacia,2025-12-07,si,si,si,no,si,no,,,email
+C-00355,Chile,Valparaíso,,Hombres,60+,paciente,evento médico,2026-07-04,si,no,si,si,si,no,Cardiometabólica,,sms
+C-00356,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2025-11-29,si,si,no,no,no,no,Cardiometabólica,,email
+C-00357,Chile,Santiago,,Hombres,40-59,paciente,farmacia,2026-01-13,si,si,no,si,si,no,Diabetes;Salud ósea,,email
+C-00358,México,Monterrey,,Hombres,18-39,paciente,programa,2026-02-01,si,si,no,no,si,no,Cardiometabólica,,sms
+C-00359,Chile,Santiago,,Hombres,18-39,paciente,evento médico,2026-07-03,si,no,no,si,si,no,Salud ósea;Bienestar,,email
+C-00360,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2026-02-20,si,no,no,no,si,no,Diabetes;Bienestar,;Glucofin,whatsapp
+C-00361,Colombia,Bogotá,,Mujeres,60+,paciente,landing,2026-06-06,si,si,si,no,si,no,Diabetes,,whatsapp
+C-00362,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-01-01,si,si,no,si,si,no,Diabetes,,whatsapp
+C-00363,Argentina,Rosario,,Hombres,40-59,paciente,landing,2025-12-03,si,si,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00364,México,Ciudad de México,,Mujeres,18-39,paciente,evento médico,2026-09-07,si,no,si,si,si,no,,,email
+C-00365,Chile,Valparaíso,,Mujeres,60+,profesional,landing,2026-06-17,si,no,si,si,si,no,Bienestar,,whatsapp
+C-00366,México,Monterrey,,Hombres,18-39,cuidador,programa,2026-05-26,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00367,Perú,Lima,,Hombres,40-59,profesional,evento médico,2026-09-16,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00368,Argentina,Córdoba,,Hombres,18-39,paciente,farmacia,2026-09-10,si,si,si,si,si,no,Diabetes,,email
+C-00369,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2026-05-04,si,no,si,si,si,no,Bienestar,,whatsapp
+C-00370,Brasil,Rio de Janeiro,,Hombres,60+,paciente,evento médico,2026-05-16,si,si,si,si,si,no,,,email
+C-00371,Colombia,Bogotá,,Hombres,18-39,profesional,evento médico,2026-02-12,si,si,no,no,no,no,,,email
+C-00372,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,paciente,programa,2026-03-05,si,si,si,no,no,no,Bienestar;Cardiometabólica,Vasotril,whatsapp
+C-00373,México,Monterrey,,Hombres,60+,paciente,farmacia,2025-12-06,si,no,no,no,no,no,,,email
+C-00374,Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,cuidador,landing,2026-06-15,si,si,no,si,si,no,Cardiometabólica,,email
+C-00375,Chile,Santiago,,Mujeres,60+,paciente,programa,2026-06-22,si,no,no,si,si,no,Salud ósea,,whatsapp
+C-00376,Argentina,Rosario,,Hombres,18-39,paciente,programa,2025-10-12,si,si,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00377,Chile,Santiago,,Mujeres,18-39,paciente,evento médico,2026-09-07,si,si,si,si,si,no,Diabetes;Cardiometabólica,,email
+C-00378,México,Monterrey,,Mujeres,40-59,paciente,programa,2026-03-12,si,si,si,no,si,no,Salud ósea,,email
+C-00379,México,Guadalajara,,Mujeres,40-59,paciente,landing,2025-11-25,si,no,si,no,si,no,Cardiometabólica,,email
+C-00380,Argentina,Córdoba,,Mujeres,60+,cuidador,programa,2026-03-04,si,no,no,si,si,no,Diabetes,,whatsapp
+C-00381,Argentina,Buenos Aires,,Hombres,40-59,cuidador,programa,2026-04-16,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00382,México,Monterrey,,Mujeres,18-39,paciente,farmacia,2026-04-07,si,si,si,si,no,no,Cardiometabólica,,email
+C-00383,México,Guadalajara,,Mujeres,40-59,paciente,programa,2025-10-11,si,si,no,no,si,no,Bienestar,,email
+C-00384,México,Guadalajara,,Hombres,40-59,profesional,programa,2026-01-22,si,si,si,si,si,no,,,email
+C-00385,México,Guadalajara,,Mujeres,40-59,cuidador,landing,2026-04-05,si,no,si,no,si,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-00386,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,farmacia,2026-01-17,si,si,no,si,si,no,,,email
+C-00387,Chile,Valparaíso,,Mujeres,18-39,profesional,farmacia,2026-08-02,si,si,si,si,no,no,Cardiometabólica;Salud ósea,,email
+C-00388,Chile,Valparaíso,,Hombres,60+,paciente,farmacia,2026-07-02,si,si,si,si,si,no,,,email
+C-00389,Chile,Santiago,,Hombres,40-59,profesional,farmacia,2026-09-21,no,no,no,no,si,no,Bienestar,,email
+C-00390,México,Monterrey,,Mujeres,18-39,paciente,evento médico,2025-11-07,si,si,no,no,si,no,Cardiometabólica,,email
+C-00391,Argentina,Rosario,,Mujeres,60+,paciente,farmacia,2026-05-14,si,no,no,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00392,Argentina,Córdoba,,Mujeres,40-59,paciente,programa,2025-10-02,si,no,no,si,si,no,,,whatsapp
+C-00393,Argentina,Córdoba,,Mujeres,40-59,profesional,landing,2025-12-18,si,si,si,no,si,si,Salud ósea,,email
+C-00394,México,Ciudad de México,,Hombres,60+,profesional,programa,2026-05-20,no,no,no,no,si,no,Cardiometabólica,,email
+C-00395,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-06-29,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00396,México,Guadalajara,,Mujeres,60+,paciente,programa,2026-03-01,no,no,no,no,si,no,Cardiometabólica,,email
+C-00397,Colombia,Bogotá,,Hombres,60+,paciente,farmacia,2025-11-05,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00398,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-09-21,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00399,Colombia,Medellín,,Mujeres,40-59,profesional,programa,2025-12-10,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00400,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-04-25,si,si,si,si,no,no,Bienestar,,whatsapp
+C-00401,Perú,Lima,,Hombres,40-59,paciente,programa,2026-04-11,si,si,si,no,si,no,,,whatsapp
+C-00402,Chile,Valparaíso,,Mujeres,40-59,paciente,farmacia,2026-01-29,si,si,si,no,si,no,Bienestar,,email
+C-00403,México,Ciudad de México,,Mujeres,40-59,cuidador,farmacia,2025-10-16,si,no,no,no,si,no,Cardiometabólica,,email
+C-00404,Uruguay,Montevideo,Cordón,Hombres,40-59,profesional,evento médico,2026-07-04,si,si,si,no,si,no,Cardiometabólica,,whatsapp
+C-00405,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,profesional,landing,2026-02-27,si,no,si,si,si,no,Salud ósea;Diabetes,,sms
+C-00406,Brasil,São Paulo,,Mujeres,40-59,paciente,programa,2025-10-24,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00407,Colombia,Medellín,,Hombres,40-59,paciente,evento médico,2026-03-25,si,no,no,si,si,no,Salud ósea,,email
+C-00408,Colombia,Medellín,,Mujeres,40-59,paciente,landing,2026-05-20,si,si,si,si,si,no,,,whatsapp
+C-00409,Chile,Santiago,,Hombres,40-59,profesional,evento médico,2025-11-18,no,no,no,no,si,no,Cardiometabólica,,email
+C-00410,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2026-03-25,si,si,no,no,si,no,,,whatsapp
+C-00411,Uruguay,Montevideo,Pocitos,Mujeres,40-59,cuidador,programa,2026-09-30,si,no,si,si,si,no,Diabetes,,email
+C-00412,Argentina,Buenos Aires,,Mujeres,18-39,paciente,farmacia,2026-01-05,si,si,si,no,si,no,,,whatsapp
+C-00413,México,Monterrey,,Mujeres,60+,cuidador,programa,2026-01-27,si,no,si,si,no,no,,,email
+C-00414,Colombia,Medellín,,Hombres,18-39,cuidador,programa,2026-01-25,si,no,si,no,si,no,,,email
+C-00415,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-08-30,si,si,no,si,si,no,Diabetes;Bienestar,,email
+C-00416,México,Guadalajara,,Mujeres,18-39,cuidador,landing,2025-12-01,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-00417,Argentina,Rosario,,Mujeres,18-39,paciente,evento médico,2026-05-16,si,si,si,si,si,no,Bienestar,,email
+C-00418,Brasil,Rio de Janeiro,,Hombres,60+,cuidador,programa,2026-07-31,si,si,si,no,no,no,Cardiometabólica,,email
+C-00419,Chile,Valparaíso,,Mujeres,40-59,paciente,evento médico,2025-10-30,no,no,no,no,si,no,Diabetes,,email
+C-00420,Argentina,Rosario,,Mujeres,40-59,paciente,evento médico,2026-07-04,si,no,si,no,si,no,Bienestar,,email
+C-00421,Argentina,Rosario,,Mujeres,18-39,profesional,programa,2025-10-27,si,si,si,no,si,no,Cardiometabólica,,whatsapp
+C-00422,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,programa,2026-01-02,si,no,si,si,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00423,México,Guadalajara,,Hombres,40-59,profesional,programa,2026-09-13,si,no,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00424,Brasil,São Paulo,,Mujeres,60+,paciente,evento médico,2026-07-19,no,no,no,no,si,no,Bienestar,,email
+C-00425,Chile,Santiago,,Hombres,60+,paciente,landing,2026-08-29,si,no,no,si,si,no,,,email
+C-00426,Chile,Valparaíso,,Mujeres,18-39,cuidador,landing,2025-11-03,si,no,no,si,si,no,Bienestar;Cardiometabólica,Vasotril,whatsapp
+C-00427,Colombia,Bogotá,,Hombres,40-59,profesional,evento médico,2025-12-07,si,si,si,si,no,no,Diabetes;Cardiometabólica,,email
+C-00428,México,Ciudad de México,,Mujeres,40-59,profesional,evento médico,2026-01-10,si,no,si,si,si,no,,,whatsapp
+C-00429,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,evento médico,2026-02-14,si,no,si,si,si,no,,,whatsapp
+C-00430,México,Guadalajara,,Hombres,18-39,paciente,programa,2026-07-06,si,si,si,si,si,no,,,email
+C-00431,Colombia,Medellín,,Mujeres,18-39,paciente,programa,2025-10-31,si,si,no,si,si,no,Salud ósea;Cardiometabólica,,email
+C-00432,Argentina,Rosario,,Hombres,60+,paciente,farmacia,2025-10-09,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00433,Chile,Santiago,,Mujeres,60+,paciente,farmacia,2026-01-01,si,si,si,si,si,no,Bienestar,,whatsapp
+C-00434,Perú,Lima,,Mujeres,40-59,profesional,evento médico,2026-03-10,si,si,si,no,si,no,Bienestar;Diabetes,,whatsapp
+C-00435,México,Monterrey,,Hombres,60+,paciente,programa,2026-07-10,si,si,si,no,si,no,,,sms
+C-00436,Perú,Lima,,Hombres,40-59,profesional,landing,2026-07-12,si,no,no,si,si,no,Salud ósea,,whatsapp
+C-00437,Brasil,São Paulo,,Mujeres,60+,cuidador,evento médico,2026-01-20,si,no,si,si,no,no,Cardiometabólica,,whatsapp
+C-00438,Brasil,Rio de Janeiro,,Mujeres,60+,cuidador,farmacia,2026-08-31,no,no,no,no,si,no,Cardiometabólica,,email
+C-00439,Uruguay,Montevideo,Malvín,Hombres,60+,paciente,landing,2026-06-16,si,no,si,no,si,si,Cardiometabólica;Diabetes,,email
+C-00440,Chile,Santiago,,Mujeres,60+,paciente,programa,2026-01-04,no,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00441,Chile,Valparaíso,,Hombres,40-59,paciente,farmacia,2026-06-10,si,no,si,no,si,no,Bienestar,,email
+C-00442,Colombia,Medellín,,Hombres,60+,paciente,evento médico,2026-07-26,si,no,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00443,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2026-04-19,si,si,si,si,no,no,Salud ósea,,email
+C-00444,México,Guadalajara,,Hombres,60+,profesional,programa,2025-10-25,si,si,si,no,si,no,Salud ósea,,email
+C-00445,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-06-05,si,no,si,si,si,no,Bienestar,,email
+C-00446,Chile,Santiago,,Hombres,60+,paciente,farmacia,2026-09-13,si,si,si,si,si,no,Diabetes,,email
+C-00447,Brasil,São Paulo,,Hombres,40-59,paciente,landing,2026-06-07,si,si,si,si,si,no,Diabetes;Salud ósea,,whatsapp
+C-00448,Colombia,Medellín,,Hombres,40-59,paciente,programa,2026-08-21,si,no,si,no,si,no,,,email
+C-00449,México,Monterrey,,Hombres,60+,paciente,farmacia,2025-11-28,si,si,no,si,si,no,Cardiometabólica,,email
+C-00450,Chile,Santiago,,Mujeres,18-39,paciente,landing,2026-04-08,si,si,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00451,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2026-09-06,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-00452,Argentina,Córdoba,,Hombres,40-59,paciente,programa,2025-10-06,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-00453,Brasil,São Paulo,,Hombres,40-59,profesional,programa,2026-02-01,no,no,no,no,si,no,Diabetes,,whatsapp
+C-00454,Chile,Santiago,,Mujeres,18-39,cuidador,landing,2026-02-25,si,no,si,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-00455,Brasil,São Paulo,,Mujeres,60+,profesional,landing,2026-05-16,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00456,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2025-12-19,si,no,no,no,si,no,Salud ósea,,email
+C-00457,Argentina,Buenos Aires,,Hombres,40-59,profesional,landing,2025-11-07,no,no,no,no,si,no,Salud ósea,,email
+C-00458,Brasil,São Paulo,,Hombres,18-39,paciente,evento médico,2026-08-24,si,si,no,si,si,no,,,whatsapp
+C-00459,México,Guadalajara,,Mujeres,18-39,paciente,landing,2025-10-30,si,no,si,no,si,no,,,whatsapp
+C-00460,México,Ciudad de México,,Mujeres,60+,paciente,programa,2025-12-22,si,si,si,si,si,no,Cardiometabólica,,email
+C-00461,Colombia,Medellín,,Hombres,18-39,paciente,evento médico,2026-03-18,si,si,si,no,si,no,,,email
+C-00462,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,programa,2025-11-27,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00463,Argentina,Córdoba,,Hombres,60+,paciente,evento médico,2026-05-13,si,si,si,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-00464,México,Ciudad de México,,Mujeres,60+,cuidador,landing,2026-06-28,si,no,no,si,si,no,Bienestar,,whatsapp
+C-00465,Brasil,Rio de Janeiro,,Mujeres,40-59,cuidador,farmacia,2026-09-29,si,si,si,no,no,no,Diabetes,;Glucofin,sms
+C-00466,Colombia,Bogotá,,Mujeres,60+,profesional,landing,2026-03-10,si,no,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00467,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2026-01-25,si,si,no,si,si,no,Bienestar,,whatsapp
+C-00468,México,Ciudad de México,,Hombres,60+,paciente,evento médico,2026-03-13,si,si,si,si,si,no,,,email
+C-00469,Argentina,Córdoba,,Mujeres,60+,paciente,evento médico,2025-10-28,si,no,si,no,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00470,Argentina,Rosario,,Mujeres,18-39,profesional,programa,2026-03-01,si,no,no,si,si,no,Salud ósea;Diabetes,;Glucofin,whatsapp
+C-00471,México,Monterrey,,Mujeres,18-39,profesional,landing,2026-04-13,si,si,no,no,si,no,Cardiometabólica,,email
+C-00472,Argentina,Córdoba,,Hombres,18-39,cuidador,evento médico,2026-08-28,si,no,si,si,si,no,,,whatsapp
+C-00473,México,Guadalajara,,Hombres,18-39,cuidador,programa,2026-03-14,si,no,si,no,no,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-00474,Chile,Valparaíso,,Mujeres,60+,profesional,farmacia,2026-07-18,si,no,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00475,México,Guadalajara,,Hombres,40-59,cuidador,farmacia,2026-09-02,si,si,no,si,si,no,Diabetes,,email
+C-00476,Chile,Valparaíso,,Hombres,18-39,paciente,evento médico,2026-06-25,si,si,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00477,Argentina,Buenos Aires,,Hombres,40-59,paciente,programa,2026-05-22,si,si,si,si,no,no,Diabetes,;Glucofin,whatsapp
+C-00478,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2026-06-04,si,si,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00479,Argentina,Rosario,,Hombres,40-59,paciente,programa,2025-10-16,si,si,si,si,si,no,Diabetes,,email
+C-00480,Uruguay,Montevideo,Cerro,Hombres,18-39,paciente,evento médico,2026-05-16,si,si,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,sms
+C-00481,Perú,Lima,,Mujeres,60+,paciente,landing,2026-09-28,si,no,no,si,si,no,Cardiometabólica,,sms
+C-00482,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-05-31,si,no,si,si,no,no,Diabetes;Salud ósea,,email
+C-00483,Brasil,Rio de Janeiro,,Mujeres,40-59,profesional,landing,2026-02-08,si,si,si,no,si,no,Cardiometabólica,,email
+C-00484,México,Ciudad de México,,Mujeres,40-59,cuidador,landing,2025-11-15,si,si,no,no,no,no,,,whatsapp
+C-00485,Uruguay,Montevideo,Pocitos,Mujeres,18-39,cuidador,farmacia,2026-08-03,si,si,si,si,si,no,Bienestar,,email
+C-00486,Colombia,Bogotá,,Hombres,40-59,paciente,programa,2026-01-05,si,si,no,no,si,no,Cardiometabólica,,email
+C-00487,Uruguay,Montevideo,Malvín,Mujeres,60+,paciente,evento médico,2026-05-26,si,no,no,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00488,México,Guadalajara,,Mujeres,40-59,paciente,evento médico,2026-04-06,si,no,no,si,si,no,Diabetes,,email
+C-00489,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2026-05-31,si,si,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00490,Argentina,Buenos Aires,,Mujeres,40-59,paciente,programa,2025-12-26,si,no,si,no,si,no,Salud ósea;Diabetes,,email
+C-00491,Perú,Lima,,Mujeres,60+,paciente,evento médico,2026-02-07,si,no,no,si,si,no,,,email
+C-00492,México,Guadalajara,,Mujeres,60+,paciente,farmacia,2026-09-02,si,si,no,si,si,no,Diabetes;Cardiometabólica,;Glucofin,email
+C-00493,Argentina,Buenos Aires,,Mujeres,40-59,cuidador,evento médico,2026-08-17,si,si,no,si,si,no,Diabetes;Cardiometabólica,,email
+C-00494,Brasil,São Paulo,,Hombres,60+,paciente,landing,2026-01-23,no,no,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00495,Colombia,Bogotá,,Hombres,18-39,paciente,landing,2025-12-09,si,si,si,si,si,no,Salud ósea,,email
+C-00496,Uruguay,Montevideo,Malvín,Hombres,40-59,paciente,evento médico,2026-06-20,si,no,no,si,si,no,Diabetes,,email
+C-00497,Colombia,Bogotá,,Hombres,60+,profesional,programa,2026-05-08,si,si,si,no,no,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-00498,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2025-11-22,si,no,si,si,si,no,Diabetes;Salud ósea,;Glucofin,whatsapp
+C-00499,Uruguay,Montevideo,Malvín,Hombres,60+,paciente,programa,2026-06-16,si,si,no,si,si,no,Salud ósea;Diabetes,;Glucofin,email
+C-00500,Argentina,Córdoba,,Mujeres,40-59,paciente,evento médico,2026-04-23,si,si,si,si,si,no,Salud ósea;Bienestar,,sms
+C-00501,Colombia,Medellín,,Mujeres,18-39,profesional,programa,2026-01-25,si,si,si,si,si,no,Diabetes;Bienestar,;Glucofin,whatsapp
+C-00502,Uruguay,Montevideo,Cordón,Hombres,18-39,paciente,farmacia,2026-08-19,si,si,no,no,si,no,,,sms
+C-00503,México,Monterrey,,Mujeres,18-39,paciente,programa,2025-12-09,si,no,si,no,no,no,Salud ósea,,email
+C-00504,Colombia,Bogotá,,Hombres,60+,paciente,farmacia,2025-11-21,si,no,si,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00505,Colombia,Bogotá,,Mujeres,18-39,cuidador,farmacia,2026-06-15,si,no,si,no,si,no,Cardiometabólica;Salud ósea,,email
+C-00506,Colombia,Medellín,,Hombres,60+,paciente,evento médico,2026-06-29,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00507,México,Monterrey,,Hombres,60+,cuidador,farmacia,2026-06-09,si,no,si,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-00508,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-07-28,si,si,si,si,si,no,Diabetes,,email
+C-00509,México,Guadalajara,,Hombres,60+,paciente,farmacia,2026-06-24,si,si,no,si,si,no,Salud ósea,,email
+C-00510,México,Ciudad de México,,Mujeres,18-39,paciente,programa,2026-04-26,no,no,no,no,si,no,,,sms
+C-00511,México,Monterrey,,Mujeres,60+,paciente,programa,2025-11-20,si,no,si,si,si,no,Cardiometabólica,,email
+C-00512,Uruguay,Montevideo,Pocitos,Mujeres,18-39,profesional,programa,2026-05-25,no,no,no,no,si,no,,,email
+C-00513,Chile,Santiago,,Mujeres,18-39,paciente,farmacia,2026-07-21,si,si,no,si,si,no,Salud ósea,,email
+C-00514,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2026-09-10,no,no,no,no,si,no,Salud ósea,,email
+C-00515,Chile,Valparaíso,,Mujeres,40-59,paciente,evento médico,2025-11-24,si,si,no,si,si,no,Diabetes,;Glucofin,sms
+C-00516,Argentina,Rosario,,Mujeres,60+,cuidador,programa,2026-07-03,si,no,no,si,si,no,Cardiometabólica,,email
+C-00517,Brasil,São Paulo,,Hombres,40-59,paciente,programa,2025-11-09,si,si,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00518,México,Ciudad de México,,Hombres,40-59,paciente,programa,2026-08-04,si,no,si,si,no,no,Diabetes,,whatsapp
+C-00519,Chile,Santiago,,Mujeres,18-39,paciente,programa,2025-12-02,si,no,no,si,no,si,Cardiometabólica,,sms
+C-00520,Argentina,Buenos Aires,,Mujeres,40-59,cuidador,evento médico,2026-08-12,si,si,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00521,México,Monterrey,,Hombres,18-39,cuidador,programa,2026-07-22,si,si,si,si,si,no,Cardiometabólica,,email
+C-00522,Colombia,Medellín,,Hombres,18-39,paciente,farmacia,2026-08-18,si,no,si,no,si,no,,,whatsapp
+C-00523,Argentina,Buenos Aires,,Mujeres,60+,paciente,programa,2026-06-26,si,si,no,no,no,no,Cardiometabólica,,sms
+C-00524,Colombia,Bogotá,,Hombres,40-59,paciente,evento médico,2026-05-04,si,no,no,no,no,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00525,Perú,Lima,,Mujeres,60+,profesional,landing,2026-09-16,si,no,si,si,no,no,,,email
+C-00526,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,cuidador,programa,2025-12-09,si,si,si,si,si,no,Diabetes;Cardiometabólica,;Glucofin,email
+C-00527,Argentina,Rosario,,Hombres,60+,paciente,evento médico,2025-11-13,si,si,si,si,no,no,Diabetes,,sms
+C-00528,Chile,Santiago,,Mujeres,60+,paciente,evento médico,2025-12-19,no,no,no,no,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,email
+C-00529,Uruguay,Montevideo,Malvín,Hombres,40-59,paciente,programa,2026-02-20,si,no,no,si,si,no,Diabetes,,email
+C-00530,Argentina,Rosario,,Hombres,40-59,paciente,landing,2026-09-07,si,si,si,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00531,Chile,Valparaíso,,Mujeres,40-59,paciente,landing,2025-11-04,si,si,si,si,no,no,Cardiometabólica,Vasotril,whatsapp
+C-00532,Brasil,São Paulo,,Hombres,40-59,profesional,landing,2025-10-06,si,si,si,no,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00533,Argentina,Buenos Aires,,Mujeres,18-39,paciente,landing,2025-11-09,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00534,Colombia,Medellín,,Hombres,60+,paciente,farmacia,2026-03-02,si,si,no,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00535,Brasil,São Paulo,,Mujeres,40-59,paciente,programa,2025-11-18,si,si,si,no,si,no,,,email
+C-00536,Chile,Santiago,,Hombres,40-59,paciente,evento médico,2026-07-05,si,no,si,no,si,no,Diabetes,,email
+C-00537,México,Monterrey,,Mujeres,60+,paciente,programa,2025-11-29,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00538,Brasil,São Paulo,,Mujeres,40-59,profesional,programa,2026-05-06,si,si,si,si,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00539,México,Monterrey,,Mujeres,40-59,paciente,programa,2026-09-14,si,si,no,si,si,no,Diabetes,;Glucofin,email
+C-00540,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-03-20,si,si,no,no,no,no,,,email
+C-00541,Argentina,Buenos Aires,,Mujeres,40-59,paciente,programa,2026-05-26,si,no,si,no,si,no,,,email
+C-00542,Uruguay,Montevideo,Pocitos,Mujeres,40-59,paciente,programa,2026-03-18,si,si,no,si,si,no,,,email
+C-00543,Argentina,Rosario,,Hombres,40-59,cuidador,evento médico,2025-11-08,no,no,no,no,si,no,Bienestar,,email
+C-00544,Colombia,Medellín,,Hombres,18-39,paciente,programa,2026-06-04,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-00545,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-04-27,si,no,si,no,si,no,Cardiometabólica,,email
+C-00546,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2026-08-01,si,si,si,si,si,no,Bienestar,,email
+C-00547,Colombia,Bogotá,,Mujeres,60+,profesional,programa,2026-06-30,si,si,no,si,si,no,,,email
+C-00548,México,Guadalajara,,Mujeres,40-59,paciente,landing,2025-12-23,si,no,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00549,Uruguay,Montevideo,Pocitos,Mujeres,18-39,paciente,evento médico,2026-06-14,si,no,no,no,si,no,Diabetes;Cardiometabólica,Vasotril,sms
+C-00550,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2026-01-07,si,si,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,sms
+C-00551,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-07-22,si,no,si,no,si,no,Salud ósea;Bienestar,,email
+C-00552,México,Guadalajara,,Mujeres,40-59,cuidador,programa,2026-05-05,si,si,si,si,no,no,,,whatsapp
+C-00553,Chile,Santiago,,Hombres,40-59,profesional,programa,2026-09-06,si,no,no,si,si,no,,,email
+C-00554,Brasil,São Paulo,,Mujeres,60+,paciente,programa,2025-10-26,si,si,si,si,si,no,,,email
+C-00555,Brasil,São Paulo,,Hombres,18-39,profesional,landing,2026-05-11,no,no,no,no,no,no,Diabetes,,email
+C-00556,México,Guadalajara,,Mujeres,18-39,paciente,programa,2026-07-29,si,no,si,no,no,no,Bienestar,,email
+C-00557,Chile,Santiago,,Mujeres,60+,cuidador,evento médico,2026-04-09,si,no,si,si,si,no,,,email
+C-00558,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-06-08,si,si,no,si,si,no,Diabetes,,sms
+C-00559,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-08-30,si,no,si,no,si,no,,,whatsapp
+C-00560,Colombia,Bogotá,,Mujeres,40-59,profesional,farmacia,2026-04-19,no,no,no,no,si,no,,,email
+C-00561,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,paciente,landing,2026-04-25,si,no,no,si,si,no,Cardiometabólica,,email
+C-00562,Perú,Lima,,Hombres,40-59,paciente,farmacia,2026-06-14,si,no,no,no,si,no,Cardiometabólica,,sms
+C-00563,México,Ciudad de México,,Hombres,18-39,paciente,farmacia,2026-03-05,si,no,si,si,si,no,Salud ósea;Diabetes,;Glucofin,sms
+C-00564,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-07-30,si,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-00565,Colombia,Medellín,,Hombres,18-39,paciente,programa,2026-05-30,si,si,no,no,si,no,Cardiometabólica;Diabetes,Vasotril,whatsapp
+C-00566,Argentina,Córdoba,,Mujeres,40-59,paciente,programa,2025-10-17,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00567,Chile,Valparaíso,,Hombres,60+,cuidador,farmacia,2025-10-25,si,si,no,si,si,no,,,email
+C-00568,México,Ciudad de México,,Mujeres,60+,paciente,farmacia,2026-05-19,si,no,no,si,si,no,Bienestar,,email
+C-00569,México,Monterrey,,Mujeres,60+,paciente,landing,2026-01-31,si,si,si,si,si,no,,,whatsapp
+C-00570,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,paciente,landing,2026-04-07,si,no,si,no,no,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00571,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,evento médico,2025-10-27,no,no,no,no,si,no,Diabetes,,email
+C-00572,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-07-28,si,si,no,si,si,no,Cardiometabólica,,whatsapp
+C-00573,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-04-24,si,si,si,si,si,no,,,email
+C-00574,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,evento médico,2026-02-17,si,si,no,si,si,no,Diabetes,;Glucofin,email
+C-00575,México,Guadalajara,,Hombres,40-59,cuidador,landing,2025-10-03,no,no,no,no,no,no,,,whatsapp
+C-00576,México,Monterrey,,Mujeres,18-39,cuidador,evento médico,2026-07-10,si,si,si,si,si,no,Bienestar,,email
+C-00577,Argentina,Rosario,,Mujeres,60+,paciente,farmacia,2026-08-21,si,no,si,si,no,no,Cardiometabólica,,whatsapp
+C-00578,México,Guadalajara,,Mujeres,60+,paciente,landing,2026-07-22,si,no,no,no,si,no,,,email
+C-00579,Argentina,Rosario,,Hombres,18-39,paciente,landing,2025-10-18,si,no,si,no,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00580,Chile,Valparaíso,,Hombres,40-59,paciente,landing,2026-01-28,si,no,si,no,si,no,Bienestar;Diabetes,;Glucofin,sms
+C-00581,Brasil,São Paulo,,Hombres,18-39,profesional,programa,2026-02-15,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-00582,Argentina,Córdoba,,Hombres,40-59,paciente,programa,2026-01-24,si,no,no,si,si,no,Bienestar;Cardiometabólica,,sms
+C-00583,Argentina,Córdoba,,Hombres,18-39,cuidador,evento médico,2025-10-09,si,si,no,no,si,no,Salud ósea,,email
+C-00584,Argentina,Rosario,,Hombres,18-39,paciente,landing,2026-08-20,si,no,no,no,no,no,,,email
+C-00585,México,Monterrey,,Mujeres,60+,paciente,programa,2026-09-09,si,no,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00586,México,Ciudad de México,,Hombres,60+,cuidador,programa,2026-07-08,si,no,no,no,si,no,Cardiometabólica;Diabetes,,email
+C-00587,México,Ciudad de México,,Hombres,60+,paciente,evento médico,2026-04-04,si,no,si,no,si,no,Diabetes,,email
+C-00588,Chile,Santiago,,Mujeres,40-59,paciente,farmacia,2026-03-21,si,no,no,no,si,no,,,email
+C-00589,Brasil,São Paulo,,Hombres,18-39,profesional,farmacia,2025-11-19,si,no,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00590,México,Ciudad de México,,Mujeres,60+,profesional,programa,2026-05-20,si,si,si,si,si,no,,,email
+C-00591,Argentina,Córdoba,,Hombres,18-39,cuidador,farmacia,2026-02-12,si,si,si,no,si,no,,,email
+C-00592,Uruguay,Montevideo,Malvín,Mujeres,60+,paciente,programa,2026-09-28,si,si,si,no,no,no,Diabetes;Bienestar,,email
+C-00593,Argentina,Córdoba,,Hombres,40-59,paciente,farmacia,2026-01-21,si,no,si,si,si,no,Salud ósea,,email
+C-00594,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2025-12-11,si,no,si,si,si,no,,,email
+C-00595,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-05-30,si,si,no,no,si,no,,,email
+C-00596,México,Ciudad de México,,Hombres,60+,paciente,farmacia,2026-06-04,si,no,no,si,si,no,Diabetes,,whatsapp
+C-00597,Argentina,Córdoba,,Mujeres,18-39,paciente,farmacia,2026-02-22,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00598,México,Monterrey,,Hombres,40-59,profesional,evento médico,2026-08-31,no,no,no,no,si,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-00599,Argentina,Rosario,,Mujeres,60+,cuidador,programa,2026-02-17,si,si,si,si,no,no,,,whatsapp
+C-00600,Chile,Santiago,,Mujeres,60+,paciente,landing,2026-06-01,si,no,si,no,si,no,Diabetes;Cardiometabólica,Vasotril,sms
+C-00601,México,Monterrey,,Hombres,40-59,paciente,landing,2026-05-28,si,no,si,si,si,no,Cardiometabólica,,email
+C-00602,Perú,Lima,,Hombres,18-39,paciente,evento médico,2026-04-04,si,si,no,no,si,no,Salud ósea;Bienestar,,email
+C-00603,México,Guadalajara,,Hombres,40-59,cuidador,farmacia,2026-09-18,si,si,si,no,si,no,Bienestar,,email
+C-00604,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-01-26,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00605,México,Monterrey,,Mujeres,18-39,paciente,programa,2025-10-01,si,si,no,si,si,no,Cardiometabólica,,email
+C-00606,Argentina,Córdoba,,Hombres,60+,paciente,evento médico,2026-06-28,si,si,no,si,si,no,,,whatsapp
+C-00607,Chile,Valparaíso,,Mujeres,60+,paciente,landing,2025-11-05,si,si,si,si,si,no,Cardiometabólica,,sms
+C-00608,Chile,Valparaíso,,Mujeres,18-39,profesional,landing,2025-10-24,si,no,no,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00609,Chile,Santiago,,Mujeres,40-59,paciente,evento médico,2026-08-08,si,si,no,si,si,no,,,email
+C-00610,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-02-04,si,no,si,si,si,no,Salud ósea,,email
+C-00611,Argentina,Buenos Aires,,Hombres,18-39,paciente,landing,2026-09-12,si,no,no,si,si,no,Salud ósea,,whatsapp
+C-00612,Argentina,Córdoba,,Hombres,40-59,paciente,landing,2026-04-26,si,si,si,no,si,no,Cardiometabólica;Bienestar,,email
+C-00613,Colombia,Bogotá,,Mujeres,60+,cuidador,evento médico,2026-05-30,si,si,no,si,si,no,Salud ósea,,whatsapp
+C-00614,Brasil,São Paulo,,Mujeres,18-39,paciente,landing,2026-08-22,si,no,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00615,Uruguay,Montevideo,Cerro,Mujeres,40-59,cuidador,programa,2026-08-01,si,no,si,si,no,no,Salud ósea,,email
+C-00616,México,Monterrey,,Mujeres,60+,paciente,programa,2026-04-06,no,no,no,no,si,no,,,whatsapp
+C-00617,Perú,Lima,,Mujeres,18-39,paciente,farmacia,2025-12-04,si,no,no,si,si,no,Cardiometabólica,,email
+C-00618,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2025-10-25,no,no,no,no,no,no,Bienestar,,email
+C-00619,Colombia,Medellín,,Hombres,60+,cuidador,landing,2026-06-29,si,no,si,si,si,no,,,sms
+C-00620,Colombia,Medellín,,Hombres,60+,paciente,farmacia,2026-07-09,si,no,si,si,si,no,Bienestar;Salud ósea,,whatsapp
+C-00621,Brasil,São Paulo,,Hombres,60+,paciente,programa,2026-04-21,si,no,si,si,si,no,Cardiometabólica,,email
+C-00622,Perú,Lima,,Mujeres,40-59,paciente,programa,2026-05-19,si,no,si,si,si,no,Diabetes,,email
+C-00623,Chile,Santiago,,Mujeres,60+,profesional,landing,2026-05-25,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00624,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2026-07-12,si,si,no,si,si,no,,,email
+C-00625,Brasil,Rio de Janeiro,,Mujeres,18-39,cuidador,evento médico,2026-07-03,si,no,no,si,si,no,,,email
+C-00626,Perú,Lima,,Mujeres,60+,paciente,evento médico,2025-12-02,si,si,si,si,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-00627,México,Monterrey,,Hombres,60+,profesional,programa,2026-03-18,si,si,si,no,no,no,Cardiometabólica,,email
+C-00628,Brasil,São Paulo,,Hombres,60+,profesional,farmacia,2026-03-23,si,no,si,si,no,no,Diabetes,;Glucofin,email
+C-00629,Chile,Valparaíso,,Mujeres,18-39,paciente,programa,2026-06-06,si,no,si,si,si,no,Cardiometabólica;Diabetes,,email
+C-00630,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,paciente,farmacia,2026-06-05,si,no,si,no,si,no,,,email
+C-00631,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2025-12-16,si,si,no,no,si,no,Diabetes,,email
+C-00632,Brasil,São Paulo,,Hombres,60+,cuidador,landing,2026-09-11,si,no,si,si,si,no,,,email
+C-00633,Colombia,Medellín,,Mujeres,18-39,paciente,farmacia,2026-04-25,si,si,no,si,si,no,Diabetes,,email
+C-00634,Uruguay,Montevideo,Malvín,Mujeres,60+,profesional,programa,2025-11-19,si,si,si,si,si,no,,,email
+C-00635,Colombia,Medellín,,Hombres,18-39,cuidador,evento médico,2026-05-23,si,si,no,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-00636,México,Ciudad de México,,Hombres,60+,paciente,programa,2025-11-06,si,no,si,no,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00637,Chile,Santiago,,Hombres,40-59,paciente,landing,2025-10-29,si,no,si,si,si,no,Cardiometabólica;Diabetes,,sms
+C-00638,Argentina,Rosario,,Hombres,40-59,paciente,farmacia,2025-10-17,no,no,no,no,no,no,,,email
+C-00639,México,Monterrey,,Mujeres,40-59,profesional,landing,2026-01-09,si,si,no,no,si,no,Diabetes,,email
+C-00640,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2025-12-15,si,no,si,si,si,no,,,email
+C-00641,Chile,Santiago,,Mujeres,40-59,paciente,evento médico,2025-12-01,si,si,no,si,si,no,,,whatsapp
+C-00642,Uruguay,Montevideo,Malvín,Hombres,60+,profesional,programa,2026-03-16,si,no,no,no,si,no,,,whatsapp
+C-00643,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,cuidador,landing,2026-04-04,si,no,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00644,Argentina,Rosario,,Hombres,18-39,cuidador,evento médico,2026-04-06,si,no,si,si,no,no,Bienestar,,whatsapp
+C-00645,México,Ciudad de México,,Hombres,18-39,paciente,farmacia,2025-11-03,si,no,no,no,si,no,Bienestar,,email
+C-00646,Argentina,Córdoba,,Mujeres,18-39,paciente,evento médico,2026-05-26,si,no,si,no,si,no,Cardiometabólica,,email
+C-00647,Argentina,Córdoba,,Mujeres,60+,paciente,landing,2025-12-22,si,si,si,si,no,no,Salud ósea,,whatsapp
+C-00648,Argentina,Rosario,,Hombres,60+,cuidador,landing,2026-09-18,no,no,no,no,si,no,,,email
+C-00649,México,Monterrey,,Mujeres,18-39,cuidador,evento médico,2026-02-06,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00650,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-09-13,si,si,no,si,si,no,Bienestar,,email
+C-00651,México,Monterrey,,Hombres,18-39,profesional,programa,2026-07-16,si,si,si,no,no,no,Cardiometabólica,,email
+C-00652,México,Ciudad de México,,Mujeres,18-39,paciente,landing,2026-01-25,si,si,si,no,si,no,Cardiometabólica,,email
+C-00653,México,Guadalajara,,Hombres,18-39,paciente,landing,2026-04-01,si,no,si,si,si,no,Cardiometabólica;Salud ósea,,whatsapp
+C-00654,México,Ciudad de México,,Mujeres,40-59,paciente,evento médico,2026-04-14,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00655,México,Guadalajara,,Mujeres,18-39,paciente,landing,2026-08-01,si,si,si,si,si,no,,,email
+C-00656,México,Ciudad de México,,Hombres,40-59,paciente,programa,2026-05-11,si,si,si,si,si,si,Cardiometabólica,Vasotril,email
+C-00657,Argentina,Buenos Aires,,Mujeres,18-39,cuidador,landing,2026-06-29,si,si,si,si,si,no,,,email
+C-00658,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,profesional,programa,2025-12-06,si,si,si,no,no,no,Diabetes,,sms
+C-00659,México,Monterrey,,Mujeres,60+,paciente,programa,2026-08-27,si,no,si,si,si,no,Diabetes,,whatsapp
+C-00660,México,Monterrey,,Hombres,40-59,paciente,landing,2025-11-01,si,si,si,si,no,no,Bienestar,,whatsapp
+C-00661,Colombia,Bogotá,,Mujeres,60+,cuidador,farmacia,2026-04-23,si,no,no,si,no,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00662,México,Ciudad de México,,Hombres,60+,paciente,programa,2025-12-09,si,no,si,no,si,no,Bienestar,,email
+C-00663,Chile,Santiago,,Mujeres,60+,paciente,evento médico,2026-07-27,si,si,si,no,si,no,Diabetes;Cardiometabólica,,email
+C-00664,Colombia,Bogotá,,Hombres,18-39,cuidador,evento médico,2026-05-13,si,no,no,si,si,no,Cardiometabólica;Diabetes,,sms
+C-00665,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,paciente,programa,2026-02-14,si,no,si,si,si,no,Diabetes;Bienestar,,email
+C-00666,México,Ciudad de México,,Hombres,40-59,paciente,evento médico,2025-11-30,si,si,no,si,si,no,Salud ósea,,email
+C-00667,Argentina,Rosario,,Mujeres,60+,paciente,programa,2026-03-04,si,no,si,si,si,no,,,whatsapp
+C-00668,México,Guadalajara,,Mujeres,60+,paciente,evento médico,2026-09-05,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00669,Chile,Santiago,,Hombres,18-39,paciente,programa,2026-08-04,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00670,México,Guadalajara,,Mujeres,60+,cuidador,programa,2026-05-01,si,no,si,si,si,no,,,whatsapp
+C-00671,Uruguay,Montevideo,Cerro,Hombres,40-59,paciente,programa,2026-07-12,si,si,si,si,si,no,,,email
+C-00672,Argentina,Rosario,,Mujeres,60+,profesional,landing,2026-07-11,si,no,si,no,si,no,Cardiometabólica;Salud ósea,,email
+C-00673,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2026-08-21,si,si,no,si,si,no,Bienestar,,whatsapp
+C-00674,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-08-31,si,si,no,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00675,Uruguay,Montevideo,Cerro,Hombres,40-59,paciente,programa,2025-12-09,si,no,no,si,si,si,,,sms
+C-00676,México,Monterrey,,Mujeres,60+,paciente,farmacia,2026-08-22,si,no,no,no,si,no,Diabetes,;Glucofin,email
+C-00677,Chile,Valparaíso,,Mujeres,60+,profesional,farmacia,2026-06-02,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-00678,Colombia,Medellín,,Hombres,18-39,cuidador,programa,2026-07-04,si,si,si,no,si,no,Diabetes,,whatsapp
+C-00679,México,Monterrey,,Mujeres,18-39,paciente,evento médico,2025-11-09,si,no,si,si,si,no,,,email
+C-00680,Colombia,Medellín,,Hombres,60+,paciente,evento médico,2025-12-30,si,no,si,si,si,no,Diabetes,,email
+C-00681,Argentina,Córdoba,,Hombres,40-59,paciente,programa,2026-08-04,si,si,si,si,si,no,Bienestar,,email
+C-00682,Chile,Santiago,,Hombres,40-59,paciente,farmacia,2026-09-08,si,no,si,no,no,no,Bienestar,,whatsapp
+C-00683,Chile,Santiago,,Mujeres,40-59,paciente,farmacia,2026-06-05,si,no,si,si,si,no,Diabetes,,email
+C-00684,Argentina,Córdoba,,Hombres,60+,paciente,programa,2025-12-19,si,si,no,no,si,no,Diabetes,;Glucofin,email
+C-00685,México,Monterrey,,Hombres,60+,profesional,evento médico,2026-04-17,si,si,si,si,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00686,Brasil,São Paulo,,Hombres,60+,paciente,farmacia,2026-05-19,si,si,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00687,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,landing,2025-11-05,si,no,si,si,no,no,,,email
+C-00688,Colombia,Medellín,,Hombres,40-59,paciente,programa,2026-09-16,si,si,si,si,si,no,,,email
+C-00689,Argentina,Córdoba,,Mujeres,60+,paciente,programa,2026-01-21,si,no,no,si,si,no,Cardiometabólica;Diabetes,,email
+C-00690,México,Ciudad de México,,Hombres,60+,profesional,programa,2026-03-26,si,no,si,no,si,no,Cardiometabólica,,sms
+C-00691,México,Guadalajara,,Hombres,40-59,paciente,evento médico,2026-08-20,no,no,no,no,no,no,Cardiometabólica,,email
+C-00692,México,Guadalajara,,Mujeres,60+,paciente,farmacia,2026-03-18,si,no,si,no,no,no,Bienestar,,email
+C-00693,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2025-12-28,si,no,si,si,si,no,Cardiometabólica,,email
+C-00694,Chile,Santiago,,Hombres,18-39,paciente,farmacia,2026-07-28,si,no,no,no,si,no,,,email
+C-00695,México,Guadalajara,,Mujeres,18-39,profesional,landing,2026-01-18,si,si,si,no,no,no,Bienestar,,email
+C-00696,Brasil,Rio de Janeiro,,Mujeres,40-59,paciente,farmacia,2026-07-16,si,si,si,si,si,no,,,email
+C-00697,Brasil,São Paulo,,Hombres,40-59,paciente,evento médico,2026-09-19,si,si,no,si,si,no,Cardiometabólica,,email
+C-00698,Chile,Santiago,,Hombres,18-39,cuidador,landing,2026-05-20,si,si,si,no,si,no,Cardiometabólica;Diabetes,,email
+C-00699,Colombia,Medellín,,Mujeres,40-59,cuidador,evento médico,2025-10-10,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-00700,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,paciente,farmacia,2025-10-03,si,no,si,no,no,no,Diabetes;Bienestar,,email
+C-00701,México,Monterrey,,Hombres,40-59,cuidador,landing,2026-01-27,si,si,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00702,México,Monterrey,,Hombres,40-59,paciente,landing,2026-03-12,si,si,si,si,si,no,Salud ósea,,email
+C-00703,Uruguay,Montevideo,Cordón,Hombres,60+,cuidador,programa,2026-05-30,si,no,si,si,si,no,Diabetes;Salud ósea,;Glucofin,whatsapp
+C-00704,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2026-08-09,si,si,si,si,si,no,,,email
+C-00705,México,Guadalajara,,Mujeres,60+,paciente,evento médico,2025-11-27,si,si,si,si,si,no,Diabetes,;Glucofin,sms
+C-00706,Perú,Lima,,Mujeres,40-59,paciente,landing,2026-05-02,no,no,no,no,no,no,,,email
+C-00707,Colombia,Bogotá,,Hombres,40-59,paciente,landing,2026-05-11,si,si,si,si,si,no,,,email
+C-00708,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,paciente,evento médico,2026-09-09,si,si,si,si,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-00709,México,Monterrey,,Hombres,40-59,profesional,landing,2025-10-16,no,no,no,no,no,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00710,Uruguay,Montevideo,Pocitos,Mujeres,18-39,paciente,farmacia,2026-01-02,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00711,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2026-07-09,si,si,si,si,no,no,Diabetes,,email
+C-00712,Perú,Lima,,Mujeres,60+,paciente,farmacia,2026-04-10,si,no,si,si,si,no,Diabetes,,email
+C-00713,Colombia,Bogotá,,Mujeres,60+,paciente,farmacia,2026-09-06,si,no,no,si,si,no,Salud ósea;Diabetes,,email
+C-00714,México,Monterrey,,Hombres,60+,paciente,evento médico,2026-05-26,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00715,Perú,Lima,,Mujeres,60+,paciente,evento médico,2025-12-21,si,si,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00716,Colombia,Medellín,,Mujeres,60+,paciente,farmacia,2025-11-24,si,no,si,si,si,no,Diabetes,,sms
+C-00717,Chile,Santiago,,Mujeres,18-39,cuidador,farmacia,2026-03-30,si,si,si,si,si,no,,,email
+C-00718,México,Monterrey,,Mujeres,40-59,cuidador,farmacia,2025-10-12,no,no,no,no,si,no,Diabetes,,email
+C-00719,Colombia,Bogotá,,Hombres,60+,paciente,evento médico,2026-08-21,si,si,no,no,si,no,,,email
+C-00720,México,Guadalajara,,Mujeres,60+,paciente,evento médico,2026-02-27,si,si,si,no,si,no,Salud ósea,,email
+C-00721,Argentina,Buenos Aires,,Mujeres,60+,paciente,landing,2026-06-06,si,no,si,no,si,no,,,email
+C-00722,México,Ciudad de México,,Hombres,60+,paciente,farmacia,2026-07-26,si,no,si,no,si,no,,,whatsapp
+C-00723,México,Guadalajara,,Hombres,60+,paciente,landing,2026-01-08,si,si,si,no,si,no,Salud ósea;Bienestar,,whatsapp
+C-00724,Uruguay,Montevideo,Cordón,Hombres,18-39,paciente,programa,2026-08-06,no,no,no,no,si,no,Diabetes;Cardiometabólica,,email
+C-00725,Uruguay,Montevideo,Cordón,Hombres,40-59,paciente,evento médico,2026-02-11,no,no,no,no,si,si,Cardiometabólica,,sms
+C-00726,Perú,Lima,,Hombres,60+,paciente,farmacia,2026-04-16,si,si,si,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00727,México,Monterrey,,Mujeres,60+,paciente,farmacia,2026-09-29,si,no,no,si,si,no,,,email
+C-00728,Colombia,Bogotá,,Mujeres,60+,paciente,programa,2026-06-06,si,si,si,no,no,si,Cardiometabólica,Vasotril,sms
+C-00729,Perú,Lima,,Mujeres,18-39,cuidador,farmacia,2026-08-13,si,no,no,si,si,no,,,email
+C-00730,Colombia,Medellín,,Mujeres,60+,cuidador,evento médico,2026-08-22,si,no,si,si,si,no,Cardiometabólica,,email
+C-00731,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-04-20,no,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00732,Brasil,São Paulo,,Hombres,60+,paciente,evento médico,2026-03-04,si,si,si,no,si,si,Bienestar;Diabetes,,email
+C-00733,Argentina,Rosario,,Hombres,40-59,paciente,evento médico,2025-12-21,no,no,no,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-00734,Argentina,Córdoba,,Mujeres,60+,paciente,landing,2026-09-12,si,si,no,si,si,no,Bienestar;Diabetes,;Glucofin,email
+C-00735,Brasil,São Paulo,,Hombres,60+,profesional,landing,2026-09-26,si,si,si,no,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-00736,México,Monterrey,,Hombres,40-59,profesional,programa,2026-03-08,si,si,si,no,si,no,Salud ósea,,email
+C-00737,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-03-27,si,no,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00738,Uruguay,Montevideo,Malvín,Mujeres,40-59,paciente,farmacia,2026-08-08,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00739,México,Ciudad de México,,Hombres,18-39,paciente,landing,2025-12-23,no,no,no,no,si,no,Cardiometabólica,,email
+C-00740,México,Monterrey,,Mujeres,40-59,paciente,programa,2025-12-23,si,no,no,no,si,no,,,email
+C-00741,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2025-11-17,si,si,no,si,si,no,,,whatsapp
+C-00742,Argentina,Rosario,,Mujeres,60+,profesional,evento médico,2025-10-20,si,no,si,si,si,no,,,email
+C-00743,Argentina,Rosario,,Mujeres,40-59,paciente,farmacia,2026-01-12,si,si,si,no,si,no,Diabetes,,email
+C-00744,Colombia,Medellín,,Mujeres,60+,paciente,programa,2025-12-27,si,no,si,no,si,no,Bienestar,,whatsapp
+C-00745,Colombia,Bogotá,,Hombres,60+,paciente,landing,2026-02-07,si,si,si,no,si,no,Cardiometabólica;Salud ósea,Vasotril,email
+C-00746,Colombia,Medellín,,Mujeres,40-59,paciente,evento médico,2026-07-25,si,no,si,si,si,no,Salud ósea,,whatsapp
+C-00747,Brasil,Rio de Janeiro,,Hombres,60+,cuidador,landing,2026-04-12,si,no,no,si,si,no,,,email
+C-00748,México,Ciudad de México,,Hombres,60+,paciente,evento médico,2026-09-29,si,si,si,no,no,no,,,email
+C-00749,Colombia,Medellín,,Hombres,60+,paciente,evento médico,2026-04-27,si,no,no,si,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,sms
+C-00750,Brasil,São Paulo,,Mujeres,60+,paciente,evento médico,2025-10-19,no,no,no,no,si,no,Diabetes,;Glucofin,whatsapp
+C-00751,Chile,Valparaíso,,Hombres,18-39,paciente,evento médico,2026-08-30,si,no,si,si,si,no,,,whatsapp
+C-00752,Chile,Valparaíso,,Hombres,18-39,paciente,evento médico,2026-07-31,si,si,si,no,si,no,,,whatsapp
+C-00753,Argentina,Buenos Aires,,Mujeres,40-59,profesional,farmacia,2025-10-23,si,no,no,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00754,México,Guadalajara,,Mujeres,40-59,profesional,farmacia,2026-08-20,si,si,si,si,si,no,,,email
+C-00755,México,Guadalajara,,Mujeres,40-59,paciente,evento médico,2025-11-29,si,no,si,si,si,no,,,sms
+C-00756,Argentina,Rosario,,Hombres,18-39,paciente,programa,2026-01-31,si,si,si,no,si,no,Bienestar,,email
+C-00757,Chile,Santiago,,Mujeres,18-39,paciente,farmacia,2026-06-15,si,si,si,si,si,no,Cardiometabólica,,email
+C-00758,México,Guadalajara,,Hombres,18-39,paciente,evento médico,2026-06-26,si,si,no,si,si,no,,,whatsapp
+C-00759,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2026-02-20,si,no,si,si,si,no,,,sms
+C-00760,Argentina,Córdoba,,Mujeres,40-59,profesional,landing,2026-08-23,si,si,si,si,si,no,Diabetes,,email
+C-00761,Perú,Lima,,Hombres,18-39,paciente,landing,2025-11-21,si,no,si,si,si,no,Cardiometabólica,,email
+C-00762,Argentina,Rosario,,Hombres,40-59,paciente,evento médico,2026-04-15,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00763,Uruguay,Montevideo,Cordón,Mujeres,60+,profesional,landing,2026-08-12,si,no,no,si,si,no,,,email
+C-00764,Chile,Santiago,,Hombres,40-59,profesional,programa,2026-08-19,si,si,si,si,si,no,,,sms
+C-00765,México,Guadalajara,,Hombres,60+,profesional,evento médico,2026-08-08,no,no,no,no,no,no,Diabetes,;Glucofin,email
+C-00766,Uruguay,Montevideo,Malvín,Hombres,60+,profesional,programa,2026-03-26,si,si,si,no,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-00767,Colombia,Medellín,,Hombres,40-59,paciente,landing,2026-08-05,si,no,no,si,no,no,Bienestar,,sms
+C-00768,México,Monterrey,,Hombres,40-59,paciente,farmacia,2026-04-16,si,no,si,no,si,no,Salud ósea;Cardiometabólica,,whatsapp
+C-00769,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2026-07-05,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00770,México,Guadalajara,,Hombres,40-59,profesional,evento médico,2026-06-19,si,no,no,si,si,no,Bienestar,,email
+C-00771,Perú,Lima,,Mujeres,60+,paciente,landing,2026-05-07,no,no,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00772,México,Guadalajara,,Mujeres,40-59,paciente,programa,2025-10-12,si,si,si,si,si,no,,,email
+C-00773,México,Ciudad de México,,Hombres,60+,paciente,programa,2025-11-09,no,no,no,no,si,no,Salud ósea,,sms
+C-00774,México,Monterrey,,Mujeres,60+,cuidador,landing,2026-02-06,si,si,no,si,si,no,,,sms
+C-00775,Colombia,Medellín,,Mujeres,60+,cuidador,landing,2026-04-10,si,si,no,no,si,no,Salud ósea,,whatsapp
+C-00776,México,Guadalajara,,Mujeres,40-59,paciente,programa,2026-08-12,si,si,no,si,si,no,Cardiometabólica,,whatsapp
+C-00777,Argentina,Córdoba,,Mujeres,18-39,paciente,evento médico,2026-02-18,si,si,si,si,si,no,,,email
+C-00778,México,Ciudad de México,,Mujeres,18-39,paciente,landing,2026-06-12,si,si,si,si,si,no,Cardiometabólica;Bienestar,,email
+C-00779,Colombia,Bogotá,,Mujeres,60+,profesional,farmacia,2026-06-05,si,no,si,si,si,no,,,email
+C-00780,Colombia,Bogotá,,Hombres,60+,paciente,programa,2025-11-29,si,no,no,no,si,no,Diabetes,,email
+C-00781,Brasil,Rio de Janeiro,,Hombres,18-39,profesional,evento médico,2026-05-04,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-00782,México,Monterrey,,Hombres,60+,paciente,evento médico,2026-05-06,si,si,si,si,si,no,Diabetes;Bienestar,,email
+C-00783,Colombia,Medellín,,Hombres,60+,cuidador,landing,2026-04-24,si,si,si,no,si,no,,,whatsapp
+C-00784,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,landing,2026-08-20,si,no,no,si,si,no,Diabetes,,email
+C-00785,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2025-12-05,si,si,si,si,si,no,,,sms
+C-00786,Chile,Santiago,,Hombres,18-39,cuidador,evento médico,2026-06-18,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00787,Brasil,Rio de Janeiro,,Mujeres,40-59,paciente,farmacia,2026-02-14,no,no,no,no,si,no,Salud ósea;Diabetes,,whatsapp
+C-00788,México,Monterrey,,Hombres,40-59,paciente,programa,2026-04-05,no,no,no,no,si,no,Diabetes,,whatsapp
+C-00789,Argentina,Buenos Aires,,Hombres,60+,paciente,evento médico,2026-07-17,si,no,no,si,si,si,Bienestar,,sms
+C-00790,Chile,Valparaíso,,Mujeres,40-59,paciente,farmacia,2026-02-24,si,si,no,no,si,no,Cardiometabólica,,email
+C-00791,México,Guadalajara,,Hombres,40-59,paciente,evento médico,2026-01-01,si,no,si,no,si,no,Diabetes,,email
+C-00792,Perú,Lima,,Mujeres,40-59,paciente,programa,2025-11-03,si,no,si,no,no,no,Diabetes;Bienestar,;Glucofin,email
+C-00793,Chile,Valparaíso,,Mujeres,40-59,cuidador,farmacia,2026-08-23,si,no,si,si,no,no,Diabetes,,email
+C-00794,Colombia,Medellín,,Mujeres,60+,paciente,evento médico,2026-05-14,si,si,no,si,si,no,Cardiometabólica,,email
+C-00795,Argentina,Buenos Aires,,Mujeres,40-59,cuidador,programa,2026-05-22,si,si,no,no,si,no,Bienestar,,whatsapp
+C-00796,México,Monterrey,,Mujeres,40-59,paciente,landing,2025-10-03,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00797,Argentina,Rosario,,Hombres,18-39,profesional,landing,2025-12-15,si,no,si,no,si,no,,,email
+C-00798,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,profesional,landing,2025-10-20,no,no,no,no,no,no,Cardiometabólica;Diabetes,Vasotril,whatsapp
+C-00799,Perú,Lima,,Mujeres,18-39,paciente,evento médico,2026-05-23,si,si,si,no,si,no,Cardiometabólica,,email
+C-00800,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,programa,2026-09-13,si,no,si,si,no,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00801,Chile,Valparaíso,,Hombres,18-39,profesional,evento médico,2025-11-14,si,si,si,no,si,no,,,email
+C-00802,México,Monterrey,,Hombres,60+,paciente,programa,2026-06-10,si,si,si,no,si,no,Diabetes,,sms
+C-00803,Colombia,Medellín,,Mujeres,60+,cuidador,landing,2026-08-13,si,si,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00804,Colombia,Medellín,,Hombres,60+,paciente,programa,2026-09-11,si,no,si,si,si,no,Bienestar,,email
+C-00805,Colombia,Bogotá,,Mujeres,60+,paciente,landing,2026-05-18,no,no,no,no,si,no,Diabetes,;Glucofin,email
+C-00806,Brasil,Rio de Janeiro,,Mujeres,40-59,paciente,evento médico,2026-06-23,no,no,no,no,si,no,Diabetes;Salud ósea,,email
+C-00807,México,Monterrey,,Hombres,60+,paciente,landing,2026-03-03,si,si,no,si,si,no,,,email
+C-00808,Chile,Santiago,,Hombres,60+,profesional,landing,2025-12-06,si,si,si,no,si,no,,,email
+C-00809,México,Guadalajara,,Mujeres,18-39,paciente,farmacia,2026-08-26,si,no,si,si,si,no,,,sms
+C-00810,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2026-07-17,si,si,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,email
+C-00811,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-07-10,si,si,si,no,si,no,,,email
+C-00812,Argentina,Buenos Aires,,Mujeres,18-39,profesional,landing,2026-08-09,si,no,si,si,si,no,,,email
+C-00813,México,Ciudad de México,,Hombres,40-59,paciente,programa,2026-01-29,si,no,si,si,si,no,Diabetes,,email
+C-00814,Argentina,Buenos Aires,,Hombres,40-59,profesional,programa,2026-02-28,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00815,Colombia,Medellín,,Hombres,40-59,cuidador,evento médico,2026-02-27,si,si,no,no,si,no,Diabetes,,email
+C-00816,Brasil,São Paulo,,Hombres,60+,paciente,evento médico,2026-03-19,si,si,si,si,no,no,Cardiometabólica;Diabetes,,whatsapp
+C-00817,México,Monterrey,,Mujeres,40-59,paciente,programa,2026-07-15,si,no,no,si,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-00818,México,Monterrey,,Mujeres,40-59,cuidador,evento médico,2026-01-19,si,no,si,no,si,no,Diabetes,,whatsapp
+C-00819,México,Ciudad de México,,Hombres,40-59,profesional,programa,2026-01-25,si,si,si,no,no,no,Cardiometabólica,Vasotril,email
+C-00820,México,Guadalajara,,Mujeres,60+,profesional,landing,2026-04-30,si,no,si,si,si,no,Diabetes;Cardiometabólica,;Glucofin,email
+C-00821,México,Monterrey,,Mujeres,60+,profesional,programa,2026-05-13,si,si,si,si,si,no,Cardiometabólica,,email
+C-00822,México,Guadalajara,,Hombres,60+,paciente,landing,2026-07-22,si,si,no,si,si,no,Diabetes,;Glucofin,email
+C-00823,Argentina,Buenos Aires,,Mujeres,60+,paciente,farmacia,2025-12-26,si,no,si,si,si,no,Bienestar,,email
+C-00824,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,farmacia,2026-05-09,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00825,Colombia,Bogotá,,Mujeres,60+,paciente,farmacia,2026-07-26,si,si,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00826,Brasil,São Paulo,,Mujeres,60+,paciente,farmacia,2026-04-06,si,si,si,si,si,no,Salud ósea,,email
+C-00827,México,Guadalajara,,Mujeres,40-59,paciente,evento médico,2026-07-02,si,si,si,si,si,no,,,whatsapp
+C-00828,Colombia,Medellín,,Mujeres,40-59,paciente,landing,2025-11-07,si,si,no,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00829,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-03-24,si,si,si,no,si,no,Diabetes;Cardiometabólica,,email
+C-00830,Uruguay,Montevideo,Malvín,Hombres,40-59,paciente,landing,2026-02-14,no,no,no,no,no,no,Diabetes,,sms
+C-00831,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,profesional,farmacia,2026-05-08,si,no,si,no,si,no,Cardiometabólica,,email
+C-00832,México,Ciudad de México,,Mujeres,18-39,profesional,landing,2025-10-12,si,no,si,no,no,no,,,whatsapp
+C-00833,Chile,Santiago,,Hombres,40-59,paciente,landing,2026-07-02,si,si,si,no,si,no,Diabetes,,email
+C-00834,México,Ciudad de México,,Hombres,18-39,paciente,landing,2026-03-22,si,si,si,si,si,no,Bienestar;Diabetes,,whatsapp
+C-00835,México,Ciudad de México,,Mujeres,60+,cuidador,evento médico,2025-10-08,si,si,no,si,no,no,Diabetes;Cardiometabólica,,email
+C-00836,Perú,Lima,,Mujeres,18-39,profesional,landing,2025-12-22,si,si,si,no,no,no,Cardiometabólica;Salud ósea,,email
+C-00837,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-02-04,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00838,Argentina,Córdoba,,Hombres,18-39,paciente,farmacia,2026-03-24,si,no,si,si,si,no,,,email
+C-00839,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-04-25,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-00840,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2025-12-13,si,si,no,si,no,no,,,email
+C-00841,Perú,Lima,,Mujeres,60+,cuidador,farmacia,2026-06-30,si,no,si,si,si,no,,,whatsapp
+C-00842,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2025-10-03,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-00843,Argentina,Rosario,,Hombres,40-59,profesional,landing,2026-04-03,si,si,no,si,si,no,,,email
+C-00844,México,Monterrey,,Hombres,40-59,paciente,programa,2026-08-26,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00845,Argentina,Buenos Aires,,Mujeres,60+,paciente,programa,2025-10-04,si,si,si,no,si,no,,,whatsapp
+C-00846,Argentina,Buenos Aires,,Mujeres,60+,profesional,programa,2026-09-23,si,si,no,no,si,no,Diabetes,,whatsapp
+C-00847,Argentina,Córdoba,,Mujeres,18-39,cuidador,evento médico,2026-05-27,si,si,no,no,si,no,Bienestar;Salud ósea,,whatsapp
+C-00848,Chile,Santiago,,Mujeres,60+,paciente,programa,2026-07-26,si,no,no,si,si,no,,,email
+C-00849,Uruguay,Montevideo,Malvín,Mujeres,18-39,paciente,landing,2025-10-29,si,no,si,no,si,no,Salud ósea,,whatsapp
+C-00850,Brasil,Rio de Janeiro,,Mujeres,40-59,cuidador,landing,2026-09-12,si,si,si,si,si,no,Cardiometabólica,,email
+C-00851,Colombia,Bogotá,,Mujeres,18-39,paciente,farmacia,2026-02-13,si,si,no,si,si,no,Bienestar,,email
+C-00852,Perú,Lima,,Mujeres,60+,paciente,programa,2026-06-09,si,no,no,si,si,no,Cardiometabólica;Salud ósea,,email
+C-00853,Chile,Valparaíso,,Mujeres,18-39,paciente,landing,2026-09-19,si,no,si,si,si,no,Salud ósea,,email
+C-00854,México,Guadalajara,,Hombres,60+,cuidador,evento médico,2026-09-02,si,si,no,no,no,no,,,email
+C-00855,Chile,Valparaíso,,Mujeres,60+,paciente,landing,2026-02-15,si,si,si,si,si,no,Diabetes;Cardiometabólica,,email
+C-00856,México,Ciudad de México,,Hombres,18-39,paciente,farmacia,2026-03-23,si,si,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-00857,Colombia,Bogotá,,Hombres,60+,paciente,evento médico,2025-11-24,si,si,si,no,si,no,Cardiometabólica,,email
+C-00858,Brasil,São Paulo,,Mujeres,18-39,profesional,evento médico,2026-08-26,si,si,no,si,no,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-00859,Argentina,Rosario,,Hombres,40-59,cuidador,programa,2026-08-04,no,no,no,no,si,no,,,sms
+C-00860,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,paciente,evento médico,2025-10-02,si,no,si,no,si,no,,,email
+C-00861,Uruguay,Montevideo,Pocitos,Hombres,60+,paciente,landing,2026-06-16,si,si,no,si,si,no,Bienestar;Diabetes,,whatsapp
+C-00862,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,paciente,programa,2026-07-17,si,si,no,no,si,no,Diabetes,,whatsapp
+C-00863,Chile,Santiago,,Hombres,40-59,cuidador,programa,2025-10-09,si,no,no,si,si,no,Diabetes,,email
+C-00864,Colombia,Bogotá,,Mujeres,60+,cuidador,landing,2026-05-16,si,no,no,si,no,no,Bienestar;Diabetes,,sms
+C-00865,México,Guadalajara,,Hombres,60+,profesional,evento médico,2025-10-01,si,no,si,si,si,no,Bienestar,,email
+C-00866,Argentina,Buenos Aires,,Mujeres,40-59,paciente,evento médico,2025-12-06,si,no,si,no,si,no,,,whatsapp
+C-00867,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,farmacia,2025-11-17,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-00868,Argentina,Córdoba,,Hombres,60+,paciente,landing,2026-01-01,si,si,si,no,si,no,Diabetes;Cardiometabólica,,email
+C-00869,Perú,Lima,,Hombres,40-59,paciente,programa,2026-01-04,no,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00870,México,Guadalajara,,Mujeres,60+,paciente,landing,2025-10-19,si,si,si,si,si,no,,,email
+C-00871,México,Guadalajara,,Mujeres,18-39,paciente,farmacia,2026-07-23,si,si,si,no,si,no,,,sms
+C-00872,México,Guadalajara,,Hombres,40-59,cuidador,evento médico,2026-04-23,si,no,si,si,no,no,Diabetes;Bienestar,,whatsapp
+C-00873,Colombia,Medellín,,Hombres,60+,paciente,landing,2026-01-28,si,si,no,si,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-00874,México,Ciudad de México,,Mujeres,18-39,paciente,evento médico,2026-09-02,si,no,no,si,si,si,Bienestar,,email
+C-00875,México,Monterrey,,Hombres,18-39,paciente,farmacia,2026-07-23,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00876,Argentina,Buenos Aires,,Hombres,18-39,paciente,landing,2026-09-23,si,si,si,si,si,no,Cardiometabólica;Diabetes,Vasotril,whatsapp
+C-00877,Chile,Santiago,,Mujeres,40-59,paciente,farmacia,2026-02-13,si,no,si,no,no,no,,,email
+C-00878,Perú,Lima,,Mujeres,40-59,profesional,programa,2026-08-14,si,si,no,si,si,no,,,email
+C-00879,Argentina,Rosario,,Mujeres,60+,cuidador,evento médico,2025-11-22,si,si,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00880,Colombia,Bogotá,,Mujeres,60+,paciente,programa,2026-09-30,si,si,no,si,si,no,Salud ósea;Cardiometabólica,,email
+C-00881,Chile,Santiago,,Mujeres,60+,profesional,farmacia,2025-10-20,si,si,si,si,si,no,Bienestar,,whatsapp
+C-00882,Brasil,São Paulo,,Mujeres,60+,cuidador,farmacia,2025-12-21,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00883,México,Monterrey,,Mujeres,18-39,paciente,evento médico,2026-02-25,si,no,si,no,si,no,Diabetes;Cardiometabólica,Vasotril,sms
+C-00884,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2025-11-15,si,si,no,si,si,no,Diabetes,;Glucofin,sms
+C-00885,Brasil,São Paulo,,Mujeres,40-59,paciente,landing,2026-04-11,no,no,no,no,si,no,Cardiometabólica;Bienestar,,email
+C-00886,México,Ciudad de México,,Mujeres,60+,paciente,landing,2026-08-16,si,no,si,si,si,no,,,sms
+C-00887,Brasil,São Paulo,,Hombres,60+,profesional,programa,2026-06-15,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-00888,Argentina,Córdoba,,Mujeres,60+,paciente,landing,2026-07-10,si,no,si,no,si,no,,,sms
+C-00889,Argentina,Córdoba,,Hombres,40-59,paciente,evento médico,2026-09-24,si,si,no,no,si,no,Diabetes,,email
+C-00890,México,Monterrey,,Hombres,18-39,paciente,landing,2026-04-08,si,no,no,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00891,México,Guadalajara,,Mujeres,60+,cuidador,programa,2026-08-20,si,si,si,no,si,no,Salud ósea,,whatsapp
+C-00892,Chile,Santiago,,Mujeres,18-39,cuidador,farmacia,2026-05-09,si,si,si,si,si,no,Salud ósea;Diabetes,,whatsapp
+C-00893,México,Guadalajara,,Mujeres,18-39,paciente,programa,2025-10-23,si,si,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00894,México,Ciudad de México,,Hombres,40-59,cuidador,farmacia,2026-01-07,si,si,no,si,si,no,Salud ósea,,email
+C-00895,México,Monterrey,,Mujeres,40-59,cuidador,evento médico,2026-07-16,si,no,si,no,si,no,,,email
+C-00896,Brasil,São Paulo,,Mujeres,60+,paciente,programa,2026-05-13,si,si,no,no,no,no,Cardiometabólica,Vasotril,email
+C-00897,Brasil,São Paulo,,Hombres,40-59,paciente,programa,2026-09-24,si,no,si,si,si,no,Cardiometabólica,,whatsapp
+C-00898,México,Guadalajara,,Hombres,60+,paciente,farmacia,2025-11-16,si,si,si,si,no,no,,,whatsapp
+C-00899,Chile,Valparaíso,,Hombres,18-39,cuidador,farmacia,2026-01-30,si,no,si,no,si,no,Bienestar,,whatsapp
+C-00900,Colombia,Medellín,,Hombres,18-39,cuidador,landing,2026-02-27,si,no,si,no,si,no,Salud ósea,,whatsapp
+C-00901,Perú,Lima,,Mujeres,18-39,cuidador,programa,2026-05-16,si,si,si,no,si,no,Diabetes,,email
+C-00902,México,Monterrey,,Mujeres,60+,paciente,evento médico,2026-01-06,si,si,no,si,no,no,,,email
+C-00903,Brasil,São Paulo,,Hombres,40-59,cuidador,landing,2026-04-08,si,si,si,no,si,no,Diabetes;Cardiometabólica,Vasotril,whatsapp
+C-00904,Chile,Santiago,,Hombres,40-59,paciente,programa,2025-12-15,si,si,si,si,si,no,Diabetes,,sms
+C-00905,Chile,Santiago,,Hombres,40-59,profesional,landing,2026-01-25,si,si,si,si,si,no,,,whatsapp
+C-00906,Perú,Lima,,Mujeres,60+,paciente,evento médico,2026-08-16,si,no,si,no,si,no,Diabetes,,email
+C-00907,Colombia,Bogotá,,Mujeres,60+,cuidador,landing,2026-02-18,si,si,no,si,si,no,Diabetes,,whatsapp
+C-00908,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2026-09-02,si,no,si,si,si,no,,,email
+C-00909,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-01-16,si,si,si,si,si,no,Cardiometabólica,,sms
+C-00910,Colombia,Bogotá,,Hombres,40-59,paciente,landing,2025-10-04,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-00911,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2026-03-17,si,no,si,no,si,no,,,email
+C-00912,México,Guadalajara,,Mujeres,40-59,paciente,evento médico,2026-01-14,si,no,si,no,no,no,Cardiometabólica,Vasotril,email
+C-00913,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,evento médico,2026-06-19,si,no,no,no,no,no,,,email
+C-00914,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,landing,2026-03-12,si,si,no,no,si,no,,,email
+C-00915,Colombia,Bogotá,,Mujeres,18-39,paciente,programa,2026-01-20,si,no,no,si,no,no,Salud ósea,,email
+C-00916,Chile,Santiago,,Hombres,40-59,paciente,evento médico,2026-07-04,si,si,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-00917,Colombia,Medellín,,Mujeres,18-39,paciente,evento médico,2026-06-06,si,si,si,no,si,no,,,email
+C-00918,Argentina,Rosario,,Mujeres,60+,cuidador,farmacia,2025-11-09,si,no,si,no,si,no,Salud ósea,,whatsapp
+C-00919,Chile,Santiago,,Hombres,18-39,paciente,programa,2026-05-20,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00920,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2025-12-07,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00921,Perú,Lima,,Mujeres,40-59,cuidador,farmacia,2026-07-03,si,no,si,no,si,no,,,email
+C-00922,Colombia,Bogotá,,Mujeres,18-39,cuidador,programa,2026-06-30,si,si,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-00923,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,farmacia,2026-02-23,si,si,si,si,si,no,Salud ósea;Cardiometabólica,,whatsapp
+C-00924,Chile,Santiago,,Mujeres,60+,paciente,programa,2025-10-15,si,no,si,si,si,no,Cardiometabólica,,email
+C-00925,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,farmacia,2026-09-28,si,no,si,si,si,no,Bienestar,,email
+C-00926,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-01-03,no,no,no,no,si,no,Diabetes,,sms
+C-00927,México,Guadalajara,,Hombres,18-39,paciente,programa,2026-05-28,no,no,no,no,si,no,Cardiometabólica,,email
+C-00928,Colombia,Medellín,,Hombres,40-59,profesional,programa,2026-02-24,si,no,no,no,si,no,Diabetes;Cardiometabólica,,email
+C-00929,Uruguay,Montevideo,Cordón,Mujeres,60+,cuidador,programa,2026-05-19,si,no,si,si,si,no,Diabetes,,whatsapp
+C-00930,México,Guadalajara,,Mujeres,18-39,paciente,landing,2026-04-18,si,si,si,si,no,no,Salud ósea,,sms
+C-00931,Brasil,São Paulo,,Mujeres,18-39,cuidador,farmacia,2025-12-23,si,si,si,si,no,no,Diabetes,,email
+C-00932,Chile,Santiago,,Mujeres,40-59,paciente,programa,2025-10-26,si,si,si,no,si,no,Bienestar,,email
+C-00933,Argentina,Buenos Aires,,Mujeres,40-59,paciente,farmacia,2026-01-19,si,si,no,no,si,no,Cardiometabólica,,email
+C-00934,México,Monterrey,,Mujeres,60+,cuidador,programa,2026-06-23,si,si,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-00935,Chile,Valparaíso,,Mujeres,40-59,profesional,evento médico,2026-09-14,si,si,si,si,si,no,Bienestar,,email
+C-00936,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2025-12-27,si,si,si,no,no,no,Diabetes,;Glucofin,sms
+C-00937,Colombia,Bogotá,,Hombres,40-59,paciente,landing,2026-06-05,si,no,no,si,si,no,Diabetes;Bienestar,,whatsapp
+C-00938,México,Monterrey,,Mujeres,60+,profesional,evento médico,2025-10-27,si,no,si,si,si,no,Cardiometabólica,,email
+C-00939,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,evento médico,2026-03-22,si,no,no,si,no,no,Diabetes,,email
+C-00940,Argentina,Córdoba,,Hombres,18-39,cuidador,landing,2026-05-10,si,no,no,no,si,no,Cardiometabólica,,sms
+C-00941,Colombia,Bogotá,,Hombres,18-39,paciente,programa,2025-11-19,si,no,si,si,no,si,,,email
+C-00942,Uruguay,Montevideo,Cerro,Hombres,60+,paciente,farmacia,2025-12-19,si,si,si,no,si,no,Bienestar;Salud ósea,,email
+C-00943,Colombia,Bogotá,,Mujeres,60+,paciente,evento médico,2026-08-27,si,si,si,si,si,no,,,email
+C-00944,Chile,Santiago,,Mujeres,40-59,paciente,evento médico,2025-11-08,si,no,si,no,si,no,Diabetes,;Glucofin,email
+C-00945,Argentina,Córdoba,,Hombres,60+,paciente,evento médico,2025-12-26,si,si,si,no,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-00946,México,Monterrey,,Hombres,40-59,profesional,evento médico,2025-10-17,si,si,si,si,si,no,Salud ósea,,email
+C-00947,México,Monterrey,,Mujeres,60+,cuidador,evento médico,2025-11-26,si,si,no,si,si,no,Cardiometabólica;Diabetes,,sms
+C-00948,Perú,Lima,,Mujeres,40-59,paciente,programa,2026-01-11,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00949,México,Monterrey,,Hombres,18-39,cuidador,evento médico,2025-10-29,si,no,si,si,si,no,Bienestar;Salud ósea,,whatsapp
+C-00950,México,Monterrey,,Hombres,60+,cuidador,landing,2026-09-22,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00951,Argentina,Córdoba,,Mujeres,40-59,cuidador,evento médico,2025-10-24,si,no,si,no,si,no,Cardiometabólica,,email
+C-00952,México,Ciudad de México,,Mujeres,18-39,cuidador,landing,2026-04-21,no,no,no,no,si,no,Bienestar,,whatsapp
+C-00953,Argentina,Córdoba,,Hombres,40-59,profesional,programa,2026-01-24,si,si,si,si,si,no,,,whatsapp
+C-00954,Argentina,Córdoba,,Mujeres,60+,paciente,farmacia,2026-03-04,si,si,si,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-00955,Argentina,Córdoba,,Hombres,18-39,paciente,evento médico,2026-04-30,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-00956,Perú,Lima,,Mujeres,60+,paciente,farmacia,2026-03-09,si,si,no,no,si,no,,,whatsapp
+C-00957,Argentina,Rosario,,Hombres,18-39,paciente,evento médico,2025-11-01,si,si,no,si,si,no,Cardiometabólica,,email
+C-00958,México,Ciudad de México,,Hombres,40-59,paciente,programa,2026-03-14,si,si,si,si,si,no,,,email
+C-00959,Chile,Santiago,,Mujeres,60+,paciente,farmacia,2026-01-20,si,si,si,no,si,no,,,email
+C-00960,México,Monterrey,,Hombres,60+,cuidador,farmacia,2025-11-11,si,no,si,si,no,no,,,email
+C-00961,Argentina,Rosario,,Hombres,60+,paciente,farmacia,2025-12-19,si,no,no,si,no,no,,,email
+C-00962,México,Ciudad de México,,Hombres,40-59,cuidador,evento médico,2026-01-08,si,no,no,no,si,no,Salud ósea;Cardiometabólica,,email
+C-00963,México,Ciudad de México,,Hombres,18-39,profesional,farmacia,2026-02-06,si,si,si,no,si,no,Salud ósea,,whatsapp
+C-00964,México,Guadalajara,,Mujeres,18-39,paciente,evento médico,2026-01-04,si,no,si,si,no,no,Diabetes;Cardiometabólica,Vasotril,email
+C-00965,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,landing,2026-03-27,si,no,si,si,si,si,Cardiometabólica,Vasotril,email
+C-00966,México,Guadalajara,,Mujeres,18-39,cuidador,landing,2026-03-15,si,si,si,si,si,no,,,email
+C-00967,Argentina,Buenos Aires,,Hombres,40-59,profesional,landing,2026-03-03,si,si,si,no,si,si,Cardiometabólica;Bienestar,Vasotril,email
+C-00968,Chile,Valparaíso,,Hombres,40-59,paciente,landing,2026-02-11,si,si,no,no,si,no,,,email
+C-00969,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,paciente,evento médico,2026-02-16,si,no,si,si,si,no,Diabetes;Bienestar,,email
+C-00970,Perú,Lima,,Hombres,60+,profesional,farmacia,2025-10-30,no,no,no,no,si,no,,,whatsapp
+C-00971,México,Ciudad de México,,Mujeres,40-59,paciente,landing,2026-06-04,si,si,si,si,si,no,,,whatsapp
+C-00972,Argentina,Rosario,,Mujeres,40-59,paciente,evento médico,2025-12-03,si,no,si,si,si,no,Salud ósea,,email
+C-00973,Argentina,Córdoba,,Hombres,60+,paciente,farmacia,2025-10-23,si,no,si,no,si,no,Cardiometabólica,,email
+C-00974,Colombia,Medellín,,Hombres,60+,paciente,programa,2026-01-08,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-00975,México,Guadalajara,,Mujeres,60+,paciente,programa,2026-01-23,si,si,si,si,si,no,Diabetes,,whatsapp
+C-00976,México,Guadalajara,,Mujeres,18-39,cuidador,programa,2026-09-10,si,no,si,si,no,no,,,email
+C-00977,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2025-11-18,si,si,si,no,si,no,,,email
+C-00978,México,Guadalajara,,Mujeres,60+,profesional,landing,2026-06-16,si,no,si,no,si,no,Salud ósea;Diabetes,;Glucofin,whatsapp
+C-00979,Argentina,Córdoba,,Mujeres,60+,profesional,farmacia,2026-08-14,si,si,si,si,no,no,Cardiometabólica,Vasotril,whatsapp
+C-00980,México,Monterrey,,Hombres,40-59,paciente,evento médico,2026-06-07,si,si,si,si,si,no,,,whatsapp
+C-00981,Perú,Lima,,Hombres,60+,cuidador,farmacia,2025-10-29,si,si,si,no,si,no,Cardiometabólica;Bienestar,,email
+C-00982,México,Monterrey,,Mujeres,60+,cuidador,landing,2026-04-29,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-00983,Argentina,Córdoba,,Mujeres,18-39,paciente,farmacia,2026-07-25,si,no,si,si,si,no,Bienestar,,sms
+C-00984,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,farmacia,2026-04-26,si,no,no,si,si,no,,,email
+C-00985,México,Ciudad de México,,Mujeres,18-39,paciente,evento médico,2026-04-26,si,si,si,si,si,no,,,whatsapp
+C-00986,Perú,Lima,,Hombres,60+,paciente,evento médico,2026-02-19,si,si,si,si,si,no,Cardiometabólica,Vasotril,sms
+C-00987,Argentina,Córdoba,,Mujeres,18-39,paciente,farmacia,2025-11-13,si,no,si,si,si,no,Bienestar,,email
+C-00988,México,Monterrey,,Mujeres,40-59,paciente,landing,2026-03-17,si,si,no,si,si,no,Cardiometabólica,Vasotril,email
+C-00989,Uruguay,Montevideo,Cerro,Mujeres,18-39,paciente,landing,2026-01-17,no,no,no,no,si,no,,,email
+C-00990,Perú,Lima,,Hombres,40-59,paciente,farmacia,2025-11-09,si,si,no,si,no,no,Bienestar,,email
+C-00991,Argentina,Rosario,,Hombres,40-59,paciente,evento médico,2026-03-11,si,no,si,si,si,no,Bienestar,,email
+C-00992,Colombia,Medellín,,Hombres,60+,cuidador,farmacia,2025-11-02,si,si,si,no,si,no,,,email
+C-00993,Argentina,Rosario,,Hombres,40-59,cuidador,farmacia,2026-07-25,si,no,si,si,si,si,Diabetes,,email
+C-00994,Uruguay,Montevideo,Cerro,Mujeres,18-39,cuidador,farmacia,2025-10-28,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril,sms
+C-00995,Argentina,Buenos Aires,,Hombres,18-39,paciente,farmacia,2025-12-31,si,no,si,si,si,no,Diabetes;Salud ósea,,email
+C-00996,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-08-06,si,si,no,no,si,no,Diabetes,,email
+C-00997,Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,paciente,landing,2026-04-19,si,no,si,si,si,no,Cardiometabólica,,email
+C-00998,México,Guadalajara,,Hombres,18-39,profesional,programa,2026-03-09,si,si,si,si,si,no,Diabetes;Cardiometabólica,,sms
+C-00999,Brasil,São Paulo,,Mujeres,60+,paciente,programa,2026-08-07,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01000,Argentina,Buenos Aires,,Hombres,40-59,profesional,landing,2026-01-22,si,no,si,no,si,no,Bienestar,,whatsapp
+C-01001,México,Guadalajara,,Mujeres,60+,cuidador,evento médico,2026-03-24,si,si,si,si,si,no,,,sms
+C-01002,México,Monterrey,,Mujeres,60+,profesional,farmacia,2026-09-21,si,no,si,no,si,no,,,whatsapp
+C-01003,Chile,Valparaíso,,Mujeres,60+,paciente,evento médico,2026-06-14,si,si,si,si,no,no,,,whatsapp
+C-01004,México,Guadalajara,,Mujeres,40-59,profesional,farmacia,2026-08-09,no,no,no,no,no,no,Bienestar;Cardiometabólica,Vasotril,email
+C-01005,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2026-03-15,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-01006,Argentina,Buenos Aires,,Hombres,40-59,profesional,evento médico,2025-11-14,si,si,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,whatsapp
+C-01007,Argentina,Córdoba,,Hombres,40-59,paciente,landing,2026-08-27,si,si,si,no,si,no,Cardiometabólica;Diabetes,,sms
+C-01008,México,Ciudad de México,,Hombres,18-39,paciente,farmacia,2025-10-10,si,no,no,no,si,no,Diabetes,,email
+C-01009,Chile,Valparaíso,,Mujeres,18-39,paciente,farmacia,2026-04-10,si,no,si,si,si,si,,,whatsapp
+C-01010,Colombia,Medellín,,Hombres,60+,paciente,programa,2025-12-13,no,no,no,no,si,no,,,whatsapp
+C-01011,México,Ciudad de México,,Hombres,40-59,paciente,farmacia,2026-07-15,si,si,si,si,no,no,Diabetes,,whatsapp
+C-01012,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-06-05,si,no,si,no,si,no,,,email
+C-01013,Argentina,Buenos Aires,,Mujeres,60+,profesional,programa,2025-11-01,si,si,si,si,no,no,Bienestar,,email
+C-01014,Chile,Santiago,,Mujeres,18-39,paciente,programa,2026-08-31,si,no,no,si,no,no,Bienestar;Diabetes,;Glucofin,email
+C-01015,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-03-15,si,si,si,si,si,no,,,email
+C-01016,Argentina,Rosario,,Mujeres,40-59,paciente,evento médico,2026-06-13,si,no,si,si,si,no,Cardiometabólica;Bienestar,,email
+C-01017,Chile,Valparaíso,,Mujeres,40-59,cuidador,farmacia,2026-02-09,si,no,si,no,no,no,Cardiometabólica,,email
+C-01018,México,Monterrey,,Mujeres,18-39,paciente,programa,2026-06-14,si,no,si,si,no,no,,,whatsapp
+C-01019,México,Guadalajara,,Mujeres,40-59,paciente,landing,2025-11-28,si,si,no,no,si,no,Salud ósea;Cardiometabólica,Vasotril,whatsapp
+C-01020,Argentina,Rosario,,Hombres,40-59,profesional,farmacia,2026-02-10,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01021,Argentina,Córdoba,,Mujeres,40-59,paciente,landing,2026-08-26,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01022,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2025-12-12,si,no,no,si,no,no,Diabetes,,whatsapp
+C-01023,Chile,Valparaíso,,Mujeres,60+,profesional,evento médico,2026-03-02,si,si,si,no,si,no,Diabetes,,email
+C-01024,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-03-27,no,no,no,no,si,no,,,email
+C-01025,Colombia,Medellín,,Hombres,60+,paciente,landing,2026-02-06,si,no,si,si,no,no,,,whatsapp
+C-01026,Colombia,Medellín,,Mujeres,18-39,paciente,programa,2026-06-08,si,no,si,si,si,no,Diabetes,,whatsapp
+C-01027,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-01-15,si,si,no,si,si,no,Diabetes,,whatsapp
+C-01028,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,landing,2026-08-30,si,si,si,si,si,no,,,email
+C-01029,México,Guadalajara,,Hombres,18-39,cuidador,farmacia,2025-10-25,si,si,si,si,si,no,Diabetes;Bienestar,,whatsapp
+C-01030,Perú,Lima,,Hombres,40-59,paciente,evento médico,2026-02-10,si,si,no,si,si,no,Salud ósea,,email
+C-01031,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2025-12-07,si,no,si,no,si,no,Cardiometabólica;Diabetes,,email
+C-01032,Chile,Santiago,,Hombres,60+,paciente,evento médico,2026-09-04,si,no,si,si,si,no,Bienestar,,whatsapp
+C-01033,Argentina,Córdoba,,Hombres,60+,cuidador,landing,2026-02-10,si,si,si,si,no,no,,,whatsapp
+C-01034,Uruguay,Montevideo,Pocitos,Mujeres,60+,paciente,landing,2026-06-10,si,no,si,si,si,no,Diabetes,,email
+C-01035,Brasil,São Paulo,,Mujeres,60+,paciente,evento médico,2026-08-22,si,no,si,no,si,no,,,email
+C-01036,México,Monterrey,,Mujeres,40-59,cuidador,farmacia,2026-03-30,si,si,si,no,no,no,Cardiometabólica,Vasotril,email
+C-01037,Chile,Valparaíso,,Hombres,18-39,profesional,evento médico,2026-03-17,si,no,si,no,si,no,Bienestar,,email
+C-01038,Brasil,Rio de Janeiro,,Hombres,60+,paciente,landing,2025-10-07,si,no,si,si,si,no,,,email
+C-01039,Argentina,Córdoba,,Hombres,40-59,paciente,farmacia,2026-06-18,si,si,si,no,si,no,,,email
+C-01040,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-04-30,si,no,si,si,si,no,Salud ósea,,email
+C-01041,México,Monterrey,,Mujeres,60+,paciente,farmacia,2026-05-01,si,si,si,no,si,no,Cardiometabólica,,email
+C-01042,Uruguay,Montevideo,Cordón,Hombres,60+,paciente,programa,2026-05-23,si,si,si,si,si,no,Cardiometabólica,,sms
+C-01043,Colombia,Bogotá,,Hombres,18-39,paciente,programa,2026-06-26,si,si,si,no,si,no,Salud ósea,,email
+C-01044,Argentina,Córdoba,,Mujeres,40-59,paciente,landing,2026-03-14,si,no,no,si,si,si,Cardiometabólica;Diabetes,Vasotril,sms
+C-01045,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-01-27,no,no,no,no,si,no,,,sms
+C-01046,Perú,Lima,,Mujeres,18-39,paciente,programa,2026-03-25,si,no,no,no,si,no,Bienestar,,email
+C-01047,Brasil,Rio de Janeiro,,Hombres,40-59,cuidador,evento médico,2026-02-26,si,no,no,no,si,no,,,whatsapp
+C-01048,Colombia,Medellín,,Hombres,60+,paciente,landing,2025-12-29,si,si,si,no,si,no,,,whatsapp
+C-01049,México,Monterrey,,Mujeres,60+,paciente,evento médico,2026-09-27,si,si,no,no,si,no,,,email
+C-01050,México,Ciudad de México,,Hombres,40-59,cuidador,farmacia,2026-09-28,si,si,si,si,si,no,,,email
+C-01051,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2026-04-26,si,si,si,si,no,no,,,email
+C-01052,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,evento médico,2025-12-03,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01053,México,Ciudad de México,,Mujeres,40-59,paciente,landing,2026-01-30,si,no,no,si,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01054,Argentina,Córdoba,,Hombres,60+,paciente,evento médico,2025-12-03,no,no,no,no,si,no,Diabetes,,whatsapp
+C-01055,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2026-08-29,si,si,si,no,si,no,Salud ósea,,email
+C-01056,Colombia,Medellín,,Mujeres,60+,paciente,evento médico,2026-05-05,si,si,si,no,si,no,Diabetes,,whatsapp
+C-01057,Colombia,Medellín,,Hombres,60+,profesional,landing,2025-12-26,si,si,no,si,no,no,Salud ósea;Diabetes,,email
+C-01058,Perú,Lima,,Mujeres,40-59,paciente,programa,2025-12-01,si,si,si,si,si,no,Diabetes;Salud ósea,,email
+C-01059,Colombia,Medellín,,Hombres,40-59,paciente,evento médico,2026-07-13,no,no,no,no,no,no,Salud ósea,,email
+C-01060,Argentina,Rosario,,Mujeres,18-39,paciente,landing,2025-12-19,si,si,si,si,si,no,Bienestar,,sms
+C-01061,Uruguay,Montevideo,Pocitos,Mujeres,40-59,paciente,farmacia,2025-11-25,no,no,no,no,si,no,Diabetes,,sms
+C-01062,México,Monterrey,,Hombres,60+,cuidador,programa,2025-11-27,si,si,si,no,si,no,,,sms
+C-01063,Argentina,Córdoba,,Mujeres,60+,paciente,evento médico,2026-05-23,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01064,Colombia,Medellín,,Mujeres,18-39,profesional,landing,2026-07-02,si,si,si,si,si,no,,,sms
+C-01065,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2025-10-25,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-01066,Perú,Lima,,Hombres,40-59,paciente,evento médico,2026-08-18,si,si,no,si,no,no,Cardiometabólica,Vasotril,email
+C-01067,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,farmacia,2026-06-17,si,no,no,no,si,no,Bienestar;Cardiometabólica,,whatsapp
+C-01068,Chile,Santiago,,Mujeres,40-59,paciente,evento médico,2026-04-09,si,si,no,si,si,no,,,whatsapp
+C-01069,Colombia,Bogotá,,Mujeres,60+,profesional,programa,2026-04-19,no,no,no,no,no,no,,,email
+C-01070,Argentina,Rosario,,Mujeres,60+,paciente,programa,2026-08-09,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01071,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-05-22,si,si,no,si,si,no,Salud ósea,,email
+C-01072,Argentina,Buenos Aires,,Hombres,40-59,cuidador,landing,2026-05-17,si,si,si,si,si,no,Diabetes,,sms
+C-01073,Brasil,São Paulo,,Hombres,40-59,cuidador,landing,2026-05-03,si,si,si,si,si,no,Bienestar;Cardiometabólica,Vasotril,email
+C-01074,Argentina,Rosario,,Hombres,60+,paciente,evento médico,2026-02-23,si,no,no,si,si,no,Diabetes,,whatsapp
+C-01075,Argentina,Buenos Aires,,Mujeres,60+,paciente,landing,2026-08-22,si,si,si,no,si,no,,,email
+C-01076,Argentina,Córdoba,,Hombres,18-39,paciente,programa,2026-04-20,si,si,no,si,si,si,,,email
+C-01077,México,Monterrey,,Hombres,18-39,paciente,programa,2026-07-11,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-01078,México,Ciudad de México,,Hombres,18-39,paciente,farmacia,2026-02-08,si,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01079,México,Monterrey,,Hombres,18-39,paciente,landing,2025-10-24,no,no,no,no,si,no,,,whatsapp
+C-01080,Uruguay,Montevideo,Malvín,Hombres,60+,paciente,evento médico,2026-04-16,no,no,no,no,si,no,Bienestar,,whatsapp
+C-01081,Argentina,Rosario,,Mujeres,40-59,paciente,programa,2026-07-14,si,si,si,no,si,no,Salud ósea,,email
+C-01082,Uruguay,Montevideo,Cordón,Mujeres,60+,paciente,farmacia,2026-07-25,si,si,si,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-01083,Brasil,Rio de Janeiro,,Mujeres,60+,profesional,evento médico,2026-01-19,si,no,si,si,si,no,,,email
+C-01084,Colombia,Bogotá,,Mujeres,18-39,paciente,landing,2026-03-07,si,si,no,si,si,no,Bienestar;Cardiometabólica,,email
+C-01085,Uruguay,Montevideo,Piedras Blancas,Hombres,18-39,paciente,programa,2026-03-03,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01086,Argentina,Rosario,,Mujeres,40-59,paciente,programa,2026-05-01,si,no,si,no,si,no,Cardiometabólica,,email
+C-01087,México,Ciudad de México,,Hombres,60+,profesional,evento médico,2026-08-07,si,si,no,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01088,México,Guadalajara,,Mujeres,40-59,profesional,farmacia,2026-04-21,si,no,no,si,si,no,Cardiometabólica,,email
+C-01089,Brasil,São Paulo,,Mujeres,40-59,paciente,landing,2026-01-25,si,no,si,no,si,no,Bienestar,,email
+C-01090,Colombia,Bogotá,,Hombres,40-59,paciente,farmacia,2025-12-27,si,si,si,no,no,no,Cardiometabólica,,email
+C-01091,México,Guadalajara,,Hombres,60+,paciente,programa,2026-01-27,si,si,si,no,si,no,Diabetes,,sms
+C-01092,Uruguay,Montevideo,Cordón,Mujeres,40-59,profesional,evento médico,2026-01-09,si,no,si,no,si,no,Bienestar,,email
+C-01093,Colombia,Bogotá,,Mujeres,18-39,profesional,landing,2025-11-06,si,no,no,no,no,no,Cardiometabólica,,sms
+C-01094,México,Guadalajara,,Mujeres,60+,paciente,landing,2025-11-25,si,si,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-01095,Argentina,Buenos Aires,,Mujeres,40-59,paciente,programa,2026-09-15,si,si,si,no,si,no,Diabetes,,email
+C-01096,Colombia,Bogotá,,Hombres,40-59,profesional,farmacia,2025-12-18,si,si,si,si,si,no,Salud ósea;Diabetes,;Glucofin,email
+C-01097,Brasil,São Paulo,,Hombres,18-39,cuidador,programa,2025-10-31,si,no,si,no,si,no,Cardiometabólica;Salud ósea,,email
+C-01098,Colombia,Bogotá,,Hombres,40-59,profesional,evento médico,2026-08-10,si,no,si,si,si,no,,,email
+C-01099,Chile,Santiago,,Hombres,18-39,paciente,farmacia,2026-05-07,si,no,si,si,si,no,,,email
+C-01100,México,Guadalajara,,Hombres,60+,profesional,programa,2026-08-06,si,no,no,si,si,no,Salud ósea,,email
+C-01101,Chile,Valparaíso,,Mujeres,40-59,paciente,landing,2025-11-13,si,si,si,si,si,no,,,email
+C-01102,Chile,Valparaíso,,Mujeres,60+,paciente,farmacia,2025-12-09,si,no,si,no,si,no,Cardiometabólica,,email
+C-01103,Argentina,Córdoba,,Mujeres,18-39,paciente,evento médico,2026-07-26,si,si,no,si,si,no,Salud ósea,,email
+C-01104,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-02-06,si,no,si,si,si,no,,,whatsapp
+C-01105,Colombia,Medellín,,Mujeres,18-39,paciente,farmacia,2026-09-26,si,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01106,Brasil,São Paulo,,Hombres,40-59,paciente,farmacia,2026-07-30,si,si,si,no,no,no,Diabetes;Bienestar,;Glucofin,email
+C-01107,Brasil,Rio de Janeiro,,Mujeres,18-39,profesional,farmacia,2026-08-11,si,no,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-01108,Argentina,Buenos Aires,,Mujeres,60+,profesional,farmacia,2026-08-02,si,no,no,si,si,no,,,whatsapp
+C-01109,Chile,Santiago,,Mujeres,40-59,paciente,landing,2025-11-08,si,si,si,no,si,no,Diabetes,,email
+C-01110,Argentina,Buenos Aires,,Mujeres,60+,paciente,evento médico,2026-09-10,si,si,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,email
+C-01111,Chile,Valparaíso,,Mujeres,40-59,paciente,landing,2025-10-15,si,no,si,si,no,no,Diabetes,,email
+C-01112,Chile,Valparaíso,,Hombres,40-59,profesional,programa,2025-12-08,si,no,no,si,si,no,Diabetes;Salud ósea,,email
+C-01113,Perú,Lima,,Hombres,18-39,profesional,evento médico,2025-12-15,no,no,no,no,si,no,Bienestar,,email
+C-01114,Chile,Valparaíso,,Mujeres,40-59,cuidador,programa,2026-06-29,no,no,no,no,si,no,Diabetes;Cardiometabólica,;Glucofin,email
+C-01115,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2025-10-19,si,no,si,no,no,si,Cardiometabólica,,email
+C-01116,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2026-09-05,si,si,no,no,si,no,Bienestar,,whatsapp
+C-01117,México,Ciudad de México,,Mujeres,60+,cuidador,farmacia,2025-11-16,si,no,si,no,si,no,,,whatsapp
+C-01118,Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,cuidador,evento médico,2026-03-15,si,no,no,si,si,no,Diabetes;Salud ósea,,sms
+C-01119,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-04-05,si,no,no,si,si,no,Bienestar,,email
+C-01120,México,Ciudad de México,,Mujeres,40-59,paciente,evento médico,2026-06-15,si,si,si,si,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01121,Colombia,Bogotá,,Hombres,60+,cuidador,evento médico,2025-10-22,si,si,si,no,si,no,,,whatsapp
+C-01122,México,Guadalajara,,Hombres,60+,cuidador,landing,2026-05-08,si,no,no,no,si,no,,,email
+C-01123,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-04-01,si,no,no,no,si,no,Diabetes;Cardiometabólica,Vasotril,whatsapp
+C-01124,Uruguay,Montevideo,Cordón,Mujeres,60+,paciente,programa,2026-09-02,si,si,si,no,si,no,Cardiometabólica,,email
+C-01125,Argentina,Buenos Aires,,Mujeres,40-59,paciente,landing,2026-09-18,si,no,si,si,si,no,Diabetes,;Glucofin,sms
+C-01126,Argentina,Córdoba,,Hombres,40-59,paciente,landing,2026-06-15,si,si,no,no,si,no,Diabetes,,email
+C-01127,México,Ciudad de México,,Mujeres,18-39,profesional,programa,2026-04-25,si,no,si,si,si,no,Diabetes;Bienestar,;Glucofin,email
+C-01128,México,Monterrey,,Mujeres,40-59,cuidador,programa,2026-03-29,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,whatsapp
+C-01129,México,Monterrey,,Mujeres,18-39,cuidador,farmacia,2026-01-21,si,no,si,si,si,no,Cardiometabólica,,email
+C-01130,México,Monterrey,,Mujeres,60+,profesional,farmacia,2026-07-17,si,no,no,no,si,no,Diabetes,,email
+C-01131,México,Monterrey,,Hombres,60+,paciente,landing,2026-03-24,no,no,no,no,no,no,Cardiometabólica;Salud ósea,,whatsapp
+C-01132,Uruguay,Montevideo,Cordón,Hombres,40-59,paciente,farmacia,2025-11-06,si,si,si,si,si,no,Diabetes,,sms
+C-01133,Colombia,Bogotá,,Mujeres,60+,paciente,farmacia,2025-11-18,si,no,no,si,si,no,,,email
+C-01134,Chile,Santiago,,Mujeres,60+,paciente,landing,2025-11-12,si,si,si,no,si,no,Bienestar;Diabetes,;Glucofin,email
+C-01135,Perú,Lima,,Mujeres,40-59,paciente,programa,2026-08-02,si,si,si,no,si,no,Bienestar,,email
+C-01136,Perú,Lima,,Hombres,18-39,paciente,evento médico,2026-06-11,si,si,si,no,si,no,Diabetes,,email
+C-01137,Argentina,Rosario,,Mujeres,40-59,paciente,programa,2026-05-27,si,si,si,no,si,si,Bienestar,,whatsapp
+C-01138,Chile,Valparaíso,,Hombres,60+,cuidador,farmacia,2026-03-26,si,si,si,si,si,no,Bienestar,,email
+C-01139,Perú,Lima,,Mujeres,40-59,profesional,programa,2026-08-26,si,si,no,si,si,no,Cardiometabólica,,email
+C-01140,Colombia,Bogotá,,Mujeres,40-59,cuidador,farmacia,2026-01-12,no,no,no,no,no,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01141,México,Guadalajara,,Mujeres,60+,profesional,farmacia,2026-03-31,si,no,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01142,Uruguay,Montevideo,Cordón,Mujeres,18-39,paciente,farmacia,2026-07-19,si,si,no,no,no,no,Bienestar,,email
+C-01143,Uruguay,Montevideo,Malvín,Hombres,60+,paciente,evento médico,2026-03-18,no,no,no,no,si,no,Diabetes,;Glucofin,email
+C-01144,Colombia,Medellín,,Mujeres,40-59,paciente,landing,2026-01-23,si,no,si,si,si,no,Salud ósea,,email
+C-01145,Perú,Lima,,Mujeres,18-39,paciente,evento médico,2025-11-06,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-01146,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-06-30,si,no,si,no,si,no,Salud ósea;Diabetes,,sms
+C-01147,Argentina,Córdoba,,Hombres,40-59,paciente,evento médico,2026-09-13,si,si,si,no,si,no,Diabetes,,email
+C-01148,Perú,Lima,,Mujeres,60+,profesional,farmacia,2026-07-20,si,no,si,si,si,no,Diabetes;Cardiometabólica,,email
+C-01149,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-03-30,no,no,no,no,si,no,Diabetes,,whatsapp
+C-01150,Perú,Lima,,Mujeres,18-39,paciente,farmacia,2026-09-28,si,si,no,no,no,no,Diabetes,;Glucofin,email
+C-01151,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2026-01-27,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-01152,México,Ciudad de México,,Mujeres,40-59,paciente,landing,2026-08-22,si,si,si,si,si,no,,,email
+C-01153,Colombia,Medellín,,Hombres,40-59,paciente,landing,2026-06-10,si,no,no,si,si,no,Cardiometabólica;Diabetes,,email
+C-01154,Uruguay,Montevideo,Pocitos,Mujeres,60+,paciente,evento médico,2026-08-26,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-01155,Argentina,Buenos Aires,,Mujeres,40-59,paciente,programa,2025-11-20,si,si,si,si,si,no,,,email
+C-01156,Argentina,Rosario,,Hombres,60+,cuidador,evento médico,2026-06-23,si,no,si,no,si,no,Salud ósea;Diabetes,;Glucofin,email
+C-01157,México,Ciudad de México,,Mujeres,60+,paciente,farmacia,2026-09-04,si,no,no,si,si,no,Cardiometabólica;Bienestar,,whatsapp
+C-01158,Colombia,Medellín,,Hombres,40-59,paciente,farmacia,2026-01-24,si,no,no,si,no,no,Salud ósea,,email
+C-01159,México,Monterrey,,Hombres,40-59,profesional,farmacia,2026-04-04,si,no,si,si,si,no,,,email
+C-01160,Colombia,Bogotá,,Hombres,40-59,cuidador,programa,2026-01-02,si,si,si,si,si,no,Cardiometabólica,,email
+C-01161,Brasil,São Paulo,,Hombres,60+,cuidador,programa,2026-02-02,si,si,si,si,si,no,,,email
+C-01162,Chile,Santiago,,Mujeres,18-39,paciente,programa,2026-01-08,si,si,si,si,si,no,,,whatsapp
+C-01163,Chile,Santiago,,Mujeres,60+,cuidador,programa,2026-04-12,no,no,no,no,si,no,,,whatsapp
+C-01164,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2026-02-01,si,no,no,no,si,no,,,whatsapp
+C-01165,Brasil,São Paulo,,Mujeres,18-39,paciente,landing,2026-09-12,si,si,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-01166,Colombia,Bogotá,,Hombres,40-59,profesional,farmacia,2026-09-24,si,no,si,no,si,no,Diabetes,;Glucofin,email
+C-01167,Colombia,Bogotá,,Hombres,18-39,paciente,evento médico,2025-10-05,si,no,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-01168,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-02-19,si,si,no,si,si,no,,,whatsapp
+C-01169,México,Monterrey,,Hombres,40-59,profesional,farmacia,2026-06-13,si,si,no,si,no,no,Diabetes;Cardiometabólica,,email
+C-01170,Argentina,Rosario,,Hombres,40-59,paciente,landing,2025-12-08,si,no,si,si,si,no,,,email
+C-01171,Brasil,São Paulo,,Mujeres,40-59,paciente,landing,2025-12-05,no,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01172,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-04-16,si,no,si,si,no,no,,,email
+C-01173,Colombia,Medellín,,Mujeres,18-39,paciente,farmacia,2026-04-06,si,si,si,si,si,no,Cardiometabólica;Diabetes,,email
+C-01174,México,Monterrey,,Mujeres,60+,profesional,landing,2026-02-20,si,si,no,si,si,si,Cardiometabólica,Vasotril,email
+C-01175,Brasil,São Paulo,,Mujeres,18-39,paciente,evento médico,2026-05-16,si,si,no,no,si,no,Salud ósea;Diabetes,,whatsapp
+C-01176,Chile,Santiago,,Hombres,18-39,profesional,landing,2026-05-13,si,si,si,si,no,no,,,whatsapp
+C-01177,México,Monterrey,,Hombres,18-39,paciente,evento médico,2026-05-23,si,si,no,si,si,no,Bienestar,,whatsapp
+C-01178,Argentina,Córdoba,,Hombres,60+,paciente,farmacia,2026-09-17,si,si,si,no,no,no,Salud ósea;Diabetes,;Glucofin,whatsapp
+C-01179,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-05-11,si,si,si,no,si,no,Diabetes,,email
+C-01180,Brasil,São Paulo,,Mujeres,60+,paciente,farmacia,2026-09-29,no,no,no,no,si,no,Cardiometabólica;Diabetes,;Glucofin,sms
+C-01181,México,Monterrey,,Mujeres,40-59,profesional,evento médico,2026-05-31,si,si,no,no,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-01182,México,Monterrey,,Mujeres,60+,profesional,programa,2025-12-11,si,si,si,si,no,no,Cardiometabólica,Vasotril,email
+C-01183,México,Monterrey,,Hombres,60+,paciente,farmacia,2026-08-09,si,no,si,no,no,no,Bienestar,,email
+C-01184,Argentina,Rosario,,Mujeres,60+,cuidador,landing,2025-11-28,si,no,si,no,si,no,Diabetes;Cardiometabólica,,email
+C-01185,México,Guadalajara,,Mujeres,60+,cuidador,landing,2026-09-12,si,si,si,si,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-01186,Argentina,Buenos Aires,,Mujeres,40-59,paciente,landing,2026-01-07,si,no,si,si,si,no,Cardiometabólica;Salud ósea,Vasotril,email
+C-01187,Chile,Valparaíso,,Mujeres,60+,paciente,farmacia,2026-07-26,si,no,si,si,si,si,Cardiometabólica;Diabetes,Vasotril,email
+C-01188,Chile,Valparaíso,,Hombres,60+,profesional,farmacia,2026-02-18,si,si,si,no,si,no,,,email
+C-01189,México,Guadalajara,,Mujeres,60+,paciente,landing,2025-12-11,si,no,si,no,si,no,,,whatsapp
+C-01190,México,Monterrey,,Hombres,40-59,paciente,evento médico,2025-12-14,si,no,si,si,si,no,Bienestar,,sms
+C-01191,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-06-29,si,no,si,no,si,no,Diabetes;Cardiometabólica,,email
+C-01192,Brasil,São Paulo,,Mujeres,40-59,paciente,farmacia,2025-10-30,no,no,no,no,no,si,Cardiometabólica,Vasotril,whatsapp
+C-01193,Chile,Valparaíso,,Mujeres,40-59,paciente,evento médico,2026-08-16,si,si,no,si,si,no,Cardiometabólica,,email
+C-01194,Brasil,Rio de Janeiro,,Hombres,40-59,profesional,farmacia,2026-09-05,si,no,no,si,si,no,Diabetes,,email
+C-01195,Argentina,Rosario,,Mujeres,40-59,paciente,programa,2026-06-02,si,si,si,si,no,no,Diabetes,;Glucofin,email
+C-01196,México,Monterrey,,Mujeres,40-59,paciente,programa,2026-03-02,si,si,no,si,si,no,Diabetes,,email
+C-01197,Brasil,Rio de Janeiro,,Mujeres,40-59,profesional,landing,2026-07-13,si,si,no,no,no,no,Bienestar,,email
+C-01198,Colombia,Bogotá,,Mujeres,40-59,paciente,evento médico,2026-05-10,si,si,no,si,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-01199,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2025-11-13,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-01200,Argentina,Rosario,,Mujeres,18-39,paciente,evento médico,2026-07-18,si,si,si,no,si,no,Diabetes,,whatsapp
+C-01201,Argentina,Córdoba,,Mujeres,60+,profesional,landing,2026-02-08,si,no,si,si,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-01202,Uruguay,Montevideo,Cordón,Hombres,40-59,paciente,evento médico,2026-01-28,si,si,no,si,no,no,Cardiometabólica;Bienestar,Vasotril,email
+C-01203,Uruguay,Montevideo,Cordón,Mujeres,40-59,paciente,farmacia,2025-10-08,si,no,si,si,si,no,Salud ósea;Cardiometabólica,,whatsapp
+C-01204,Argentina,Buenos Aires,,Hombres,18-39,profesional,farmacia,2025-12-18,si,no,si,no,si,no,Bienestar;Cardiometabólica,,email
+C-01205,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2025-12-30,si,no,si,si,si,no,,,whatsapp
+C-01206,Perú,Lima,,Hombres,18-39,paciente,farmacia,2026-05-28,si,no,no,no,si,no,Cardiometabólica,,email
+C-01207,Uruguay,Montevideo,Cerro,Mujeres,40-59,paciente,landing,2026-05-23,si,no,si,no,no,no,,,email
+C-01208,Argentina,Buenos Aires,,Mujeres,18-39,paciente,farmacia,2026-05-09,si,si,si,no,si,no,Diabetes,,email
+C-01209,Argentina,Rosario,,Mujeres,60+,cuidador,landing,2026-04-09,si,si,si,si,no,no,Salud ósea;Bienestar,,sms
+C-01210,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2026-08-23,si,si,si,si,si,no,Bienestar;Diabetes,;Glucofin,sms
+C-01211,México,Ciudad de México,,Mujeres,60+,paciente,landing,2026-09-08,no,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01212,Colombia,Bogotá,,Hombres,18-39,paciente,evento médico,2026-02-05,si,no,no,no,si,no,Salud ósea,,email
+C-01213,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-01-22,si,no,no,si,si,no,Diabetes;Cardiometabólica,;Glucofin,sms
+C-01214,Chile,Valparaíso,,Mujeres,40-59,paciente,evento médico,2026-05-19,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01215,Argentina,Buenos Aires,,Hombres,60+,paciente,programa,2026-02-21,si,no,si,no,si,no,Cardiometabólica,,whatsapp
+C-01216,México,Guadalajara,,Mujeres,60+,paciente,landing,2026-08-10,si,si,si,no,si,no,Bienestar,,email
+C-01217,Argentina,Córdoba,,Mujeres,60+,profesional,evento médico,2026-06-24,si,si,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01218,México,Monterrey,,Mujeres,18-39,paciente,programa,2026-06-17,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01219,Argentina,Buenos Aires,,Hombres,18-39,profesional,programa,2026-06-11,si,no,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01220,Perú,Lima,,Mujeres,18-39,cuidador,landing,2026-04-19,si,si,si,no,si,no,,,email
+C-01221,México,Guadalajara,,Hombres,60+,paciente,farmacia,2026-01-07,si,no,no,si,si,no,Cardiometabólica,,email
+C-01222,Argentina,Rosario,,Mujeres,40-59,profesional,landing,2026-03-09,si,si,si,no,si,no,,,whatsapp
+C-01223,Brasil,São Paulo,,Mujeres,60+,cuidador,programa,2025-11-08,si,no,si,si,si,no,,,email
+C-01224,Chile,Valparaíso,,Mujeres,40-59,cuidador,landing,2026-08-17,si,no,si,si,si,si,Cardiometabólica,Vasotril,email
+C-01225,Colombia,Bogotá,,Mujeres,40-59,paciente,farmacia,2025-12-24,si,si,si,si,si,no,Salud ósea,,whatsapp
+C-01226,México,Ciudad de México,,Mujeres,60+,paciente,landing,2026-01-18,si,no,si,no,si,no,,,whatsapp
+C-01227,Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,profesional,farmacia,2026-06-20,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-01228,Perú,Lima,,Hombres,40-59,paciente,programa,2025-11-30,si,si,no,si,si,no,Salud ósea,,email
+C-01229,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,profesional,farmacia,2026-03-28,si,si,no,si,no,no,Cardiometabólica;Diabetes,,email
+C-01230,México,Monterrey,,Mujeres,60+,paciente,landing,2026-08-21,si,no,si,si,si,no,Bienestar,,email
+C-01231,Colombia,Bogotá,,Mujeres,60+,paciente,programa,2026-03-07,no,no,no,no,si,no,Bienestar;Cardiometabólica,Vasotril,sms
+C-01232,México,Monterrey,,Hombres,60+,paciente,farmacia,2026-09-29,si,si,si,si,si,no,Diabetes,,email
+C-01233,Chile,Valparaíso,,Mujeres,60+,profesional,evento médico,2026-09-12,si,si,no,no,si,no,,,email
+C-01234,Argentina,Buenos Aires,,Mujeres,18-39,paciente,landing,2025-10-17,si,no,no,si,si,no,,,email
+C-01235,Chile,Valparaíso,,Mujeres,18-39,paciente,evento médico,2025-12-30,si,si,no,no,si,no,Cardiometabólica,,email
+C-01236,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,landing,2026-08-03,si,si,no,no,si,no,Bienestar;Diabetes,,email
+C-01237,Colombia,Medellín,,Hombres,18-39,paciente,landing,2026-05-05,si,no,si,si,no,si,Bienestar;Diabetes,,whatsapp
+C-01238,Perú,Lima,,Hombres,40-59,paciente,programa,2026-08-14,si,si,si,no,no,no,Cardiometabólica,Vasotril,email
+C-01239,México,Ciudad de México,,Mujeres,60+,profesional,programa,2026-08-18,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-01240,Colombia,Medellín,,Hombres,18-39,cuidador,programa,2026-07-26,si,si,no,si,no,no,,,email
+C-01241,Perú,Lima,,Hombres,40-59,paciente,evento médico,2026-03-13,si,no,no,si,si,no,Cardiometabólica,,email
+C-01242,Chile,Valparaíso,,Hombres,18-39,paciente,landing,2026-01-23,si,si,si,si,no,no,Cardiometabólica,,whatsapp
+C-01243,México,Monterrey,,Hombres,40-59,cuidador,farmacia,2026-03-08,si,no,si,si,no,no,Cardiometabólica,,email
+C-01244,Brasil,São Paulo,,Mujeres,18-39,paciente,evento médico,2025-10-09,si,si,no,si,si,no,Cardiometabólica;Diabetes,Vasotril;Glucofin,email
+C-01245,Argentina,Buenos Aires,,Hombres,60+,paciente,evento médico,2025-12-10,si,si,si,no,si,no,Bienestar;Diabetes,,email
+C-01246,Perú,Lima,,Mujeres,40-59,paciente,landing,2025-12-28,si,no,si,no,si,no,,,email
+C-01247,México,Ciudad de México,,Hombres,60+,profesional,programa,2026-06-22,si,si,si,si,si,no,Cardiometabólica,,email
+C-01248,Uruguay,Montevideo,Pocitos,Mujeres,18-39,paciente,evento médico,2025-10-10,si,si,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-01249,Colombia,Medellín,,Mujeres,60+,paciente,landing,2025-10-27,si,si,si,no,si,no,,,whatsapp
+C-01250,Uruguay,Montevideo,Cordón,Mujeres,60+,paciente,farmacia,2026-07-09,si,si,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01251,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2026-08-21,si,si,no,no,no,no,Cardiometabólica,Vasotril,email
+C-01252,México,Monterrey,,Mujeres,60+,paciente,evento médico,2025-10-27,si,no,si,no,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,sms
+C-01253,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,programa,2026-01-08,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01254,Argentina,Córdoba,,Mujeres,18-39,paciente,programa,2026-07-19,si,si,si,no,si,no,,,whatsapp
+C-01255,Argentina,Buenos Aires,,Hombres,18-39,paciente,programa,2026-04-09,si,no,si,si,si,no,Diabetes;Salud ósea,,email
+C-01256,México,Monterrey,,Mujeres,60+,paciente,farmacia,2026-07-19,si,si,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01257,Argentina,Rosario,,Hombres,40-59,paciente,programa,2025-11-12,si,si,no,no,no,no,Diabetes;Salud ósea,,email
+C-01258,Argentina,Córdoba,,Mujeres,40-59,paciente,evento médico,2026-05-18,si,no,no,si,si,no,,,email
+C-01259,México,Monterrey,,Hombres,40-59,paciente,programa,2025-12-22,si,si,no,si,si,no,Salud ósea;Diabetes,,email
+C-01260,Chile,Valparaíso,,Mujeres,60+,paciente,farmacia,2025-10-09,si,no,si,si,si,no,,,email
+C-01261,Uruguay,Montevideo,Pocitos,Mujeres,40-59,paciente,evento médico,2026-02-12,no,no,no,no,no,no,Diabetes,;Glucofin,email
+C-01262,México,Monterrey,,Mujeres,40-59,paciente,landing,2026-05-03,si,no,si,no,si,no,,,email
+C-01263,México,Monterrey,,Mujeres,40-59,paciente,evento médico,2026-02-04,si,si,si,no,si,no,Diabetes,;Glucofin,sms
+C-01264,México,Monterrey,,Mujeres,60+,paciente,farmacia,2026-09-26,si,no,si,no,si,no,Cardiometabólica;Diabetes,,email
+C-01265,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2025-11-17,si,si,si,si,si,no,,,email
+C-01266,Colombia,Medellín,,Mujeres,40-59,paciente,programa,2026-07-23,si,no,no,no,no,no,Cardiometabólica,Vasotril,whatsapp
+C-01267,Colombia,Bogotá,,Hombres,18-39,paciente,evento médico,2026-06-30,si,si,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-01268,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-02-26,si,no,si,no,no,no,Diabetes,,email
+C-01269,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2026-03-23,si,no,no,si,si,no,Diabetes;Cardiometabólica,;Glucofin,email
+C-01270,México,Monterrey,,Mujeres,60+,profesional,programa,2025-11-25,si,si,no,no,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-01271,Perú,Lima,,Mujeres,60+,profesional,landing,2026-01-07,si,si,no,no,si,no,Diabetes,,whatsapp
+C-01272,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2026-05-19,si,no,si,si,si,no,,,whatsapp
+C-01273,Brasil,São Paulo,,Hombres,40-59,paciente,farmacia,2026-06-13,si,si,si,si,no,no,Cardiometabólica;Bienestar,,email
+C-01274,México,Ciudad de México,,Mujeres,60+,paciente,landing,2026-07-02,si,no,no,no,si,no,,,email
+C-01275,Argentina,Buenos Aires,,Hombres,40-59,paciente,landing,2026-03-13,no,no,no,no,si,no,Salud ósea;Bienestar,,sms
+C-01276,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2026-04-24,no,no,no,no,si,no,Cardiometabólica;Salud ósea,,whatsapp
+C-01277,Colombia,Bogotá,,Mujeres,60+,paciente,evento médico,2025-10-16,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-01278,Argentina,Córdoba,,Hombres,60+,paciente,landing,2026-07-13,no,no,no,no,si,no,Salud ósea;Diabetes,,email
+C-01279,México,Monterrey,,Hombres,40-59,cuidador,farmacia,2026-06-26,si,si,si,si,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-01280,México,Guadalajara,,Mujeres,40-59,paciente,farmacia,2026-07-24,si,no,si,si,si,no,Salud ósea;Diabetes,,email
+C-01281,Argentina,Buenos Aires,,Hombres,40-59,paciente,farmacia,2025-10-03,si,si,no,si,si,no,Salud ósea,,whatsapp
+C-01282,México,Guadalajara,,Hombres,18-39,paciente,farmacia,2026-09-12,si,no,si,si,no,no,Bienestar;Cardiometabólica,Vasotril,whatsapp
+C-01283,Argentina,Buenos Aires,,Mujeres,60+,paciente,evento médico,2026-07-03,si,si,si,no,si,no,,,sms
+C-01284,Argentina,Rosario,,Hombres,60+,cuidador,programa,2026-05-05,si,si,no,si,si,no,Diabetes;Bienestar,,email
+C-01285,Colombia,Medellín,,Hombres,60+,profesional,landing,2025-10-23,si,si,si,no,si,no,Diabetes,,whatsapp
+C-01286,México,Monterrey,,Hombres,40-59,paciente,programa,2026-05-11,si,si,no,no,si,no,,,email
+C-01287,México,Monterrey,,Mujeres,40-59,paciente,landing,2025-12-22,si,no,no,no,si,no,,,email
+C-01288,México,Guadalajara,,Mujeres,60+,paciente,landing,2026-08-31,si,no,si,si,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-01289,México,Monterrey,,Mujeres,18-39,paciente,landing,2026-06-04,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-01290,México,Ciudad de México,,Hombres,18-39,paciente,evento médico,2025-12-18,si,si,si,si,si,no,Diabetes;Bienestar,,email
+C-01291,México,Guadalajara,,Hombres,40-59,paciente,programa,2026-01-03,si,no,si,si,si,no,,,whatsapp
+C-01292,Uruguay,Montevideo,Malvín,Mujeres,60+,cuidador,evento médico,2025-11-15,si,si,si,si,si,no,Diabetes,;Glucofin,email
+C-01293,Uruguay,Montevideo,Cordón,Mujeres,18-39,paciente,landing,2026-08-21,si,si,si,si,si,no,Diabetes,,email
+C-01294,México,Ciudad de México,,Hombres,60+,profesional,landing,2026-05-20,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-01295,Brasil,São Paulo,,Hombres,40-59,paciente,landing,2026-04-16,si,no,si,no,si,no,Diabetes;Salud ósea,,whatsapp
+C-01296,Chile,Santiago,,Mujeres,40-59,paciente,evento médico,2026-07-31,si,no,no,si,si,no,,,email
+C-01297,Brasil,São Paulo,,Hombres,40-59,paciente,farmacia,2026-07-11,si,no,no,si,no,no,Diabetes,,email
+C-01298,Argentina,Buenos Aires,,Mujeres,40-59,profesional,evento médico,2026-08-23,si,no,si,si,si,no,,,whatsapp
+C-01299,Argentina,Rosario,,Mujeres,40-59,paciente,landing,2026-02-18,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01300,Perú,Lima,,Hombres,40-59,paciente,landing,2026-03-23,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-01301,Brasil,São Paulo,,Mujeres,18-39,paciente,landing,2026-04-05,si,si,si,si,si,no,,,email
+C-01302,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-07-01,si,no,si,si,si,si,Cardiometabólica,,email
+C-01303,Colombia,Medellín,,Mujeres,40-59,profesional,landing,2025-11-01,si,si,si,si,no,no,Diabetes;Salud ósea,,email
+C-01304,Brasil,Rio de Janeiro,,Hombres,60+,profesional,farmacia,2026-01-18,si,no,si,no,si,no,,,whatsapp
+C-01305,México,Monterrey,,Mujeres,40-59,profesional,evento médico,2026-07-29,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-01306,Perú,Lima,,Mujeres,40-59,paciente,programa,2026-09-08,si,no,si,no,si,no,Cardiometabólica;Salud ósea,,email
+C-01307,México,Ciudad de México,,Mujeres,40-59,profesional,evento médico,2026-02-22,si,si,no,si,si,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-01308,México,Monterrey,,Hombres,60+,paciente,programa,2026-08-06,si,si,si,no,no,no,,,email
+C-01309,Argentina,Córdoba,,Hombres,40-59,paciente,farmacia,2026-02-11,si,si,si,si,no,no,Cardiometabólica,Vasotril,whatsapp
+C-01310,Chile,Valparaíso,,Mujeres,18-39,paciente,evento médico,2026-07-25,si,no,no,no,no,no,Salud ósea;Diabetes,,email
+C-01311,México,Guadalajara,,Hombres,40-59,cuidador,programa,2026-06-05,si,no,si,si,si,no,Diabetes,,email
+C-01312,Brasil,Rio de Janeiro,,Mujeres,40-59,paciente,landing,2026-04-01,si,si,si,si,si,no,,,email
+C-01313,Perú,Lima,,Mujeres,18-39,paciente,evento médico,2026-04-07,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-01314,México,Guadalajara,,Mujeres,18-39,profesional,programa,2026-01-04,si,si,si,no,si,no,,,email
+C-01315,México,Guadalajara,,Mujeres,18-39,paciente,farmacia,2026-02-18,si,no,no,no,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,email
+C-01316,Argentina,Buenos Aires,,Hombres,60+,cuidador,farmacia,2026-09-14,si,si,si,no,si,no,Salud ósea;Cardiometabólica,,sms
+C-01317,Brasil,São Paulo,,Mujeres,60+,paciente,landing,2025-10-07,si,no,no,si,si,no,Diabetes;Cardiometabólica,Vasotril;Glucofin,email
+C-01318,Brasil,Rio de Janeiro,,Hombres,60+,paciente,programa,2026-07-25,si,no,no,si,si,no,Salud ósea,,whatsapp
+C-01319,Chile,Santiago,,Mujeres,60+,paciente,farmacia,2026-09-27,si,si,si,no,no,no,Bienestar;Cardiometabólica,,whatsapp
+C-01320,Brasil,São Paulo,,Hombres,18-39,paciente,landing,2025-10-04,si,si,si,si,si,no,Cardiometabólica,,email
+C-01321,México,Ciudad de México,,Hombres,18-39,paciente,evento médico,2026-09-08,si,si,si,si,si,no,Diabetes,,email
+C-01322,Colombia,Medellín,,Hombres,40-59,paciente,evento médico,2026-03-03,si,si,si,no,si,no,,,email
+C-01323,Colombia,Bogotá,,Mujeres,60+,paciente,farmacia,2026-09-19,si,si,si,no,si,no,Salud ósea;Diabetes,,email
+C-01324,Argentina,Córdoba,,Mujeres,40-59,paciente,landing,2026-09-21,si,no,no,si,si,no,Bienestar,,email
+C-01325,Brasil,Rio de Janeiro,,Mujeres,18-39,paciente,farmacia,2026-09-09,si,si,si,si,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01326,Argentina,Córdoba,,Mujeres,60+,cuidador,programa,2025-10-31,si,si,si,no,si,no,Diabetes;Salud ósea,;Glucofin,email
+C-01327,Brasil,São Paulo,,Hombres,40-59,paciente,landing,2025-12-12,si,no,si,no,si,no,,,email
+C-01328,Chile,Valparaíso,,Mujeres,60+,profesional,evento médico,2026-07-06,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01329,México,Ciudad de México,,Mujeres,60+,profesional,landing,2026-07-11,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01330,Brasil,São Paulo,,Mujeres,40-59,paciente,programa,2025-10-02,si,si,si,si,si,no,Diabetes,,email
+C-01331,México,Monterrey,,Mujeres,18-39,paciente,farmacia,2026-08-09,si,no,no,si,no,no,,,whatsapp
+C-01332,Colombia,Bogotá,,Mujeres,40-59,paciente,landing,2026-01-04,si,no,no,si,si,no,Cardiometabólica,,whatsapp
+C-01333,Colombia,Medellín,,Mujeres,60+,paciente,farmacia,2026-01-24,si,si,si,no,si,no,Cardiometabólica,,email
+C-01334,Argentina,Córdoba,,Mujeres,40-59,profesional,landing,2026-06-12,si,si,no,si,si,no,Salud ósea,,whatsapp
+C-01335,Colombia,Medellín,,Hombres,60+,paciente,farmacia,2026-02-03,si,si,si,si,si,no,,,email
+C-01336,Chile,Valparaíso,,Mujeres,18-39,cuidador,farmacia,2026-09-20,si,si,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-01337,Uruguay,Montevideo,Pocitos,Hombres,40-59,paciente,programa,2025-10-03,si,no,si,si,si,no,Cardiometabólica,,email
+C-01338,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,landing,2026-09-29,si,si,si,si,si,no,Cardiometabólica;Diabetes,,email
+C-01339,Argentina,Buenos Aires,,Mujeres,18-39,cuidador,evento médico,2025-10-18,si,no,si,si,si,no,,,whatsapp
+C-01340,Uruguay,Montevideo,Cerro,Mujeres,60+,paciente,landing,2026-02-02,si,no,no,no,si,no,Salud ósea,,email
+C-01341,Argentina,Córdoba,,Hombres,60+,paciente,programa,2025-10-12,si,no,si,si,no,no,,,sms
+C-01342,Colombia,Bogotá,,Mujeres,18-39,paciente,programa,2025-11-04,si,no,no,si,si,no,Diabetes;Cardiometabólica,Vasotril,whatsapp
+C-01343,México,Guadalajara,,Hombres,18-39,paciente,landing,2026-02-18,si,no,no,si,si,no,Diabetes,;Glucofin,whatsapp
+C-01344,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,profesional,programa,2026-09-20,si,no,si,no,si,no,,,whatsapp
+C-01345,Chile,Valparaíso,,Hombres,18-39,paciente,evento médico,2026-09-21,si,si,si,no,no,no,,,email
+C-01346,México,Guadalajara,,Mujeres,60+,paciente,programa,2025-12-16,si,si,si,no,si,no,Bienestar;Salud ósea,,whatsapp
+C-01347,Argentina,Rosario,,Hombres,60+,paciente,evento médico,2025-10-19,si,no,si,si,no,no,,,email
+C-01348,Colombia,Medellín,,Hombres,40-59,paciente,landing,2025-10-29,si,no,no,no,si,no,Bienestar,,whatsapp
+C-01349,México,Guadalajara,,Mujeres,40-59,paciente,programa,2025-12-30,si,no,si,si,si,no,Salud ósea,,whatsapp
+C-01350,Colombia,Bogotá,,Hombres,60+,paciente,evento médico,2025-12-25,si,si,si,si,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-01351,México,Ciudad de México,,Mujeres,40-59,cuidador,landing,2026-07-13,si,no,si,si,no,no,,,email
+C-01352,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,paciente,programa,2025-11-13,si,si,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01353,Perú,Lima,,Hombres,60+,cuidador,evento médico,2026-01-17,si,no,si,no,si,no,,,sms
+C-01354,Argentina,Buenos Aires,,Mujeres,60+,paciente,programa,2026-09-07,no,no,no,no,si,no,Bienestar,,whatsapp
+C-01355,México,Guadalajara,,Mujeres,18-39,profesional,programa,2026-07-20,si,si,no,no,si,no,Cardiometabólica;Diabetes,Vasotril,whatsapp
+C-01356,México,Monterrey,,Mujeres,60+,cuidador,landing,2025-12-09,si,no,si,si,si,si,Diabetes,,email
+C-01357,México,Guadalajara,,Mujeres,60+,profesional,landing,2025-12-14,si,no,no,no,no,no,Diabetes,;Glucofin,whatsapp
+C-01358,Brasil,São Paulo,,Hombres,40-59,paciente,programa,2026-03-06,si,no,no,si,si,no,,,whatsapp
+C-01359,Uruguay,Montevideo,Cordón,Mujeres,18-39,paciente,farmacia,2025-12-07,si,si,si,si,si,no,Salud ósea,,email
+C-01360,México,Ciudad de México,,Mujeres,60+,paciente,programa,2026-05-16,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,email
+C-01361,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-06-24,si,no,si,si,si,no,Diabetes;Bienestar,,sms
+C-01362,Argentina,Córdoba,,Mujeres,40-59,paciente,programa,2026-09-11,si,no,si,si,si,no,Diabetes,,whatsapp
+C-01363,Argentina,Rosario,,Mujeres,18-39,paciente,landing,2026-04-23,si,no,si,si,si,no,,,email
+C-01364,México,Ciudad de México,,Mujeres,40-59,cuidador,evento médico,2026-03-18,si,si,si,si,si,no,Bienestar;Cardiometabólica,Vasotril,email
+C-01365,Brasil,Rio de Janeiro,,Hombres,40-59,cuidador,farmacia,2026-02-25,si,si,no,si,si,no,Cardiometabólica;Salud ósea,Vasotril,whatsapp
+C-01366,Chile,Santiago,,Hombres,18-39,paciente,farmacia,2025-12-20,si,si,si,no,si,no,Diabetes,;Glucofin,email
+C-01367,Argentina,Buenos Aires,,Mujeres,60+,cuidador,landing,2025-12-02,si,si,no,si,si,no,Diabetes,,email
+C-01368,Argentina,Rosario,,Hombres,40-59,cuidador,landing,2026-01-23,si,si,si,si,si,no,Diabetes;Cardiometabólica,,email
+C-01369,México,Monterrey,,Hombres,60+,paciente,farmacia,2025-11-12,si,si,si,si,si,no,Diabetes,,email
+C-01370,México,Ciudad de México,,Mujeres,60+,paciente,evento médico,2026-05-20,si,no,si,si,si,no,,,email
+C-01371,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-01-02,si,si,si,no,si,no,Cardiometabólica,,email
+C-01372,México,Monterrey,,Mujeres,60+,paciente,landing,2026-01-15,si,si,si,no,si,no,Bienestar,,sms
+C-01373,Chile,Valparaíso,,Mujeres,18-39,paciente,programa,2026-09-20,si,si,no,no,si,si,,,whatsapp
+C-01374,México,Ciudad de México,,Hombres,60+,cuidador,farmacia,2026-07-06,si,no,si,si,no,no,Cardiometabólica,,email
+C-01375,Colombia,Bogotá,,Mujeres,18-39,paciente,farmacia,2025-10-19,no,no,no,no,no,no,Bienestar,,email
+C-01376,Colombia,Medellín,,Hombres,60+,paciente,programa,2026-07-13,si,no,no,no,si,no,,,sms
+C-01377,Chile,Santiago,,Mujeres,40-59,paciente,programa,2026-06-19,si,si,si,si,no,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-01378,Colombia,Bogotá,,Hombres,60+,paciente,landing,2026-03-14,si,no,si,no,si,no,,,email
+C-01379,México,Ciudad de México,,Mujeres,40-59,paciente,landing,2026-07-01,si,no,si,si,si,no,Salud ósea,,email
+C-01380,Uruguay,Montevideo,Pocitos,Mujeres,60+,profesional,farmacia,2026-01-28,si,no,no,no,si,no,,,email
+C-01381,Perú,Lima,,Mujeres,40-59,profesional,farmacia,2026-06-07,si,no,si,si,si,si,Cardiometabólica;Diabetes,,whatsapp
+C-01382,Brasil,São Paulo,,Mujeres,40-59,paciente,evento médico,2026-08-10,si,no,no,si,si,no,Diabetes,,sms
+C-01383,Argentina,Córdoba,,Mujeres,60+,paciente,landing,2026-06-12,si,no,si,si,si,no,,,email
+C-01384,México,Monterrey,,Mujeres,18-39,paciente,programa,2026-03-24,si,si,no,no,si,no,,,email
+C-01385,Chile,Valparaíso,,Mujeres,18-39,paciente,farmacia,2026-08-15,si,no,no,no,si,no,Bienestar,,whatsapp
+C-01386,Colombia,Bogotá,,Mujeres,60+,paciente,farmacia,2026-01-09,si,no,si,si,si,no,Salud ósea;Bienestar,,sms
+C-01387,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2025-10-07,si,si,no,si,si,no,Diabetes,,email
+C-01388,Brasil,Rio de Janeiro,,Mujeres,60+,paciente,farmacia,2026-06-18,si,si,si,no,si,no,,,email
+C-01389,Argentina,Buenos Aires,,Mujeres,18-39,profesional,evento médico,2026-09-23,si,si,no,si,si,no,Diabetes,,whatsapp
+C-01390,México,Monterrey,,Mujeres,60+,paciente,programa,2026-04-28,si,si,si,si,si,no,Cardiometabólica;Bienestar,,email
+C-01391,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-03-14,si,no,si,no,si,no,Salud ósea,,email
+C-01392,México,Guadalajara,,Mujeres,60+,cuidador,evento médico,2026-01-23,si,si,si,si,si,no,Cardiometabólica,,whatsapp
+C-01393,Argentina,Buenos Aires,,Mujeres,40-59,paciente,landing,2026-04-13,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01394,Argentina,Buenos Aires,,Mujeres,18-39,profesional,evento médico,2025-10-20,si,no,si,si,si,no,Salud ósea,,email
+C-01395,Perú,Lima,,Mujeres,40-59,paciente,farmacia,2025-11-28,si,no,no,si,si,no,Salud ósea;Diabetes,;Glucofin,email
+C-01396,Perú,Lima,,Mujeres,18-39,paciente,programa,2025-12-29,si,no,si,si,si,no,Diabetes,;Glucofin,whatsapp
+C-01397,Argentina,Córdoba,,Mujeres,18-39,paciente,evento médico,2025-12-06,si,si,si,si,si,no,,,email
+C-01398,Colombia,Medellín,,Hombres,60+,paciente,programa,2026-05-13,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01399,Argentina,Rosario,,Hombres,60+,paciente,landing,2026-01-03,si,si,si,si,si,no,Salud ósea,,whatsapp
+C-01400,México,Ciudad de México,,Mujeres,40-59,paciente,farmacia,2025-12-02,si,no,no,si,no,no,,,email
+C-01401,Brasil,São Paulo,,Mujeres,18-39,paciente,farmacia,2026-01-17,si,si,no,si,si,no,,,email
+C-01402,México,Monterrey,,Hombres,60+,paciente,landing,2026-05-10,si,no,si,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01403,Perú,Lima,,Hombres,60+,paciente,landing,2026-09-11,si,si,si,si,si,no,Salud ósea;Cardiometabólica,Vasotril,email
+C-01404,Argentina,Buenos Aires,,Mujeres,18-39,paciente,farmacia,2025-12-15,si,si,si,no,si,no,Bienestar,,email
+C-01405,México,Monterrey,,Hombres,40-59,paciente,evento médico,2026-01-15,si,si,si,si,si,no,,,whatsapp
+C-01406,Argentina,Buenos Aires,,Hombres,60+,paciente,landing,2026-02-06,si,no,si,no,si,no,,,whatsapp
+C-01407,Chile,Santiago,,Hombres,60+,paciente,farmacia,2026-03-17,no,no,no,no,si,no,,,whatsapp
+C-01408,Argentina,Buenos Aires,,Mujeres,60+,profesional,farmacia,2026-02-20,si,si,si,si,si,no,Cardiometabólica,,email
+C-01409,Argentina,Córdoba,,Mujeres,40-59,profesional,farmacia,2025-11-02,si,si,si,si,si,no,,,whatsapp
+C-01410,México,Guadalajara,,Mujeres,60+,paciente,landing,2025-12-28,si,no,si,no,si,no,Cardiometabólica,,sms
+C-01411,Argentina,Córdoba,,Hombres,18-39,paciente,farmacia,2026-09-22,si,no,no,si,si,no,Bienestar,,email
+C-01412,Argentina,Rosario,,Hombres,40-59,paciente,programa,2026-03-07,si,no,no,si,si,no,,,email
+C-01413,Argentina,Buenos Aires,,Hombres,18-39,paciente,farmacia,2026-09-02,si,si,si,si,si,no,Bienestar;Cardiometabólica,,email
+C-01414,Perú,Lima,,Hombres,40-59,paciente,evento médico,2025-12-19,si,si,si,no,si,no,Salud ósea;Cardiometabólica,Vasotril,whatsapp
+C-01415,Chile,Santiago,,Mujeres,40-59,paciente,landing,2026-03-31,si,si,si,si,no,no,Bienestar;Cardiometabólica,,email
+C-01416,Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,paciente,programa,2026-02-13,si,si,si,no,si,no,Salud ósea;Cardiometabólica,,sms
+C-01417,Brasil,Rio de Janeiro,,Hombres,40-59,paciente,landing,2026-01-02,si,no,si,si,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01418,Argentina,Buenos Aires,,Mujeres,40-59,paciente,farmacia,2026-07-08,si,no,no,si,si,no,Diabetes,,email
+C-01419,Colombia,Medellín,,Hombres,40-59,paciente,farmacia,2026-01-24,si,no,si,si,si,no,Diabetes;Bienestar,,sms
+C-01420,México,Guadalajara,,Mujeres,40-59,paciente,programa,2026-09-15,si,si,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-01421,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-07-08,si,no,si,no,si,no,Cardiometabólica,,sms
+C-01422,México,Ciudad de México,,Mujeres,40-59,paciente,programa,2026-08-11,no,no,no,no,si,no,Cardiometabólica,Vasotril,email
+C-01423,Chile,Santiago,,Mujeres,18-39,paciente,evento médico,2026-07-13,no,no,no,no,si,si,Cardiometabólica,Vasotril,whatsapp
+C-01424,México,Ciudad de México,,Hombres,60+,profesional,landing,2026-09-26,si,no,si,si,si,no,Bienestar,,whatsapp
+C-01425,México,Guadalajara,,Hombres,18-39,paciente,evento médico,2025-10-05,si,si,si,si,si,si,,,whatsapp
+C-01426,Uruguay,Montevideo,Cerro,Hombres,18-39,paciente,programa,2026-01-26,si,no,no,si,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-01427,Brasil,Rio de Janeiro,,Mujeres,40-59,cuidador,landing,2026-03-25,no,no,no,no,si,no,Cardiometabólica;Diabetes,Vasotril,email
+C-01428,México,Ciudad de México,,Mujeres,60+,cuidador,landing,2026-03-07,si,si,si,si,si,no,,,whatsapp
+C-01429,Perú,Lima,,Mujeres,40-59,paciente,evento médico,2026-03-18,si,si,si,si,si,no,Diabetes;Cardiometabólica,,whatsapp
+C-01430,Brasil,São Paulo,,Mujeres,40-59,paciente,evento médico,2026-09-25,si,si,no,no,si,no,Diabetes,,whatsapp
+C-01431,México,Guadalajara,,Hombres,60+,paciente,programa,2026-01-19,si,no,si,no,si,no,Cardiometabólica;Bienestar,Vasotril,email
+C-01432,Argentina,Córdoba,,Mujeres,40-59,profesional,landing,2025-10-25,si,no,no,si,si,no,,,whatsapp
+C-01433,México,Ciudad de México,,Hombres,40-59,paciente,farmacia,2026-04-24,si,no,no,si,no,no,Salud ósea,,email
+C-01434,Colombia,Bogotá,,Hombres,40-59,paciente,evento médico,2026-09-30,si,no,si,no,si,no,Cardiometabólica,Vasotril,email
+C-01435,México,Monterrey,,Hombres,40-59,profesional,landing,2026-09-06,si,no,si,no,si,no,,,whatsapp
+C-01436,Uruguay,Montevideo,Cerro,Mujeres,60+,profesional,farmacia,2026-04-20,si,si,si,si,si,no,Cardiometabólica,,email
+C-01437,México,Guadalajara,,Mujeres,60+,cuidador,evento médico,2026-07-04,si,si,si,si,si,no,Diabetes,,whatsapp
+C-01438,Colombia,Bogotá,,Mujeres,60+,paciente,landing,2026-07-13,si,no,no,si,si,no,Cardiometabólica,Vasotril,email
+C-01439,Chile,Valparaíso,,Mujeres,18-39,paciente,farmacia,2026-09-16,si,no,si,no,si,no,Salud ósea;Bienestar,,whatsapp
+C-01440,Chile,Valparaíso,,Mujeres,40-59,paciente,farmacia,2026-08-20,si,no,si,no,si,no,,,email
+C-01441,Argentina,Córdoba,,Mujeres,60+,paciente,evento médico,2026-08-21,si,si,no,si,no,no,,,email
+C-01442,México,Ciudad de México,,Mujeres,60+,cuidador,evento médico,2026-09-11,si,si,si,si,si,no,Cardiometabólica,Vasotril,email
+C-01443,Chile,Valparaíso,,Hombres,60+,paciente,evento médico,2026-02-05,si,si,si,no,si,no,Bienestar,,email
+C-01444,México,Guadalajara,,Hombres,40-59,paciente,evento médico,2026-06-20,si,si,si,si,si,no,Bienestar,,email
+C-01445,Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,paciente,evento médico,2026-08-07,si,si,si,si,si,no,,,sms
+C-01446,México,Ciudad de México,,Hombres,40-59,paciente,evento médico,2026-03-11,si,si,si,no,si,no,,,email
+C-01447,Argentina,Córdoba,,Hombres,18-39,paciente,evento médico,2025-12-01,si,no,si,no,si,no,,,whatsapp
+C-01448,México,Guadalajara,,Mujeres,60+,paciente,landing,2026-01-23,si,si,no,si,si,no,,,email
+C-01449,Argentina,Córdoba,,Mujeres,18-39,paciente,landing,2026-02-15,si,no,si,no,no,no,Cardiometabólica,,sms
+C-01450,Chile,Santiago,,Hombres,60+,profesional,evento médico,2026-01-03,si,no,si,si,si,no,Diabetes,;Glucofin,email
+C-01451,México,Ciudad de México,,Hombres,40-59,paciente,farmacia,2026-06-26,si,si,si,no,si,no,Bienestar;Cardiometabólica,,email
+C-01452,Argentina,Rosario,,Mujeres,40-59,paciente,evento médico,2026-09-14,si,no,no,si,si,no,,,whatsapp
+C-01453,México,Guadalajara,,Mujeres,40-59,profesional,landing,2026-04-14,no,no,no,no,si,no,,,email
+C-01454,México,Guadalajara,,Mujeres,18-39,cuidador,farmacia,2026-01-23,si,si,no,si,si,no,,,email
+C-01455,Argentina,Buenos Aires,,Mujeres,18-39,paciente,programa,2026-03-31,si,no,si,si,si,no,,,whatsapp
+C-01456,Chile,Valparaíso,,Mujeres,60+,paciente,farmacia,2026-03-15,si,si,no,no,si,no,Cardiometabólica,,whatsapp
+C-01457,México,Guadalajara,,Mujeres,40-59,paciente,programa,2025-10-20,si,no,no,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01458,México,Guadalajara,,Mujeres,60+,cuidador,landing,2026-01-16,si,si,no,no,no,no,Cardiometabólica,,whatsapp
+C-01459,Uruguay,Montevideo,Pocitos,Hombres,18-39,paciente,programa,2026-07-19,si,si,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01460,Chile,Valparaíso,,Hombres,40-59,paciente,evento médico,2026-03-17,si,no,si,si,si,no,Cardiometabólica,Vasotril,email
+C-01461,Brasil,São Paulo,,Mujeres,60+,paciente,evento médico,2026-05-15,si,no,si,no,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-01462,México,Ciudad de México,,Hombres,60+,paciente,landing,2026-03-05,si,no,no,no,si,no,,,email
+C-01463,Uruguay,Montevideo,Cerro,Mujeres,40-59,paciente,farmacia,2025-10-07,si,no,no,no,si,no,Bienestar;Cardiometabólica,,email
+C-01464,México,Monterrey,,Hombres,40-59,paciente,evento médico,2026-04-06,si,no,no,si,si,no,Cardiometabólica;Diabetes,,email
+C-01465,México,Ciudad de México,,Mujeres,40-59,profesional,farmacia,2026-03-19,si,si,no,no,si,no,Cardiometabólica;Salud ósea,,email
+C-01466,México,Monterrey,,Hombres,60+,paciente,programa,2026-02-07,si,no,si,si,si,no,Bienestar,,email
+C-01467,Chile,Santiago,,Mujeres,40-59,paciente,programa,2026-07-20,si,si,si,si,si,no,,,whatsapp
+C-01468,Brasil,São Paulo,,Hombres,60+,profesional,evento médico,2026-07-16,si,si,si,no,si,no,Cardiometabólica;Bienestar,,email
+C-01469,México,Guadalajara,,Mujeres,40-59,paciente,landing,2026-01-08,si,no,no,si,si,no,Cardiometabólica,Vasotril,sms
+C-01470,México,Ciudad de México,,Mujeres,40-59,cuidador,landing,2026-08-10,si,si,si,no,no,no,,,email
+C-01471,Uruguay,Montevideo,Piedras Blancas,Hombres,60+,cuidador,evento médico,2026-03-09,si,si,si,si,si,no,Cardiometabólica;Diabetes,;Glucofin,email
+C-01472,México,Guadalajara,,Mujeres,40-59,profesional,landing,2026-05-03,si,si,si,si,si,no,Salud ósea,,sms
+C-01473,Colombia,Bogotá,,Mujeres,40-59,paciente,programa,2026-03-16,si,no,si,si,si,no,,,email
+C-01474,México,Ciudad de México,,Mujeres,40-59,profesional,farmacia,2026-03-11,si,si,si,si,si,no,Cardiometabólica,,sms
+C-01475,México,Ciudad de México,,Mujeres,18-39,paciente,landing,2026-01-03,si,no,no,no,si,no,Cardiometabólica;Diabetes,,email
+C-01476,Brasil,Rio de Janeiro,,Hombres,18-39,cuidador,farmacia,2026-04-28,si,si,si,no,si,no,Diabetes,;Glucofin,whatsapp
+C-01477,Colombia,Bogotá,,Mujeres,18-39,paciente,programa,2025-11-29,si,si,si,si,si,no,Diabetes,,email
+C-01478,México,Ciudad de México,,Mujeres,18-39,profesional,evento médico,2025-12-15,si,si,si,no,si,no,Diabetes;Bienestar,,email
+C-01479,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2025-11-14,si,si,si,si,si,no,,,whatsapp
+C-01480,Uruguay,Montevideo,Pocitos,Mujeres,60+,paciente,programa,2026-02-18,no,no,no,no,no,no,Diabetes;Cardiometabólica,,email
+C-01481,Colombia,Medellín,,Mujeres,40-59,profesional,landing,2026-04-09,si,no,si,no,si,no,Bienestar,,email
+C-01482,Chile,Santiago,,Hombres,18-39,paciente,evento médico,2026-02-16,si,no,no,si,si,si,,,whatsapp
+C-01483,Argentina,Córdoba,,Mujeres,40-59,paciente,farmacia,2026-08-25,si,no,si,si,si,no,Diabetes;Cardiometabólica,Vasotril,whatsapp
+C-01484,Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,profesional,farmacia,2026-05-11,si,no,no,si,si,no,Diabetes,;Glucofin,email
+C-01485,México,Ciudad de México,,Mujeres,40-59,paciente,evento médico,2026-06-16,no,no,no,no,si,no,Salud ósea,,email
+C-01486,Argentina,Buenos Aires,,Mujeres,40-59,paciente,landing,2026-09-04,si,no,si,si,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-01487,México,Ciudad de México,,Hombres,60+,paciente,evento médico,2025-12-03,si,si,si,si,si,no,,,email
+C-01488,México,Guadalajara,,Hombres,18-39,paciente,landing,2026-01-17,si,no,si,no,si,no,Salud ósea,,whatsapp
+C-01489,Chile,Valparaíso,,Hombres,60+,paciente,landing,2026-01-25,si,si,no,no,si,no,,,whatsapp
+C-01490,Chile,Santiago,,Mujeres,60+,profesional,farmacia,2026-08-14,si,si,si,no,si,no,Bienestar;Diabetes,,sms
+C-01491,México,Ciudad de México,,Mujeres,40-59,paciente,programa,2025-11-16,si,no,no,si,no,no,Cardiometabólica,,email
+C-01492,Argentina,Buenos Aires,,Mujeres,18-39,paciente,evento médico,2026-03-21,si,no,no,no,si,no,,,sms
+C-01493,Chile,Santiago,,Mujeres,40-59,paciente,programa,2026-04-03,si,no,no,no,si,no,Cardiometabólica;Bienestar,Vasotril,whatsapp
+C-01494,México,Monterrey,,Mujeres,40-59,paciente,farmacia,2025-10-16,si,no,no,no,si,no,Cardiometabólica;Salud ósea,,sms
+C-01495,Brasil,Rio de Janeiro,,Mujeres,40-59,cuidador,landing,2026-06-07,si,si,si,no,si,no,Cardiometabólica;Diabetes,,whatsapp
+C-01496,Colombia,Medellín,,Mujeres,40-59,cuidador,evento médico,2026-07-06,si,no,no,no,si,si,Cardiometabólica;Bienestar,,email
+C-01497,Chile,Valparaíso,,Hombres,18-39,paciente,farmacia,2026-04-21,si,no,si,si,si,no,Salud ósea;Bienestar,,email
+C-01498,Argentina,Rosario,,Mujeres,18-39,paciente,farmacia,2026-08-04,si,si,no,si,si,no,Bienestar,,email
+C-01499,Colombia,Medellín,,Hombres,60+,paciente,farmacia,2026-06-15,si,no,si,no,si,no,Cardiometabólica,Vasotril,whatsapp
+C-01500,Chile,Valparaíso,,Hombres,60+,cuidador,programa,2025-10-27,si,si,si,no,si,no,Bienestar;Diabetes,;Glucofin,email

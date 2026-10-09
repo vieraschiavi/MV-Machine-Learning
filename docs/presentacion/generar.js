@@ -31,7 +31,7 @@ const imagen = (rel) => fs.readFileSync(path.resolve(BASE_CONT, rel));
 function medidasPng(buf) {
   return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
 }
-const PARA = { gerentes: 'Para gerentes', tecnicos: 'Para técnicos', todos: 'Para todos' };
+const PARA = { gerentes: 'Para gerentes', tecnicos: 'Para técnicos', legal: 'Para legal y compliance', todos: 'Para todos' };
 const NIVEL = {
   Estable: 'ok', Verificado: 'ok',
   Vigilar: 'warn', Parcial: 'warn',
@@ -204,6 +204,7 @@ p{margin:10px 0;max-width:68ch}
 .para{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
 .para-gerentes{background:var(--warn-bg);color:var(--warn)}
 .para-tecnicos{background:var(--soft);color:var(--blue)}
+.para-legal{background:var(--soft);color:var(--ink)}
 ul{padding-left:1.2em;margin:10px 0;max-width:72ch}
 li{margin:6px 0}
 li::marker{color:var(--amber-ink)}
@@ -310,7 +311,8 @@ function cuerpoHtml() {
   <span class="lbl">Leer como</span>
   <button type="button" id="ver-todo" data-v="todo" aria-pressed="true">Todo</button>
   <button type="button" id="ver-gerentes" data-v="gerentes" aria-pressed="false">Gerente</button>
-  <button type="button" id="ver-tecnicos" data-v="tecnicos" aria-pressed="false">Técnico</button>
+  <button type="button" id="ver-tecnicos" data-v="tecnicos" aria-pressed="false">Técnico</button>${SECCIONES.some((x) => x.para === 'legal')
+    ? '\n  <button type="button" id="ver-legal" data-v="legal" aria-pressed="false">Legal</button>' : ''}
 </div></nav>
 <div class="cuerpo">
   <nav class="indice" aria-label="Índice"><ol>${indice}</ol></nav>

@@ -64,3 +64,14 @@ def test_el_modulo_de_portafolio_se_importa_solo_sin_import_circular():
                        cwd=backend, capture_output=True, text=True, timeout=120)
     assert r.returncode == 0, r.stderr
     assert r.stdout.strip() == "True"
+
+
+def test_relacionamiento_desde_el_notebook_con_spark_y_salida_a_fabric(tmp_path):
+    leer = lambda n: _SparkFalso(pd.read_csv(EJEMPLOS / n))  # noqa: E731
+    r = mv.relacionamiento(leer("relacionamiento_contactos.csv"), leer("relacionamiento_contenidos.csv"),
+                           leer("relacionamiento_interacciones.csv"), poblacion=leer("censo_sintetico.csv"),
+                           prevalencias=leer("prevalencias_sinteticas.csv"), area="Diabetes")
+    assert not r["recomendaciones"].empty and not r["cobertura"].empty
+    out = mv.relacionamiento_para_powerbi(tmp_path / "rel", r)
+    assert out["relacionamiento_embudo"].exists()
+    assert (tmp_path / "rel" / "modelo_fabric" / "crear_tablas.sql").exists()

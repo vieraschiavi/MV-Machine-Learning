@@ -58,6 +58,24 @@ genéricos reales, ventas y tasas):
 Se recorren en la pestaña **Portafolio y mercado**
 ([guía](../docs/PORTAFOLIO_Y_MERCADO.md)).
 
+## Relacionamiento con consentimiento
+
+[`generar_relacionamiento.py`](generar_relacionamiento.py) escribe una base
+**inventada**: ids seudónimos sin mail, teléfono ni nombre; marcas ficticias
+(Vasotril y Glucofin bajo receta, Vitalix y Calcimar D de venta libre).
+
+| Archivo | Qué ejercita |
+|---|---|
+| `relacionamiento_contactos.csv` | 1.500 contactos con país, ciudad, barrio, sexo, edad y los cuatro consentimientos |
+| `relacionamiento_contenidos.csv` | 14 contenidos de los cinco tipos, con condición de venta y audiencia |
+| `relacionamiento_interacciones.csv` | Seis meses de envíos, aperturas, clics, inscripciones, canjes, bajas y quejas (con un 1 % de envíos que no cumplen, para la auditoría) |
+| `censo_sintetico.csv` | Población por ciudad, barrio, sexo, edad y nivel socioeconómico |
+| `prevalencias_sinteticas.csv` | Prevalencia por país, área, sexo y edad, al estilo de una encuesta nacional de salud |
+| `escucha_social_sintetica.csv` | Publicaciones inventadas con autores ficticios y URL de ejemplo, que el análisis descarta |
+
+Se recorren en la pestaña **Relacionamiento**
+([guía](../docs/RELACIONAMIENTO.md)).
+
 ## Notebook para Microsoft Fabric
 
 [`fabric/mv_automl_en_fabric.ipynb`](fabric/mv_automl_en_fabric.ipynb) entrena

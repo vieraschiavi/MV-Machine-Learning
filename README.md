@@ -267,6 +267,20 @@ Está en la pestaña **Portafolio y mercado**, en `mv.contribucion` /
 y la matriz de burbujas para Deneb
 ([guía](docs/PORTAFOLIO_Y_MERCADO.md)).
 
+### 7 quinquies. Relacionamiento con consentimiento
+
+Una base propia de pacientes, cuidadores y médicos con el **siguiente mejor
+contenido** para cada persona —el mismo tipo de recomendador que un
+marketplace— pero sólo entre lo que la ley y la persona permiten: consentimiento
+por finalidad (contacto, comercial, salud, personalización), nada de inferir
+enfermedades y ninguna promoción de productos bajo receta al público. Suma
+embudo, KPIs por contenido, auditoría de cumplimiento, la cobertura de la base
+contra censo y encuestas de salud (por ciudad, barrio, sexo, edad y nivel
+socioeconómico de la zona) y la escucha social agregada con alerta para
+farmacovigilancia. Sale a Power BI y a un modelo estrella para el Lakehouse de
+Fabric que se cruza con Analysis Services
+([guía técnica](docs/RELACIONAMIENTO.md)).
+
 ### 8. Tres idiomas y sistema de audio
 
 Español, inglés y portugués, con los tres diccionarios verificados por una
@@ -436,6 +450,11 @@ pipeline por motivos que no son del código.
   técnicos: el embudo, el mercado latente, de dónde salen los números y cuánto
   creerle. Se genera con
   `node docs/presentacion/generar.js --contenido docs/agente/contenido.js`.
+* [Relacionamiento con consentimiento](docs/relacionamiento/Relacionamiento-con-Consentimiento.docx)
+  ([versión web](docs/relacionamiento/Relacionamiento-con-Consentimiento.html)) —
+  para gerentes, técnicos y legal: de dónde salen los datos, qué se puede decir
+  a quién y por qué canal, cómo se pide el consentimiento y cómo se mide.
+  Detalle técnico en [RELACIONAMIENTO.md](docs/RELACIONAMIENTO.md).
 * [Portafolio y mercado](docs/PORTAFOLIO_Y_MERCADO.md) — matriz de
   contribución y mix, agente de mercado (actual y latente) y cómo armar en
   Power BI la página con el formato de la lámina de contribución.
