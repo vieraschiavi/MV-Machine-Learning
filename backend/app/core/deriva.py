@@ -25,6 +25,14 @@ Tres decisiones que importan:
   * **El veredicto pesa la importancia.** Una variable que el modelo casi no
     usa puede moverse sin que haga falta reentrenar; una de las que sostienen
     el modelo, no. Por eso se vigila distinto una que otra.
+  * **El ruido de muestreo no es deriva.** Dos muestras del mismo proceso dan
+    un PSI mayor que cero, y con pocas filas no es poco: con 10 tramos y una
+    referencia de 120 filas (el holdout de un dataset chico) ronda 0,08, al
+    lado del umbral. Entre dos muestras de la misma población, n·PSI se
+    comporta como una χ² con (tramos − 1) grados de libertad, donde
+    1/n = 1/n_referencia + 1/n_nuevos. Un tramo sube de «estable» sólo si el
+    PSI supera el percentil 95 de ese ruido; con muestras grandes el corte es
+    despreciable y mandan los umbrales de siempre.
 """
 from __future__ import annotations
 
@@ -33,6 +41,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from scipy.stats import chi2
 
 UMBRAL_MODERADA = 0.10
 UMBRAL_FUERTE = 0.25
@@ -44,6 +53,7 @@ MAX_FILAS_PERFIL = 200_000      # los cuantiles no cambian por perfilar más fil
 IMPORTANCIA_MINIMA = 0.05       # participación para contar como «variable que importa»
 TOP_IMPORTANTES = 5
 _EPS = 1e-4                     # evita log(0) en tramos vacíos, como es estándar
+CONFIANZA_RUIDO = 0.95          # percentil del PSI que puede dar el puro azar
 
 _ORDEN = {"falta": 5, "fuerte": 4, "moderada": 3, "estable": 2, "no_aplica": 1}
 
@@ -102,6 +112,19 @@ def psi(referencia: list[float], actual: list[float]) -> float:
     return float(np.sum((a - r) * np.log(a / r)))
 
 
+def ruido(referencia: list[float], actual: list[float], n_referencia: int | None, n_actual: int) -> float:
+    """El PSI que dos muestras del mismo proceso alcanzan por azar (percentil 95).
+
+    0 si no se sabe el tamaño de la referencia (perfiles anteriores a este
+    control): ahí manda sólo el umbral, como antes.
+    """
+    if not n_referencia or not n_actual:
+        return 0.0
+    usados = int(np.sum((np.asarray(referencia) > 0) | (np.asarray(actual) > 0)))
+    libertad = max(usados - 1, 1)
+    return float(chi2.ppf(CONFIANZA_RUIDO, libertad) * (1 / n_referencia + 1 / n_actual))
+
+
 def nivel(valor: float) -> str:
     if valor >= UMBRAL_FUERTE:
         return "fuerte"
@@ -129,7 +152,9 @@ def comparar(perfil: dict[str, Any], s: pd.Series | None) -> dict[str, Any]:
         if perfil.get("conocidas") is not None and n:
             out["categorias_nuevas"] = float((~valores.isin(perfil["conocidas"])).sum() / n)
     out["psi"] = round(psi(perfil["props"], actual), 6)
-    return {**out, "nivel": nivel(out["psi"])}
+    out["ruido"] = round(ruido(perfil["props"], actual, perfil.get("n"), n), 6)
+    # Lo que el azar puede explicar no es deriva, por más que cruce un umbral.
+    return {**out, "nivel": nivel(out["psi"]) if out["psi"] > out["ruido"] else "estable"}
 
 
 # ───────────────────────────────────────────────────────────── referencia ────
