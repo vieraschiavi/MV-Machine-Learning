@@ -418,7 +418,7 @@ export function bubbles(items, { title, width = 900, height = 420, alta = 0.10, 
   const cmax = Math.max(...items.map((d) => d.contribucion), alta + 1e-6);
   // Una entidad con ventas netas negativas (devoluciones) va al piso de la franja baja.
   const piso = (c) => Math.max(c, 0);
-  const franja = (c) => (c < media ? 0.15 + 0.7 * (c / media)
+  const franja = (c) => (c < media ? 0.4 + 0.5 * (c / media)
     : c <= alta ? 1.15 + 0.7 * ((c - media) / (alta - media))
       : 2.15 + 0.55 * ((c - alta) / (cmax - alta)));
   const posX = (d) => (ejeX === 'mix' ? d.x : Math.max(-0.5, Math.min(0.5, d.x)) + 0.5);

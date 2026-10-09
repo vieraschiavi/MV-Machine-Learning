@@ -36,7 +36,7 @@
     {
       "transform": [
         {"joinaggregate": [{"op": "max", "field": "contribucion", "as": "cmax"}]},
-        {"calculate": "datum.contribucion < 0.03 ? 0.15 + 0.7 * datum.contribucion / 0.03 : datum.contribucion <= 0.10 ? 1.15 + 0.7 * (datum.contribucion - 0.03) / 0.07 : 2.15 + 0.7 * (datum.contribucion - 0.10) / max(datum.cmax - 0.10, 0.0001)", "as": "franja"},
+        {"calculate": "datum.contribucion < 0.03 ? 0.4 + 0.5 * datum.contribucion / 0.03 : datum.contribucion <= 0.10 ? 1.15 + 0.7 * (datum.contribucion - 0.03) / 0.07 : 2.15 + 0.7 * (datum.contribucion - 0.10) / max(datum.cmax - 0.10, 0.0001)", "as": "franja"},
         {"calculate": "datum.entidad + '\\n' + format(datum.contribucion, '.1%')", "as": "etiqueta"}
       ],
       "encoding": {

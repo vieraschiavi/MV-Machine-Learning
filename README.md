@@ -431,6 +431,11 @@ pipeline por motivos que no son del código.
   notebook de Microsoft Fabric, conectar el programa al endpoint SQL con
   identidad de Entra ID y dejar la salida lista para el tablero. Incluye lo que
   se probó y lo que no.
+* [Guía del agente de mercado](docs/agente/Agente-de-Mercado.docx)
+  ([versión web](docs/agente/Agente-de-Mercado.html)) — para gerentes y
+  técnicos: el embudo, el mercado latente, de dónde salen los números y cuánto
+  creerle. Se genera con
+  `node docs/presentacion/generar.js --contenido docs/agente/contenido.js`.
 * [Portafolio y mercado](docs/PORTAFOLIO_Y_MERCADO.md) — matriz de
   contribución y mix, agente de mercado (actual y latente) y cómo armar en
   Power BI la página con el formato de la lámina de contribución.
