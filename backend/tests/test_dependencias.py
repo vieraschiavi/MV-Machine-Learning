@@ -34,6 +34,13 @@ shap = pytest.importorskip("shap", reason="SHAP es opcional en el entorno de pru
 RAIZ = Path(__file__).resolve().parents[2]
 
 
+def _soporta_311() -> bool:
+    """¿El proyecto todavía declara Python 3.11 como soportado?"""
+    texto = (RAIZ / "pyproject.toml").read_text(encoding="utf-8")
+    m = re.search(r'^requires-python\s*=\s*">=\s*3\.(\d+)', texto, re.M)
+    return bool(m) and int(m.group(1)) <= 11
+
+
 def _importa_con(filtro: str) -> subprocess.CompletedProcess:
     """Importa SHAP en un proceso limpio con ese filtro de avisos.
 
@@ -87,6 +94,14 @@ def test_el_techo_de_matplotlib_sigue_siendo_necesario():
 
     r = _importa_con("error::PendingDeprecationWarning")
     todavia_rompe = r.returncode != 0 and "with_extremes" in r.stderr
+    if not todavia_rompe and sys.version_info >= (3, 12) and _soporta_311():
+        # SHAP 0.53 ya usa `with_extremes`, pero sólo se instala con Python
+        # 3.12 o más nuevo: en 3.11 —que el proyecto sigue soportando— pip
+        # resuelve SHAP 0.51, que todavía muta el colormap. El techo sigue
+        # haciendo falta para esa instalación; se saca cuando el proyecto deje
+        # 3.11 o cuando la prueba falle corriendo en 3.11.
+        pytest.skip(f"SHAP {shap.__version__} ya no muta el colormap en este Python, pero "
+                    "en 3.11 todavía sí: el techo de matplotlib sigue protegiendo esa instalación.")
     assert todavia_rompe, (
         "SHAP ya no muta el colormap deprecado: el techo de matplotlib en "
         "requirements.txt (y esta prueba) ya no protegen nada. Sacalos.")
