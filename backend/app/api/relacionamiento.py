@@ -22,7 +22,10 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import Response
 from pydantic import BaseModel, Field, model_validator
 
+from ..core import catalogo as CAT
 from ..core import consentimiento as K
+from ..core import fuentes_publicas as FP
+from ..core import licensing as L
 from ..core import politicas_legales as PL
 from ..core import programa_relacionamiento as PR
 from ..core import registro_consentimientos as RC
@@ -75,6 +78,7 @@ class AnalizarBody(BaseModel):
     prevalencias_dataset_id: str | None = None
     escucha_dataset_id: str | None = None
     consentimientos_dataset_id: str | None = None
+    busquedas_dataset_id: str | None = None
     area: str | None = None
     por_barrio: bool = False
     segmentar: list[Literal["sexo", "rango_edad", "nse"]] = Field(default_factory=list, max_length=3)
@@ -102,7 +106,8 @@ def _analizar(b: AnalizarBody) -> dict[str, Any]:
             poblacion=_frame(b.poblacion_dataset_id), prevalencias=_frame(b.prevalencias_dataset_id),
             escucha=_frame(b.escucha_dataset_id), area=b.area or None, por_barrio=b.por_barrio,
             segmentar=tuple(b.segmentar), temas=b.temas, hoy=b.hoy or None, ajustes=ajustes,
-            por_contacto=b.por_contacto, consentimientos=_frame(b.consentimientos_dataset_id))
+            por_contacto=b.por_contacto, consentimientos=_frame(b.consentimientos_dataset_id),
+            busquedas=_frame(b.busquedas_dataset_id))
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from exc
 
@@ -192,3 +197,70 @@ def formulario(idioma: Literal["es", "pt"] = "es", accion: str = "https://crm.ej
 @router.get("/api/relacionamiento/textos-consentimiento")
 def textos_consentimiento() -> dict[str, Any]:
     return RC.TEXTOS
+
+
+# ── catálogo ────────────────────────────────────────────────────────────────
+class RevisarCatalogoBody(BaseModel):
+    contenidos_dataset_id: str
+    contactos_dataset_id: str | None = None
+
+
+@router.post("/api/relacionamiento/revisar-catalogo")
+def revisar_catalogo(body: RevisarCatalogoBody) -> dict[str, Any]:
+    """Qué contenido no va a llegar a nadie, o no a quien se pensó, antes de cargarlo."""
+    try:
+        r = CAT.revisar(_frame(body.contenidos_dataset_id), _frame(body.contactos_dataset_id),
+                        PL.ajustes())
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return _limpio({k: (v.astype(object).where(v.notna(), None).to_dict("records")
+                        if isinstance(v, pd.DataFrame) else v) for k, v in r.items()})
+
+
+# ── fuentes públicas reales (OMS, Banco Mundial, Google Trends) ─────────────
+class FuentePublicaBody(BaseModel):
+    fuente: Literal["oms_prevalencias", "oms_supuestos", "banco_mundial_poblacion"]
+    paises: list[str] = Field(min_length=1, max_length=20)
+    area: str = "Cardiometabólica"
+
+
+def _guardar(df: pd.DataFrame, nombre: str, origen: dict[str, Any]) -> dict[str, Any]:
+    if df.empty:
+        raise HTTPException(404, "La fuente no devolvió datos para esos países.")
+    L.check_count(len(storage.list_datasets()), "max_datasets")
+    meta = storage.ingest_frames(iter([df]), nombre, source="publica", origin=origen)
+    return {"dataset": meta.to_dict(), "filas": len(df),
+            "muestra": df.head(20).astype(object).where(df.head(20).notna(), None).to_dict("records")}
+
+
+@router.post("/api/relacionamiento/fuentes/publicas")
+def fuente_publica(body: FuentePublicaBody) -> dict[str, Any]:
+    """Trae una fuente pública agregada y la deja como dataset, lista para el análisis o el agente."""
+    try:
+        if body.fuente == "oms_prevalencias":
+            df = FP.prevalencias_oms(body.area, body.paises)
+            nombre = f"OMS prevalencias {body.area}"
+        elif body.fuente == "oms_supuestos":
+            df = FP.supuestos_oms(body.area, body.paises)
+            nombre = f"OMS y Banco Mundial supuestos {body.area}"
+        else:
+            df = FP.poblacion_banco_mundial(body.paises)
+            nombre = "Banco Mundial población adulta"
+    except ValueError as exc:
+        # Un país desconocido es error del pedido; una caída de la red, del servicio de afuera.
+        raise HTTPException(400 if "País" in str(exc) or "Área" in str(exc) else 502, str(exc)) from exc
+    return _guardar(df, f"{nombre} ({', '.join(body.paises)})"[:120],
+                    {"fuente": body.fuente, "paises": body.paises, "area": body.area})
+
+
+@router.post("/api/relacionamiento/fuentes/trends")
+async def fuente_trends(pais: str, termino: str | None = None, file: UploadFile = File(...)) -> dict[str, Any]:
+    """La exportación «interés por subregión» de Google Trends, como dataset de búsquedas agregadas."""
+    contenido = await file.read(MAX_PLANILLA + 1)
+    if len(contenido) > MAX_PLANILLA:
+        raise HTTPException(413, "El archivo supera los 5 MB: no es una exportación de Google Trends.")
+    try:
+        df = FP.trends_csv(contenido, pais, termino)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    return _guardar(df, f"Google Trends {pais} {termino or ''}".strip(), {"fuente": "google_trends", "pais": pais})

@@ -19,6 +19,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import consentimiento as K
 from . import escucha as S
 from . import modelo_fabric as F
 from . import politicas_legales as PL
@@ -33,7 +34,8 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
              escucha: pd.DataFrame | None = None, area: str | None = None, por_barrio: bool = False,
              segmentar: tuple[str, ...] = (), temas: dict[str, list[str]] | None = None,
              hoy: Any = None, ajustes: dict | None = None, por_contacto: int = 3,
-             politicas_guardadas: bool = True, consentimientos: pd.DataFrame | None = None) -> dict[str, Any]:
+             politicas_guardadas: bool = True, consentimientos: pd.DataFrame | None = None,
+             busquedas: pd.DataFrame | None = None) -> dict[str, Any]:
     """Todo el análisis. Devuelve tablas (DataFrames), avisos y lo necesario para el modelo."""
     if politicas_guardadas:
         # Lo que legal validó en este workspace es la base; un ajuste del pedido simula un escenario encima.
@@ -72,6 +74,15 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
         r["escucha_menciones"], r["escucha_terminos"] = e["menciones"], e["terminos"]
         r["farmacovigilancia"], r["escucha_publicaciones"] = e["farmacovigilancia"], e["publicaciones"]
         avisos += e["avisos"]
+    r["busquedas"] = pd.DataFrame()
+    if busquedas is not None and not busquedas.empty:
+        b = busquedas.copy()
+        b.columns = [K._clave(c) for c in b.columns]
+        faltan = [c for c in ("pais", "region", "termino", "interes") if c not in b.columns]
+        if faltan:
+            raise ValueError(f"A la tabla de búsquedas le faltan columnas: {', '.join(faltan)} (usá el importador "
+                             "de Google Trends).")
+        r["busquedas"] = b[["pais", "region", "termino", "interes"]]
     r["avisos"] = avisos
     r["_preparado"] = {**r["_preparado"], "contactos": ct, "poblacion": pob, "prevalencias": pv,
                        "consentimientos": libro}
@@ -94,7 +105,8 @@ def modelo(r: dict[str, Any]) -> dict[str, pd.DataFrame]:
     return F.construir(contactos=p["contactos"], contenidos=p["contenidos"], interacciones=p["interacciones"],
                        recomendaciones=r["recomendaciones"], poblacion=p["poblacion"],
                        prevalencias=p["prevalencias"], escucha=r["escucha_menciones"],
-                       cobertura=r["cobertura"], consentimientos=p.get("consentimientos"), hoy=r["hoy"])
+                       cobertura=r["cobertura"], consentimientos=p.get("consentimientos"),
+                       busquedas=r.get("busquedas"), hoy=r["hoy"])
 
 
 def exportar(carpeta: str | Path, r: dict[str, Any], formato: str = "parquet") -> dict[str, Path]:

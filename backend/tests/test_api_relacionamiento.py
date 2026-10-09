@@ -100,3 +100,12 @@ def test_formulario_y_textos_de_consentimiento(client):
     assert client.get("/api/relacionamiento/formulario", params={"accion": "javascript:alert(1)"}).status_code == 400
     assert client.get("/api/relacionamiento/textos-consentimiento").json()["es"]["contacto"]["version"].startswith("v-")
     assert client.get("/api/relacionamiento/plantilla/consentimientos").status_code == 200
+
+
+def test_revisar_catalogo_por_api(client, ids):
+    r = client.post("/api/relacionamiento/revisar-catalogo", json={
+        "contenidos_dataset_id": ids["contenidos_dataset_id"], "contactos_dataset_id": ids["contactos_dataset_id"]})
+    assert r.status_code == 200, r.text
+    j = r.json()
+    json.dumps(j, allow_nan=False)
+    assert j["listo"] is True and len(j["resumen"]) == 14 and all(f["alcance"] is not None for f in j["resumen"])

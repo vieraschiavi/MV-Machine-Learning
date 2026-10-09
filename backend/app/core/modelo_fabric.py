@@ -58,6 +58,7 @@ RELACIONES = [  # (desde tabla, columna) → (hacia dimensión, columna): muchos
     ("fact_cobertura", "area_key", "dim_area", "area_key"),
     ("fact_consentimientos", "contacto_key", "dim_contacto", "contacto_key"),
     ("fact_consentimientos", "fecha_key", "dim_fecha", "fecha_key"),
+    ("fact_busquedas", "geo_key", "dim_geografia", "geo_key"),
 ]
 _SQL = {"int64": "BIGINT", "Int64": "BIGINT", "int32": "INT", "float64": "DOUBLE", "bool": "BOOLEAN",
         "datetime64[ns]": "DATE", "object": "STRING", "string": "STRING"}
@@ -110,10 +111,12 @@ def construir(*, contactos: pd.DataFrame | None = None, contenidos: pd.DataFrame
               interacciones: pd.DataFrame | None = None, recomendaciones: pd.DataFrame | None = None,
               poblacion: pd.DataFrame | None = None, prevalencias: pd.DataFrame | None = None,
               escucha: pd.DataFrame | None = None, cobertura: pd.DataFrame | None = None,
-              consentimientos: pd.DataFrame | None = None, hoy: Any = None) -> dict[str, pd.DataFrame]:
+              consentimientos: pd.DataFrame | None = None, busquedas: pd.DataFrame | None = None,
+              hoy: Any = None) -> dict[str, pd.DataFrame]:
     """Arma las dimensiones y los hechos con lo que haya. Las tablas preparadas por cada módulo."""
     t: dict[str, pd.DataFrame] = {}
-    geo = pd.concat([_geo(contactos), _geo(poblacion), _geo(prevalencias), _geo(escucha), _geo(cobertura)])
+    geo = pd.concat([_geo(contactos), _geo(poblacion), _geo(prevalencias), _geo(escucha), _geo(cobertura),
+                     _geo(busquedas[["pais"]] if busquedas is not None and len(busquedas) else None)])
     geo = geo.drop_duplicates().reset_index(drop=True)
     if not geo.empty:
         geo.insert(0, "geo_key", _con_geo(geo))
@@ -143,6 +146,11 @@ def construir(*, contactos: pd.DataFrame | None = None, contenidos: pd.DataFrame
         r["fecha_key"] = int(pd.Timestamp(hoy or pd.Timestamp.today()).strftime("%Y%m%d"))
         t["fact_recomendaciones"] = r.rename(columns={"id_contacto": "contacto_key", "id_contenido": "contenido_key"})[
             ["contacto_key", "contenido_key", "fecha_key", "rango", "puntaje", "personalizado", "motivo"]]
+    if busquedas is not None and not busquedas.empty:
+        # La región de Trends no siempre coincide con una ciudad del censo: se cuelga del país.
+        b = busquedas.assign(ciudad="", barrio="")
+        t["fact_busquedas"] = pd.DataFrame({"geo_key": _con_geo(b), "region": b["region"], "termino": b["termino"],
+                                            "interes": b["interes"]})
     if consentimientos is not None and not consentimientos.empty:
         c = consentimientos
         t["fact_consentimientos"] = pd.DataFrame({
