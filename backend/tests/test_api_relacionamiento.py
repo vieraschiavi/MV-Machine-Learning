@@ -91,3 +91,21 @@ def test_rx_al_publico_solo_con_el_visto_de_legal_y_contactos_vacios(client, ids
     if up.status_code == 200:          # si la ingesta acepta una tabla sin filas, el análisis no da 500
         r = client.post("/api/relacionamiento/analizar", json={**base, "contactos_dataset_id": up.json()["dataset"]["id"]})
         assert r.status_code == 400, r.text
+
+
+def test_formulario_y_textos_de_consentimiento(client):
+    r = client.get("/api/relacionamiento/formulario", params={"idioma": "es", "accion": "https://crm.x/alta"})
+    assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
+    assert r.text.count('type="checkbox"') == 4
+    assert client.get("/api/relacionamiento/formulario", params={"accion": "javascript:alert(1)"}).status_code == 400
+    assert client.get("/api/relacionamiento/textos-consentimiento").json()["es"]["contacto"]["version"].startswith("v-")
+    assert client.get("/api/relacionamiento/plantilla/consentimientos").status_code == 200
+
+
+def test_revisar_catalogo_por_api(client, ids):
+    r = client.post("/api/relacionamiento/revisar-catalogo", json={
+        "contenidos_dataset_id": ids["contenidos_dataset_id"], "contactos_dataset_id": ids["contactos_dataset_id"]})
+    assert r.status_code == 200, r.text
+    j = r.json()
+    json.dumps(j, allow_nan=False)
+    assert j["listo"] is True and len(j["resumen"]) == 14 and all(f["alcance"] is not None for f in j["resumen"])

@@ -111,6 +111,33 @@ Cada recomendación trae su porqué en texto.
   eventos adversos** por producto propio para farmacovigilancia. Sin autores ni
   textos; celdas de menos de 5 menciones fuera.
 
+## Las cinco etapas para ponerlo en marcha
+
+1. **Validación legal** (`core/politicas_legales.py`). Las reglas de cada país
+   (promoción de receta y de venta libre al público, doble opt-in, tope de
+   envíos en 30 días) se guardan por workspace con historial. Aflojar una regla
+   exige la firma de legal (`validado_por`) y la norma que la respalda.
+   `GET /api/relacionamiento/politicas/planilla` baja un Excel con una pregunta
+   por regla y país; legal lo completa y `POST …/politicas/planilla` aplica sólo
+   las filas firmadas.
+2. **Captación** (`core/registro_consentimientos.py`). Un libro de eventos
+   (`otorga`, `retira`, `confirma`, `baja`) con fecha, canal y la versión del
+   texto aceptado (`v-` + hash del texto): el último evento de cada finalidad
+   manda sobre la tabla de contactos. `GET /api/relacionamiento/formulario` da
+   el formulario con las cuatro casillas sin marcar (contacto obligatorio) que
+   envía al CRM; `GET …/textos-consentimiento` da los textos en es y pt.
+3. **Catálogo** (`core/catalogo.py`). `POST /api/relacionamiento/revisar-catalogo`
+   revisa cada contenido antes de cargarlo (errores, avisos e información) y,
+   con la base de contactos, cuántas personas lo podrían recibir hoy.
+4. **Fuentes públicas** (`core/fuentes_publicas.py`). Prevalencias de la OMS
+   (hipertensión, diagnóstico y tratamiento; diabetes; obesidad), población por
+   sexo y edad del Banco Mundial, censos publicados a lo ancho y el CSV de
+   Google Trends. `POST /api/relacionamiento/fuentes/publicas` los guarda como
+   dataset; los supuestos de la OMS entran al agente de mercado con su
+   intervalo como mínimo y máximo.
+5. **Fabric** (`core/fabric_relacionamiento.py`). Ver abajo: carga incremental
+   por MERGE, modelo semántico en TMDL y notebook.
+
 ## Salida
 
 `POST /api/relacionamiento/exportar` (o `mv.relacionamiento_para_powerbi`):
@@ -119,11 +146,31 @@ Cada recomendación trae su porqué en texto.
 * `modelo_fabric/` — modelo estrella (`dim_geografia`, `dim_contacto`,
   `dim_contenido`, `dim_producto`, `dim_area`, `dim_fecha`,
   `puente_contacto_area`, `fact_interacciones`, `fact_recomendaciones`,
-  `fact_poblacion`, `fact_prevalencia`, `fact_escucha`, `fact_cobertura`) con
+  `fact_consentimientos`, `fact_busquedas`, `fact_poblacion`,
+  `fact_prevalencia`, `fact_escucha`, `fact_cobertura`) con
   `crear_tablas.sql` (Delta), `modelo.json` (relaciones) y
-  `cargar_en_lakehouse.py`. Claves estables por hash del nombre normalizado y
-  columnas `*_clave` para relacionarse con las dimensiones de Analysis
-  Services o del data warehouse.
+  `cargar_en_lakehouse.py` (primera carga). Claves estables por hash del
+  nombre normalizado y columnas `*_clave` para relacionarse con las
+  dimensiones de Analysis Services o del data warehouse.
+* `modelo_fabric/merge_incremental.py` y `notebook_relacionamiento.ipynb` — las
+  cargas siguientes. Las dimensiones hacen MERGE por su clave (actualiza y
+  agrega); los hechos y el puente reemplazan la porción que trae la carga (los
+  días de interacciones o consentimientos, la foto del día de recomendaciones,
+  las zonas de población y cobertura). Cada carga trae completos los días o
+  zonas que cubre: repetirla no duplica nada y dos clics iguales del mismo día
+  siguen siendo dos. El notebook termina contando claves huérfanas y con
+  `OPTIMIZE`. `fabric_relacionamiento.fusionar` es la misma lógica en pandas y
+  es la que prueban los tests.
+* `modelo_fabric/Relacionamiento.SemanticModel/` — el modelo semántico en TMDL,
+  Direct Lake sobre el Lakehouse, con la estructura que usa la integración de
+  Fabric con Git: tablas, relaciones (la de producto → área queda inactiva para
+  que no haya dos caminos) y medidas (contactables, envíos, tasas de apertura,
+  clic, conversión y baja, consentimientos otorgados y retirados, casos
+  estimados, penetración, sentimiento neto, interés de búsqueda). En
+  `definition/expressions.tmdl` se reemplazan `SERVIDOR_SQL_DEL_LAKEHOUSE` y
+  `NOMBRE_DEL_LAKEHOUSE` por los del workspace. Antes de escribirlo,
+  `verificar_tmdl` revisa que cada relación y cada medida apunten a algo que
+  existe.
 
 ## Derechos de la persona
 

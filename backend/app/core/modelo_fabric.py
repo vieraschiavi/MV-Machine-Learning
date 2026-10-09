@@ -22,7 +22,11 @@ Además de las tablas escribe:
 * ``crear_tablas.sql`` — el DDL de Spark SQL para crear las tablas Delta en el
   Lakehouse;
 * ``cargar_en_lakehouse.py`` — la celda de notebook que lee los archivos y los
-  guarda como tablas Delta.
+  guarda como tablas Delta (primera carga, todo de cero);
+* ``merge_incremental.py`` y ``notebook_relacionamiento.ipynb`` — las cargas
+  siguientes, por MERGE (``fabric_relacionamiento``);
+* ``Relacionamiento.SemanticModel/`` — el modelo semántico en TMDL (Direct Lake),
+  con medidas y relaciones, listo para la integración de Fabric con Git.
 """
 from __future__ import annotations
 
@@ -33,6 +37,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import fabric_relacionamiento as FR
 from .consentimiento import _clave
 from .powerbi_portafolio import FORMATOS, _escribir
 
@@ -56,9 +61,11 @@ RELACIONES = [  # (desde tabla, columna) → (hacia dimensión, columna): muchos
     ("fact_escucha", "fecha_key", "dim_fecha", "fecha_key"),
     ("fact_cobertura", "geo_key", "dim_geografia", "geo_key"),
     ("fact_cobertura", "area_key", "dim_area", "area_key"),
+    ("fact_consentimientos", "contacto_key", "dim_contacto", "contacto_key"),
+    ("fact_consentimientos", "fecha_key", "dim_fecha", "fecha_key"),
+    ("fact_busquedas", "geo_key", "dim_geografia", "geo_key"),
 ]
-_SQL = {"int64": "BIGINT", "Int64": "BIGINT", "int32": "INT", "float64": "DOUBLE", "bool": "BOOLEAN",
-        "datetime64[ns]": "DATE", "object": "STRING", "string": "STRING"}
+_SQL = {"int64": "BIGINT", "double": "DOUBLE", "boolean": "BOOLEAN", "dateTime": "DATE"}
 
 
 def clave(*partes: Any) -> int:
@@ -108,10 +115,12 @@ def construir(*, contactos: pd.DataFrame | None = None, contenidos: pd.DataFrame
               interacciones: pd.DataFrame | None = None, recomendaciones: pd.DataFrame | None = None,
               poblacion: pd.DataFrame | None = None, prevalencias: pd.DataFrame | None = None,
               escucha: pd.DataFrame | None = None, cobertura: pd.DataFrame | None = None,
+              consentimientos: pd.DataFrame | None = None, busquedas: pd.DataFrame | None = None,
               hoy: Any = None) -> dict[str, pd.DataFrame]:
     """Arma las dimensiones y los hechos con lo que haya. Las tablas preparadas por cada módulo."""
     t: dict[str, pd.DataFrame] = {}
-    geo = pd.concat([_geo(contactos), _geo(poblacion), _geo(prevalencias), _geo(escucha), _geo(cobertura)])
+    geo = pd.concat([_geo(contactos), _geo(poblacion), _geo(prevalencias), _geo(escucha), _geo(cobertura),
+                     _geo(busquedas[["pais"]] if busquedas is not None and len(busquedas) else None)])
     geo = geo.drop_duplicates().reset_index(drop=True)
     if not geo.empty:
         geo.insert(0, "geo_key", _con_geo(geo))
@@ -141,6 +150,17 @@ def construir(*, contactos: pd.DataFrame | None = None, contenidos: pd.DataFrame
         r["fecha_key"] = int(pd.Timestamp(hoy or pd.Timestamp.today()).strftime("%Y%m%d"))
         t["fact_recomendaciones"] = r.rename(columns={"id_contacto": "contacto_key", "id_contenido": "contenido_key"})[
             ["contacto_key", "contenido_key", "fecha_key", "rango", "puntaje", "personalizado", "motivo"]]
+    if busquedas is not None and not busquedas.empty:
+        # La región de Trends no siempre coincide con una ciudad del censo: se cuelga del país.
+        b = busquedas.assign(ciudad="", barrio="")
+        t["fact_busquedas"] = pd.DataFrame({"geo_key": _con_geo(b), "region": b["region"], "termino": b["termino"],
+                                            "interes": b["interes"]})
+    if consentimientos is not None and not consentimientos.empty:
+        c = consentimientos
+        t["fact_consentimientos"] = pd.DataFrame({
+            "contacto_key": c["id_contacto"].astype(str), "fecha_key": _fecha_key(c["fecha"]),
+            "finalidad": c["finalidad"], "accion": c["accion"], "canal": c["canal"],
+            "version_texto": c["version_texto"]})
     t.update(_publicos(poblacion, prevalencias, escucha, cobertura))
     fechas = [x["fecha_key"].astype(str) for x in t.values() if "fecha_key" in x.columns and len(x)]
     if fechas:
@@ -212,7 +232,10 @@ def _publicos(poblacion: pd.DataFrame | None, prevalencias: pd.DataFrame | None,
 
 
 def _tipo_sql(serie: pd.Series) -> str:
-    return _SQL.get(str(serie.dtype), "STRING")
+    # Por la familia del tipo y no por su nombre: pandas 3 escribe «str» y «datetime64[us]», que antes caían en STRING.
+    if str(serie.dtype) in ("int32", "Int32"):
+        return "INT"
+    return _SQL.get(FR.tipo_tmdl(serie), "STRING")
 
 
 def esquema(tablas: dict[str, pd.DataFrame]) -> dict[str, Any]:
@@ -237,7 +260,7 @@ CARPETA = "Files/mv/relacionamiento_modelo"
 TABLAS = {tablas}
 for t in TABLAS:
     df = {lector}
-    # Primera carga: overwrite. Las siguientes, con claves estables, pueden ser MERGE por la clave de cada tabla.
+    # Primera carga: overwrite. Las siguientes, por MERGE: merge_incremental.py o notebook_relacionamiento.ipynb.
     df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(t)
 '''
 
@@ -258,6 +281,7 @@ def escribir(carpeta: str | Path, tablas: dict[str, pd.DataFrame], formato: str 
                                                  encoding="utf-8")
     for extra in ("modelo.json", "crear_tablas.sql", "cargar_en_lakehouse.py"):
         salida[extra] = ruta / extra
+    salida.update(FR.escribir(ruta, tablas, formato=formato))
     return salida
 
 

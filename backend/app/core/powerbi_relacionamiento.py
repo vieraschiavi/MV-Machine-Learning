@@ -15,6 +15,7 @@ Una tabla por archivo (Parquet o CSV), con el prefijo ``relacionamiento_``:
 | escucha_menciones | país · semana · tema: menciones y sentimiento (agregado) |
 | escucha_terminos | tema · término frecuente |
 | farmacovigilancia | producto: menciones con lenguaje de posible evento adverso |
+| busquedas | país · región · término: interés de búsqueda relativo (Google Trends, agregado) |
 
 Más ``medidas_relacionamiento.dax``. La tabla de recomendaciones va entera
 (la pantalla muestra una muestra): es la que el CRM levanta para enviar.
@@ -34,7 +35,7 @@ ETAPAS = ("captados", "contactables", "con_marketing", "con_salud", "con_perfila
           "activos", "convertidos")
 TABLAS = ("contenidos", "recomendaciones", "bloqueos", "envios_no_elegibles", "frecuencia_excedida",
           "politicas")
-OPCIONALES = ("cobertura", "escucha_menciones", "escucha_terminos", "farmacovigilancia")
+OPCIONALES = ("cobertura", "escucha_menciones", "escucha_terminos", "farmacovigilancia", "busquedas")
 
 
 def tablas(r: dict[str, Any]) -> dict[str, pd.DataFrame]:
