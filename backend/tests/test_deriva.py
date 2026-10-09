@@ -37,6 +37,29 @@ def test_otra_muestra_del_mismo_proceso_queda_estable():
     assert r["nivel"] == "estable"
 
 
+def test_con_una_referencia_chica_el_ruido_de_muestreo_no_es_deriva():
+    # Una referencia de 120 filas (el holdout de un dataset chico) contra 1.200 nuevas del MISMO
+    # proceso: el PSI crudo ronda el umbral de 0,10 sólo por azar. No puede dar falsas alarmas.
+    alarmas = 0
+    for semilla in range(40):
+        r = D.comparar(D.perfilar_columna(_normal(120, semilla=semilla)), _normal(1200, semilla=1000 + semilla))
+        assert r["ruido"] > 0
+        alarmas += r["nivel"] != "estable"
+    assert alarmas <= 4          # el corte es el percentil 95 del ruido: a lo sumo un 10 % de 40
+
+
+def test_con_una_referencia_chica_un_corrimiento_real_se_sigue_detectando():
+    r = D.comparar(D.perfilar_columna(_normal(120, semilla=3)), _normal(1200, media=1.0, semilla=4))
+    assert r["psi"] > r["ruido"] and r["nivel"] == "fuerte"
+
+
+def test_un_perfil_viejo_sin_tamano_usa_solo_los_umbrales():
+    perfil = D.perfilar_columna(_normal(120, semilla=5))
+    perfil.pop("n")
+    r = D.comparar(perfil, _normal(1200, media=1.0, semilla=6))
+    assert r["ruido"] == 0 and r["nivel"] == "fuerte"
+
+
 def test_un_corrimiento_de_una_desviacion_es_deriva_fuerte():
     r = D.comparar(D.perfilar_columna(_normal(5000)), _normal(5000, media=1.0, semilla=3))
     assert r["psi"] >= D.UMBRAL_FUERTE

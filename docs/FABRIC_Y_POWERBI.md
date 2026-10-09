@@ -212,6 +212,11 @@ guardó al entrenar: una fila por variable con su PSI, su nivel (`estable`,
 "fuerte"` sale la lista de lo que se movió. En una celda, sin Power BI:
 `modelo.deriva(datos)["veredicto"]`.
 
+Para el tablero de **portafolio y mercado** (matriz de contribución por área
+terapéutica, mercado latente, lanzamientos) hay una salida aparte,
+`mv.portafolio_para_powerbi(...)`, con su tema, sus medidas DAX y la matriz de
+burbujas para Deneb: ver [`PORTAFOLIO_Y_MERCADO.md`](PORTAFOLIO_Y_MERCADO.md).
+
 Con `formato="csv"` escribe CSV en vez de Parquet, para un Power BI que lea de
 una carpeta común en vez del Lakehouse.
 

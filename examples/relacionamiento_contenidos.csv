@@ -1,0 +1,15 @@
+id_contenido,titulo,tipo,area_terapeutica,producto,condicion_venta,audiencia,paises,canal
+K-01,Conocé tu presión arterial,concientizacion,Cardiometabólica,,,publico,*,email
+K-02,Diabetes: señales que conviene consultar,concientizacion,Diabetes,,,publico,*,email
+K-03,Huesos fuertes después de los 50,concientizacion,Salud ósea,,,publico,*,email
+K-04,Programa Vasotril Contigo (adherencia),programa_paciente,Cardiometabólica,Vasotril,receta,paciente,*,email
+K-05,Programa Glucofin Acompaña,programa_paciente,Diabetes,Glucofin,receta,paciente,*,email
+K-06,Descuento en farmacia para Vasotril,beneficio,Cardiometabólica,Vasotril,receta,paciente,*,email
+K-07,Vasotril AM: nueva presentación,promocion_marca,Cardiometabólica,Vasotril,receta,todos,*,email
+K-08,Glucofin XR: estudio de eficacia,educacion_medica,Diabetes,Glucofin,receta,profesional,*,email
+K-09,Guía de hipertensión resistente,educacion_medica,Cardiometabólica,,,profesional,*,email
+K-10,Vitalix: energía para tu día,promocion_marca,Bienestar,Vitalix,venta_libre,todos,*,email
+K-11,2x1 en Vitalix,beneficio,Bienestar,Vitalix,venta_libre,paciente,*,email
+K-12,Calcimar D: calcio con vitamina D,promocion_marca,Salud ósea,Calcimar D,venta_libre,todos,*,email
+K-13,Recetas bajas en sal,concientizacion,Cardiometabólica,,,publico,*,email
+K-14,Moverse 30 minutos al día,concientizacion,,,,publico,*,email

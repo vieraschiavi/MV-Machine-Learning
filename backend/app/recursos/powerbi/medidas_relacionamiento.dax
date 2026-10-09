@@ -1,0 +1,106 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Medidas del tablero «Relacionamiento» (MV AutoML Studio).
+//
+// Se pegan en Power BI Desktop: Modelado → Nueva medida, una por una, o en la
+// vista TMDL. Suponen las tablas con el nombre de los archivos que escribe
+// `mv.relacionamiento_para_powerbi(...)`: relacionamiento_embudo,
+// relacionamiento_contenidos, relacionamiento_recomendaciones,
+// relacionamiento_bloqueos, relacionamiento_envios_no_elegibles,
+// relacionamiento_frecuencia_excedida y relacionamiento_politicas.
+//
+// El embudo trae una fila «Total» por etapa además de cada país. Sin filtro de
+// país las medidas leen esa fila; con un país elegido, las de ese país. Así no
+// se cuenta dos veces a nadie.
+// ─────────────────────────────────────────────────────────────────────────────
+
+Personas =
+    IF (
+        ISFILTERED ( relacionamiento_embudo[pais] ),
+        CALCULATE ( SUM ( relacionamiento_embudo[personas] ), relacionamiento_embudo[pais] <> "Total" ),
+        CALCULATE ( SUM ( relacionamiento_embudo[personas] ), relacionamiento_embudo[pais] = "Total" )
+    )
+
+Captados =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "captados" )
+
+Contactables =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "contactables" )
+
+Con marketing =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "con_marketing" )
+
+Con salud =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "con_salud" )
+
+Alcanzados =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "alcanzados" )
+
+Activos =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "activos" )
+
+Convertidos =
+    CALCULATE ( [Personas], relacionamiento_embudo[etapa] = "convertidos" )
+
+% contactable =
+    DIVIDE ( [Contactables], [Captados] )
+
+% con consentimiento comercial =
+    DIVIDE ( [Con marketing], [Contactables] )
+
+% conversion de alcanzados =
+    DIVIDE ( [Convertidos], [Alcanzados] )
+
+// ── desempeño de contenidos ─────────────────────────────────────────────────
+Envios =
+    SUM ( relacionamiento_contenidos[envios] )
+
+Aperturas =
+    SUM ( relacionamiento_contenidos[aperturas] )
+
+Clics =
+    SUM ( relacionamiento_contenidos[clics] )
+
+Conversiones =
+    SUM ( relacionamiento_contenidos[conversiones] )
+
+Tasa de apertura =
+    DIVIDE ( [Aperturas], [Envios] )
+
+CTR =
+    DIVIDE ( [Clics], [Envios] )
+
+Tasa de conversion =
+    DIVIDE ( [Conversiones], [Envios] )
+
+Tasa de baja =
+    DIVIDE ( SUM ( relacionamiento_contenidos[bajas] ), [Envios] )
+
+Tasa de queja =
+    DIVIDE ( SUM ( relacionamiento_contenidos[quejas] ), [Envios] )
+
+// ── cumplimiento ────────────────────────────────────────────────────────────
+Envios no elegibles =
+    SUM ( relacionamiento_envios_no_elegibles[envios] ) + 0
+
+Pares bloqueados =
+    SUM ( relacionamiento_bloqueos[pares] )
+
+Contactos sobre el tope =
+    SUM ( relacionamiento_frecuencia_excedida[contactos_sobre_el_tope] ) + 0
+
+Paises sin validar por legal =
+    CALCULATE ( COUNTROWS ( relacionamiento_politicas ), relacionamiento_politicas[validado_por_legal] = FALSE () ) + 0
+
+// Semáforo de la tarjeta de cumplimiento (formato condicional → Valor de campo)
+Color cumplimiento =
+    IF ( [Envios no elegibles] + [Contactos sobre el tope] = 0, "#2E9F5B", "#D64545" )
+
+// ── recomendaciones ─────────────────────────────────────────────────────────
+Recomendaciones =
+    COUNTROWS ( relacionamiento_recomendaciones )
+
+% personalizadas =
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( relacionamiento_recomendaciones ), relacionamiento_recomendaciones[personalizado] = TRUE () ),
+        [Recomendaciones]
+    )

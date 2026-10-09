@@ -1,0 +1,325 @@
+pais,ciudad,barrio,sexo,rango_edad,nse,poblacion
+México,Ciudad de México,,Mujeres,18-39,alto,111408
+México,Ciudad de México,,Mujeres,18-39,medio,371362
+México,Ciudad de México,,Mujeres,18-39,bajo,259953
+México,Ciudad de México,,Mujeres,40-59,alto,87535
+México,Ciudad de México,,Mujeres,40-59,medio,291784
+México,Ciudad de México,,Mujeres,40-59,bajo,204249
+México,Ciudad de México,,Mujeres,60+,alto,66314
+México,Ciudad de México,,Mujeres,60+,medio,221049
+México,Ciudad de México,,Mujeres,60+,bajo,154734
+México,Ciudad de México,,Hombres,18-39,alto,102838
+México,Ciudad de México,,Hombres,18-39,medio,342796
+México,Ciudad de México,,Hombres,18-39,bajo,239957
+México,Ciudad de México,,Hombres,40-59,alto,80801
+México,Ciudad de México,,Hombres,40-59,medio,269339
+México,Ciudad de México,,Hombres,40-59,bajo,188537
+México,Ciudad de México,,Hombres,60+,alto,61213
+México,Ciudad de México,,Hombres,60+,medio,204045
+México,Ciudad de México,,Hombres,60+,bajo,142831
+México,Guadalajara,,Mujeres,18-39,alto,33644
+México,Guadalajara,,Mujeres,18-39,medio,112149
+México,Guadalajara,,Mujeres,18-39,bajo,78504
+México,Guadalajara,,Mujeres,40-59,alto,26435
+México,Guadalajara,,Mujeres,40-59,medio,88117
+México,Guadalajara,,Mujeres,40-59,bajo,61682
+México,Guadalajara,,Mujeres,60+,alto,20026
+México,Guadalajara,,Mujeres,60+,medio,66755
+México,Guadalajara,,Mujeres,60+,bajo,46729
+México,Guadalajara,,Hombres,18-39,alto,31056
+México,Guadalajara,,Hombres,18-39,medio,103522
+México,Guadalajara,,Hombres,18-39,bajo,72465
+México,Guadalajara,,Hombres,40-59,alto,24401
+México,Guadalajara,,Hombres,40-59,medio,81339
+México,Guadalajara,,Hombres,40-59,bajo,56937
+México,Guadalajara,,Hombres,60+,alto,18486
+México,Guadalajara,,Hombres,60+,medio,61620
+México,Guadalajara,,Hombres,60+,bajo,43134
+México,Monterrey,,Mujeres,18-39,alto,71821
+México,Monterrey,,Mujeres,18-39,medio,239404
+México,Monterrey,,Mujeres,18-39,bajo,167583
+México,Monterrey,,Mujeres,40-59,alto,56431
+México,Monterrey,,Mujeres,40-59,medio,188103
+México,Monterrey,,Mujeres,40-59,bajo,131672
+México,Monterrey,,Mujeres,60+,alto,42750
+México,Monterrey,,Mujeres,60+,medio,142502
+México,Monterrey,,Mujeres,60+,bajo,99751
+México,Monterrey,,Hombres,18-39,alto,66296
+México,Monterrey,,Hombres,18-39,medio,220988
+México,Monterrey,,Hombres,18-39,bajo,154692
+México,Monterrey,,Hombres,40-59,alto,52090
+México,Monterrey,,Hombres,40-59,medio,173634
+México,Monterrey,,Hombres,40-59,bajo,121543
+México,Monterrey,,Hombres,60+,alto,39462
+México,Monterrey,,Hombres,60+,medio,131541
+México,Monterrey,,Hombres,60+,bajo,92078
+Argentina,Buenos Aires,,Mujeres,18-39,alto,80754
+Argentina,Buenos Aires,,Mujeres,18-39,medio,269180
+Argentina,Buenos Aires,,Mujeres,18-39,bajo,188426
+Argentina,Buenos Aires,,Mujeres,40-59,alto,63449
+Argentina,Buenos Aires,,Mujeres,40-59,medio,211498
+Argentina,Buenos Aires,,Mujeres,40-59,bajo,148049
+Argentina,Buenos Aires,,Mujeres,60+,alto,48067
+Argentina,Buenos Aires,,Mujeres,60+,medio,160226
+Argentina,Buenos Aires,,Mujeres,60+,bajo,112158
+Argentina,Buenos Aires,,Hombres,18-39,alto,74542
+Argentina,Buenos Aires,,Hombres,18-39,medio,248473
+Argentina,Buenos Aires,,Hombres,18-39,bajo,173931
+Argentina,Buenos Aires,,Hombres,40-59,alto,58568
+Argentina,Buenos Aires,,Hombres,40-59,medio,195229
+Argentina,Buenos Aires,,Hombres,40-59,bajo,136660
+Argentina,Buenos Aires,,Hombres,60+,alto,44370
+Argentina,Buenos Aires,,Hombres,60+,medio,147901
+Argentina,Buenos Aires,,Hombres,60+,bajo,103530
+Argentina,Córdoba,,Mujeres,18-39,alto,38631
+Argentina,Córdoba,,Mujeres,18-39,medio,128770
+Argentina,Córdoba,,Mujeres,18-39,bajo,90139
+Argentina,Córdoba,,Mujeres,40-59,alto,30353
+Argentina,Córdoba,,Mujeres,40-59,medio,101177
+Argentina,Córdoba,,Mujeres,40-59,bajo,70823
+Argentina,Córdoba,,Mujeres,60+,alto,22994
+Argentina,Córdoba,,Mujeres,60+,medio,76649
+Argentina,Córdoba,,Mujeres,60+,bajo,53654
+Argentina,Córdoba,,Hombres,18-39,alto,35659
+Argentina,Córdoba,,Hombres,18-39,medio,118865
+Argentina,Córdoba,,Hombres,18-39,bajo,83205
+Argentina,Córdoba,,Hombres,40-59,alto,28018
+Argentina,Córdoba,,Hombres,40-59,medio,93394
+Argentina,Córdoba,,Hombres,40-59,bajo,65375
+Argentina,Córdoba,,Hombres,60+,alto,21225
+Argentina,Córdoba,,Hombres,60+,medio,70753
+Argentina,Córdoba,,Hombres,60+,bajo,49527
+Argentina,Rosario,,Mujeres,18-39,alto,35450
+Argentina,Rosario,,Mujeres,18-39,medio,118169
+Argentina,Rosario,,Mujeres,18-39,bajo,82718
+Argentina,Rosario,,Mujeres,40-59,alto,27854
+Argentina,Rosario,,Mujeres,40-59,medio,92847
+Argentina,Rosario,,Mujeres,40-59,bajo,64993
+Argentina,Rosario,,Mujeres,60+,alto,21101
+Argentina,Rosario,,Mujeres,60+,medio,70339
+Argentina,Rosario,,Mujeres,60+,bajo,49237
+Argentina,Rosario,,Hombres,18-39,alto,32723
+Argentina,Rosario,,Hombres,18-39,medio,109079
+Argentina,Rosario,,Hombres,18-39,bajo,76355
+Argentina,Rosario,,Hombres,40-59,alto,25711
+Argentina,Rosario,,Hombres,40-59,medio,85705
+Argentina,Rosario,,Hombres,40-59,bajo,59993
+Argentina,Rosario,,Hombres,60+,alto,19478
+Argentina,Rosario,,Hombres,60+,medio,64928
+Argentina,Rosario,,Hombres,60+,bajo,45449
+Colombia,Bogotá,,Mujeres,18-39,alto,101628
+Colombia,Bogotá,,Mujeres,18-39,medio,338761
+Colombia,Bogotá,,Mujeres,18-39,bajo,237132
+Colombia,Bogotá,,Mujeres,40-59,alto,79850
+Colombia,Bogotá,,Mujeres,40-59,medio,266169
+Colombia,Bogotá,,Mujeres,40-59,bajo,186318
+Colombia,Bogotá,,Mujeres,60+,alto,60493
+Colombia,Bogotá,,Mujeres,60+,medio,201643
+Colombia,Bogotá,,Mujeres,60+,bajo,141150
+Colombia,Bogotá,,Hombres,18-39,alto,93810
+Colombia,Bogotá,,Hombres,18-39,medio,312702
+Colombia,Bogotá,,Hombres,18-39,bajo,218891
+Colombia,Bogotá,,Hombres,40-59,alto,73708
+Colombia,Bogotá,,Hombres,40-59,medio,245695
+Colombia,Bogotá,,Hombres,40-59,bajo,171986
+Colombia,Bogotá,,Hombres,60+,alto,55839
+Colombia,Bogotá,,Hombres,60+,medio,186132
+Colombia,Bogotá,,Hombres,60+,bajo,130292
+Colombia,Medellín,,Mujeres,18-39,alto,91842
+Colombia,Medellín,,Mujeres,18-39,medio,306141
+Colombia,Medellín,,Mujeres,18-39,bajo,214298
+Colombia,Medellín,,Mujeres,40-59,alto,72161
+Colombia,Medellín,,Mujeres,40-59,medio,240539
+Colombia,Medellín,,Mujeres,40-59,bajo,168377
+Colombia,Medellín,,Mujeres,60+,alto,54668
+Colombia,Medellín,,Mujeres,60+,medio,182226
+Colombia,Medellín,,Mujeres,60+,bajo,127558
+Colombia,Medellín,,Hombres,18-39,alto,84777
+Colombia,Medellín,,Hombres,18-39,medio,282591
+Colombia,Medellín,,Hombres,18-39,bajo,197814
+Colombia,Medellín,,Hombres,40-59,alto,66610
+Colombia,Medellín,,Hombres,40-59,medio,222036
+Colombia,Medellín,,Hombres,40-59,bajo,155425
+Colombia,Medellín,,Hombres,60+,alto,50462
+Colombia,Medellín,,Hombres,60+,medio,168209
+Colombia,Medellín,,Hombres,60+,bajo,117746
+Chile,Santiago,,Mujeres,18-39,alto,117307
+Chile,Santiago,,Mujeres,18-39,medio,391025
+Chile,Santiago,,Mujeres,18-39,bajo,273717
+Chile,Santiago,,Mujeres,40-59,alto,92170
+Chile,Santiago,,Mujeres,40-59,medio,307234
+Chile,Santiago,,Mujeres,40-59,bajo,215063
+Chile,Santiago,,Mujeres,60+,alto,69825
+Chile,Santiago,,Mujeres,60+,medio,232753
+Chile,Santiago,,Mujeres,60+,bajo,162927
+Chile,Santiago,,Hombres,18-39,alto,108283
+Chile,Santiago,,Hombres,18-39,medio,360946
+Chile,Santiago,,Hombres,18-39,bajo,252662
+Chile,Santiago,,Hombres,40-59,alto,85080
+Chile,Santiago,,Hombres,40-59,medio,283600
+Chile,Santiago,,Hombres,40-59,bajo,198520
+Chile,Santiago,,Hombres,60+,alto,64454
+Chile,Santiago,,Hombres,60+,medio,214849
+Chile,Santiago,,Hombres,60+,bajo,150394
+Chile,Valparaíso,,Mujeres,18-39,alto,43296
+Chile,Valparaíso,,Mujeres,18-39,medio,144321
+Chile,Valparaíso,,Mujeres,18-39,bajo,101025
+Chile,Valparaíso,,Mujeres,40-59,alto,34018
+Chile,Valparaíso,,Mujeres,40-59,medio,113395
+Chile,Valparaíso,,Mujeres,40-59,bajo,79376
+Chile,Valparaíso,,Mujeres,60+,alto,25771
+Chile,Valparaíso,,Mujeres,60+,medio,85905
+Chile,Valparaíso,,Mujeres,60+,bajo,60133
+Chile,Valparaíso,,Hombres,18-39,alto,39965
+Chile,Valparaíso,,Hombres,18-39,medio,133219
+Chile,Valparaíso,,Hombres,18-39,bajo,93253
+Chile,Valparaíso,,Hombres,40-59,alto,31401
+Chile,Valparaíso,,Hombres,40-59,medio,104672
+Chile,Valparaíso,,Hombres,40-59,bajo,73270
+Chile,Valparaíso,,Hombres,60+,alto,23789
+Chile,Valparaíso,,Hombres,60+,medio,79297
+Chile,Valparaíso,,Hombres,60+,bajo,55508
+Uruguay,Montevideo,Pocitos,Mujeres,18-39,alto,13418
+Uruguay,Montevideo,Pocitos,Mujeres,18-39,medio,9758
+Uruguay,Montevideo,Pocitos,Mujeres,18-39,bajo,1219
+Uruguay,Montevideo,Pocitos,Mujeres,40-59,alto,10542
+Uruguay,Montevideo,Pocitos,Mujeres,40-59,medio,7667
+Uruguay,Montevideo,Pocitos,Mujeres,40-59,bajo,958
+Uruguay,Montevideo,Pocitos,Mujeres,60+,alto,7986
+Uruguay,Montevideo,Pocitos,Mujeres,60+,medio,5808
+Uruguay,Montevideo,Pocitos,Mujeres,60+,bajo,726
+Uruguay,Montevideo,Pocitos,Hombres,18-39,alto,12385
+Uruguay,Montevideo,Pocitos,Hombres,18-39,medio,9007
+Uruguay,Montevideo,Pocitos,Hombres,18-39,bajo,1125
+Uruguay,Montevideo,Pocitos,Hombres,40-59,alto,9731
+Uruguay,Montevideo,Pocitos,Hombres,40-59,medio,7077
+Uruguay,Montevideo,Pocitos,Hombres,40-59,bajo,884
+Uruguay,Montevideo,Pocitos,Hombres,60+,alto,7372
+Uruguay,Montevideo,Pocitos,Hombres,60+,medio,5361
+Uruguay,Montevideo,Pocitos,Hombres,60+,bajo,670
+Uruguay,Montevideo,Cordón,Mujeres,18-39,alto,4518
+Uruguay,Montevideo,Cordón,Mujeres,18-39,medio,13556
+Uruguay,Montevideo,Cordón,Mujeres,18-39,bajo,4518
+Uruguay,Montevideo,Cordón,Mujeres,40-59,alto,3550
+Uruguay,Montevideo,Cordón,Mujeres,40-59,medio,10651
+Uruguay,Montevideo,Cordón,Mujeres,40-59,bajo,3550
+Uruguay,Montevideo,Cordón,Mujeres,60+,alto,2689
+Uruguay,Montevideo,Cordón,Mujeres,60+,medio,8069
+Uruguay,Montevideo,Cordón,Mujeres,60+,bajo,2689
+Uruguay,Montevideo,Cordón,Hombres,18-39,alto,4171
+Uruguay,Montevideo,Cordón,Hombres,18-39,medio,12513
+Uruguay,Montevideo,Cordón,Hombres,18-39,bajo,4171
+Uruguay,Montevideo,Cordón,Hombres,40-59,alto,3277
+Uruguay,Montevideo,Cordón,Hombres,40-59,medio,9831
+Uruguay,Montevideo,Cordón,Hombres,40-59,bajo,3277
+Uruguay,Montevideo,Cordón,Hombres,60+,alto,2482
+Uruguay,Montevideo,Cordón,Hombres,60+,medio,7448
+Uruguay,Montevideo,Cordón,Hombres,60+,bajo,2482
+Uruguay,Montevideo,Malvín,Mujeres,18-39,alto,8630
+Uruguay,Montevideo,Malvín,Mujeres,18-39,medio,13562
+Uruguay,Montevideo,Malvín,Mujeres,18-39,bajo,2465
+Uruguay,Montevideo,Malvín,Mujeres,40-59,alto,6781
+Uruguay,Montevideo,Malvín,Mujeres,40-59,medio,10656
+Uruguay,Montevideo,Malvín,Mujeres,40-59,bajo,1937
+Uruguay,Montevideo,Malvín,Mujeres,60+,alto,5137
+Uruguay,Montevideo,Malvín,Mujeres,60+,medio,8073
+Uruguay,Montevideo,Malvín,Mujeres,60+,bajo,1467
+Uruguay,Montevideo,Malvín,Hombres,18-39,alto,7966
+Uruguay,Montevideo,Malvín,Hombres,18-39,medio,12519
+Uruguay,Montevideo,Malvín,Hombres,18-39,bajo,2276
+Uruguay,Montevideo,Malvín,Hombres,40-59,alto,6259
+Uruguay,Montevideo,Malvín,Hombres,40-59,medio,9836
+Uruguay,Montevideo,Malvín,Hombres,40-59,bajo,1788
+Uruguay,Montevideo,Malvín,Hombres,60+,alto,4742
+Uruguay,Montevideo,Malvín,Hombres,60+,medio,7452
+Uruguay,Montevideo,Malvín,Hombres,60+,bajo,1354
+Uruguay,Montevideo,Cerro,Mujeres,18-39,alto,989
+Uruguay,Montevideo,Cerro,Mujeres,18-39,medio,12206
+Uruguay,Montevideo,Cerro,Mujeres,18-39,bajo,19793
+Uruguay,Montevideo,Cerro,Mujeres,40-59,alto,777
+Uruguay,Montevideo,Cerro,Mujeres,40-59,medio,9590
+Uruguay,Montevideo,Cerro,Mujeres,40-59,bajo,15552
+Uruguay,Montevideo,Cerro,Mujeres,60+,alto,589
+Uruguay,Montevideo,Cerro,Mujeres,60+,medio,7265
+Uruguay,Montevideo,Cerro,Mujeres,60+,bajo,11781
+Uruguay,Montevideo,Cerro,Hombres,18-39,alto,913
+Uruguay,Montevideo,Cerro,Hombres,18-39,medio,11267
+Uruguay,Montevideo,Cerro,Hombres,18-39,bajo,18271
+Uruguay,Montevideo,Cerro,Hombres,40-59,alto,717
+Uruguay,Montevideo,Cerro,Hombres,40-59,medio,8852
+Uruguay,Montevideo,Cerro,Hombres,40-59,bajo,14355
+Uruguay,Montevideo,Cerro,Hombres,60+,alto,543
+Uruguay,Montevideo,Cerro,Hombres,60+,medio,6706
+Uruguay,Montevideo,Cerro,Hombres,60+,bajo,10875
+Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,alto,293
+Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,medio,4841
+Uruguay,Montevideo,Piedras Blancas,Mujeres,18-39,bajo,9537
+Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,alto,230
+Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,medio,3804
+Uruguay,Montevideo,Piedras Blancas,Mujeres,40-59,bajo,7493
+Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,alto,174
+Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,medio,2882
+Uruguay,Montevideo,Piedras Blancas,Mujeres,60+,bajo,5676
+Uruguay,Montevideo,Piedras Blancas,Hombres,18-39,alto,270
+Uruguay,Montevideo,Piedras Blancas,Hombres,18-39,medio,4469
+Uruguay,Montevideo,Piedras Blancas,Hombres,18-39,bajo,8803
+Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,alto,212
+Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,medio,3511
+Uruguay,Montevideo,Piedras Blancas,Hombres,40-59,bajo,6917
+Uruguay,Montevideo,Piedras Blancas,Hombres,60+,alto,161
+Uruguay,Montevideo,Piedras Blancas,Hombres,60+,medio,2660
+Uruguay,Montevideo,Piedras Blancas,Hombres,60+,bajo,5240
+Brasil,São Paulo,,Mujeres,18-39,alto,124073
+Brasil,São Paulo,,Mujeres,18-39,medio,413576
+Brasil,São Paulo,,Mujeres,18-39,bajo,289503
+Brasil,São Paulo,,Mujeres,40-59,alto,97485
+Brasil,São Paulo,,Mujeres,40-59,medio,324953
+Brasil,São Paulo,,Mujeres,40-59,bajo,227467
+Brasil,São Paulo,,Mujeres,60+,alto,73853
+Brasil,São Paulo,,Mujeres,60+,medio,246176
+Brasil,São Paulo,,Mujeres,60+,bajo,172323
+Brasil,São Paulo,,Hombres,18-39,alto,114528
+Brasil,São Paulo,,Hombres,18-39,medio,381763
+Brasil,São Paulo,,Hombres,18-39,bajo,267234
+Brasil,São Paulo,,Hombres,40-59,alto,89987
+Brasil,São Paulo,,Hombres,40-59,medio,299956
+Brasil,São Paulo,,Hombres,40-59,bajo,209969
+Brasil,São Paulo,,Hombres,60+,alto,68172
+Brasil,São Paulo,,Hombres,60+,medio,227240
+Brasil,São Paulo,,Hombres,60+,bajo,159068
+Brasil,Rio de Janeiro,,Mujeres,18-39,alto,28635
+Brasil,Rio de Janeiro,,Mujeres,18-39,medio,95450
+Brasil,Rio de Janeiro,,Mujeres,18-39,bajo,66815
+Brasil,Rio de Janeiro,,Mujeres,40-59,alto,22499
+Brasil,Rio de Janeiro,,Mujeres,40-59,medio,74997
+Brasil,Rio de Janeiro,,Mujeres,40-59,bajo,52497
+Brasil,Rio de Janeiro,,Mujeres,60+,alto,17044
+Brasil,Rio de Janeiro,,Mujeres,60+,medio,56815
+Brasil,Rio de Janeiro,,Mujeres,60+,bajo,39771
+Brasil,Rio de Janeiro,,Hombres,18-39,alto,26432
+Brasil,Rio de Janeiro,,Hombres,18-39,medio,88108
+Brasil,Rio de Janeiro,,Hombres,18-39,bajo,61675
+Brasil,Rio de Janeiro,,Hombres,40-59,alto,20768
+Brasil,Rio de Janeiro,,Hombres,40-59,medio,69228
+Brasil,Rio de Janeiro,,Hombres,40-59,bajo,48459
+Brasil,Rio de Janeiro,,Hombres,60+,alto,15733
+Brasil,Rio de Janeiro,,Hombres,60+,medio,52445
+Brasil,Rio de Janeiro,,Hombres,60+,bajo,36711
+Perú,Lima,,Mujeres,18-39,alto,88364
+Perú,Lima,,Mujeres,18-39,medio,294547
+Perú,Lima,,Mujeres,18-39,bajo,206183
+Perú,Lima,,Mujeres,40-59,alto,69429
+Perú,Lima,,Mujeres,40-59,medio,231430
+Perú,Lima,,Mujeres,40-59,bajo,162001
+Perú,Lima,,Mujeres,60+,alto,52597
+Perú,Lima,,Mujeres,60+,medio,175326
+Perú,Lima,,Mujeres,60+,bajo,122728
+Perú,Lima,,Hombres,18-39,alto,81567
+Perú,Lima,,Hombres,18-39,medio,271890
+Perú,Lima,,Hombres,18-39,bajo,190323
+Perú,Lima,,Hombres,40-59,alto,64088
+Perú,Lima,,Hombres,40-59,medio,213628
+Perú,Lima,,Hombres,40-59,bajo,149539
+Perú,Lima,,Hombres,60+,alto,48551
+Perú,Lima,,Hombres,60+,medio,161839
+Perú,Lima,,Hombres,60+,bajo,113287

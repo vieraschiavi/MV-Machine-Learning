@@ -398,3 +398,66 @@ function legend(box, labels) {
   });
   box.appendChild(row);
 }
+
+/* ── matriz de burbujas: contribución × evolución del mix ───────────────────
+ *
+ * El formato de la lámina de portafolio. El eje Y va en tres franjas iguales
+ * —baja, media y alta contribución— y no en escala lineal: con un mercado del
+ * 30 % y varios del 2 %, la escala lineal aplasta a los chicos contra el piso
+ * y no se lee ninguno. Dentro de cada franja la altura sí es proporcional.
+ * El eje X es el índice de mix (0 = todo monoterapia, 1 = todo en el último
+ * escalón) o, sin mix, el crecimiento, recortado a ±50 %.
+ */
+export function bubbles(items, { title, width = 900, height = 420, alta = 0.10, media = 0.03,
+  zonas = ['', '', ''], niveles = ['', '', ''], ejeX = 'mix' } = {}) {
+  const { box, svg } = frame(width, height, title);
+  if (!items.length) return box;
+  const pad = { t: 28, r: 18, b: 44, l: 92 };
+  const W = width - pad.l - pad.r;
+  const H = height - pad.t - pad.b;
+  const cmax = Math.max(...items.map((d) => d.contribucion), alta + 1e-6);
+  // Una entidad con ventas netas negativas (devoluciones) va al piso de la franja baja.
+  const piso = (c) => Math.max(c, 0);
+  const franja = (c) => (c < media ? 0.4 + 0.5 * (c / media)
+    : c <= alta ? 1.15 + 0.7 * ((c - media) / (alta - media))
+      : 2.15 + 0.55 * ((c - alta) / (cmax - alta)));
+  const posX = (d) => (ejeX === 'mix' ? d.x : Math.max(-0.5, Math.min(0.5, d.x)) + 0.5);
+  const X = (v) => pad.l + ((v + 0.05) / 1.1) * W;
+  const Y = (v) => pad.t + H - (v / 3) * H;
+  ['zona-1', 'zona-2', 'zona-3'].forEach((cls, i) => {
+    const x0 = X(i === 0 ? -0.05 : i / 3);
+    const x1 = X(i === 2 ? 1.05 : (i + 1) / 3);
+    svg.appendChild(svgEl('rect', { class: cls, x: x0, y: pad.t, width: x1 - x0, height: H }));
+    const lbl = svgEl('text', { x: (x0 + x1) / 2, y: height - pad.b + 18, 'text-anchor': 'middle' });
+    lbl.textContent = zonas[i];
+    svg.appendChild(lbl);
+  });
+  [1, 2].forEach((v) => svg.appendChild(svgEl('line', {
+    class: 'grid-line', x1: pad.l, x2: width - pad.r, y1: Y(v), y2: Y(v) })));
+  niveles.forEach((txt, i) => {
+    const lbl = svgEl('text', { x: pad.l - 8, y: Y(i + 0.5) + 3.5, 'text-anchor': 'end' });
+    lbl.textContent = txt;
+    svg.appendChild(lbl);
+  });
+  const rmax = Math.min(W, H) / 9;
+  const radio = (c) => Math.max(9, rmax * Math.sqrt(Math.max(c, 0) / cmax));
+  [...items].sort((a, b) => b.contribucion - a.contribucion).forEach((d) => {
+    const cx = X(posX(d));
+    const cy = Y(franja(piso(d.contribucion)));
+    const r = radio(d.contribucion);
+    const c = svgEl('circle', { class: `burbuja ${d.accion || ''}`, cx, cy, r });
+    c.appendChild(svgEl('title')).textContent = d.tooltip || d.label;
+    svg.appendChild(c);
+    // adentro sólo si el nombre entra en la burbuja; si no, va debajo y legible
+    const adentro = r >= 22 && d.label.length * CHAR <= 2 * r - 6;
+    const t1 = svgEl('text', { x: cx, y: adentro ? cy - 2 : cy + r + 12, 'text-anchor': 'middle',
+      class: adentro ? 'burbuja-texto' : 'burbuja-texto-afuera' });
+    t1.textContent = d.label;
+    const t2 = svgEl('text', { x: cx, y: adentro ? cy + 11 : cy + r + 24, 'text-anchor': 'middle',
+      class: adentro ? 'burbuja-texto' : 'burbuja-texto-afuera' });
+    t2.textContent = d.valor;
+    svg.appendChild(t1);
+    svg.appendChild(t2);
+  });
+  return box;
+}

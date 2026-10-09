@@ -1,0 +1,78 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Matriz de contribución y evolución del mix (MV AutoML Studio). Visual Deneb de Power BI. Campos: entidad, contribucion, indice_mix, accion, etapa_mix, siguiente_motor. El eje Y va en tres franjas iguales (baja <3 %, media 3–10 %, alta >10 %) como en la lámina; dentro de cada franja la altura es proporcional a la contribución.",
+  "data": {"name": "dataset"},
+  "width": "container",
+  "height": "container",
+  "config": {
+    "view": {"stroke": null},
+    "font": "Segoe UI",
+    "axis": {"labelColor": "#4A5672", "titleColor": "#24324F", "titleFontWeight": "bold",
+             "grid": false, "domainColor": "#24324F", "labelLimit": 320, "ticks": false}
+  },
+  "resolve": {"scale": {"color": "independent"}, "legend": {"color": "independent"}},
+  "layer": [
+    {
+      "data": {"values": [
+        {"x0": -0.05, "x1": 0.3333, "color": "#D64545"},
+        {"x0": 0.3333, "x1": 0.6667, "color": "#2E9FB8"},
+        {"x0": 0.6667, "x1": 1.05, "color": "#6CB54A"}
+      ]},
+      "mark": {"type": "rect", "opacity": 0.1},
+      "encoding": {
+        "x": {"field": "x0", "type": "quantitative", "scale": {"domain": [-0.05, 1.05], "nice": false},
+              "title": "Evolución del mix de portafolio",
+              "axis": {"values": [0.1667, 0.5, 0.8333],
+                       "labelExpr": "datum.value < 0.33 ? 'Mayor dependencia en mono' : datum.value < 0.66 ? 'Mix centrado en dobles' : 'Diversificada (incluye triple)'", "labelOverlap": false}},
+        "x2": {"field": "x1"},
+        "color": {"field": "color", "type": "nominal", "scale": null, "legend": null}
+      }
+    },
+    {
+      "data": {"values": [{"y": 1}, {"y": 2}]},
+      "mark": {"type": "rule", "strokeDash": [4, 4], "color": "#8A94A6"},
+      "encoding": {"y": {"field": "y", "type": "quantitative"}}
+    },
+    {
+      "transform": [
+        {"joinaggregate": [{"op": "max", "field": "contribucion", "as": "cmax"}]},
+        {"calculate": "datum.contribucion < 0.03 ? 0.4 + 0.5 * datum.contribucion / 0.03 : datum.contribucion <= 0.10 ? 1.15 + 0.7 * (datum.contribucion - 0.03) / 0.07 : 2.15 + 0.7 * (datum.contribucion - 0.10) / max(datum.cmax - 0.10, 0.0001)", "as": "franja"},
+        {"calculate": "datum.entidad + '\\n' + format(datum.contribucion, '.1%')", "as": "etiqueta"}
+      ],
+      "encoding": {
+        "x": {"field": "indice_mix", "type": "quantitative", "scale": {"domain": [-0.05, 1.05], "nice": false}},
+        "y": {"field": "franja", "type": "quantitative", "scale": {"domain": [0, 3], "nice": false},
+              "title": "Contribución a ventas",
+              "axis": {"values": [0.5, 1.5, 2.5],
+                       "labelExpr": "datum.value < 1 ? 'Baja (<3%)' : datum.value < 2 ? 'Media (3%–10%)' : 'Alta (>10%)'"}}
+      },
+      "layer": [
+        {
+          "mark": {"type": "circle", "opacity": 0.92, "stroke": "#FFFFFF", "strokeWidth": 2},
+          "encoding": {
+            "size": {"field": "contribucion", "type": "quantitative", "scale": {"range": [900, 9000], "zero": false}, "legend": null},
+            "color": {"field": "accion", "type": "nominal", "title": "Acción",
+                      "scale": {"domain": ["proteger", "acelerar", "desarrollar"], "range": ["#1F2E6E", "#2E9FB8", "#D64545"]},
+                      "legend": {"orient": "top"}},
+            "tooltip": [
+              {"field": "entidad", "title": "Entidad"},
+              {"field": "contribucion", "title": "Contribución", "format": ".1%"},
+              {"field": "etapa_mix", "title": "Etapa del mix"},
+              {"field": "siguiente_motor", "title": "Siguiente motor"}
+            ]
+          }
+        },
+        {
+          "transform": [{"filter": "datum.contribucion >= 0.03"}],
+          "mark": {"type": "text", "color": "#FFFFFF", "fontWeight": "bold", "fontSize": 11, "lineBreak": "\n"},
+          "encoding": {"text": {"field": "etiqueta"}}
+        },
+        {
+          "transform": [{"filter": "datum.contribucion < 0.03"}],
+          "mark": {"type": "text", "color": "#24324F", "fontWeight": "bold", "fontSize": 10, "lineBreak": "\n", "dy": 34},
+          "encoding": {"text": {"field": "etiqueta"}}
+        }
+      ]
+    }
+  ]
+}

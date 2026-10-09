@@ -16,21 +16,36 @@ from app import notebook as N
 from app.core import licensing as L
 
 
-@pytest.fixture(scope="module")
-def ventas() -> pd.DataFrame:
+def _ventas(semilla: int, n: int, prefijo: str = "c") -> pd.DataFrame:
     """Réplica sintética de una tabla del Lakehouse: nunca datos reales."""
-    rng = np.random.default_rng(7)
-    n = 600
+    rng = np.random.default_rng(semilla)
     zona = rng.choice(["norte", "sur", "centro"], n)
     visitas = rng.integers(1, 12, n)
     base = 0.15 + 0.05 * visitas + np.where(zona == "centro", 0.15, 0.0)
     return pd.DataFrame({
-        "cliente": [f"c{i:04d}" for i in range(n)],
+        "cliente": [f"{prefijo}{i:04d}" for i in range(n)],
         "zona": zona,
         "visitas": visitas,
         "descuento": rng.uniform(0, 0.3, n).round(3),
         "compro": rng.binomial(1, np.clip(base, 0, 0.95), n),
     })
+
+
+@pytest.fixture(scope="module")
+def ventas() -> pd.DataFrame:
+    return _ventas(7, 600)
+
+
+@pytest.fixture(scope="module")
+def ventas_nuevas() -> pd.DataFrame:
+    """Otra muestra del MISMO proceso, que el modelo no vio: así llegan los datos del mes siguiente."""
+    return _ventas(8, 1200, prefijo="n")
+
+
+def _detalle(inf: dict) -> str:
+    """Si la prueba falla, que diga por qué: PSI y ruido de cada variable y de la predicción."""
+    filas = [*(inf.get("variables") or []), inf.get("prediccion") or {}]
+    return "; ".join(f"{f.get('variable')}: psi={f.get('psi')} ruido={f.get('ruido')} {f.get('nivel')}" for f in filas)
 
 
 @pytest.fixture(scope="module")
@@ -152,10 +167,13 @@ def test_para_powerbi_sin_datos_no_escribe_predicciones(modelo, tmp_path):
     assert set(salida) == {"metricas", "importancias", "resumen"}
 
 
-def test_la_deriva_contra_los_mismos_datos_es_estable(modelo, ventas):
-    inf = modelo.deriva(ventas)
+def test_datos_nuevos_del_mismo_proceso_no_son_deriva(modelo, ventas_nuevas):
+    # Con datos nuevos y no con los de entrenamiento: la referencia de la predicción es el holdout
+    # (fuera de muestra), y sobre las filas que el modelo memorizó las probabilidades salen más
+    # extremas según cuánto sobreajuste el modelo que elija AutoML. Eso no es deriva.
+    inf = modelo.deriva(ventas_nuevas)
     assert inf["disponible"] is True
-    assert inf["veredicto"]["nivel"] == "estable"
+    assert inf["veredicto"]["nivel"] == "estable", _detalle(inf)
 
 
 def test_la_deriva_detecta_datos_nuevos_corridos(modelo, ventas):
@@ -173,9 +191,9 @@ def test_la_tabla_de_deriva_para_powerbi(modelo, ventas, tmp_path):
     assert tabla.loc[tabla.variable == "visitas", "nivel"].iloc[0] == "fuerte"
 
 
-def test_la_deriva_viaja_con_el_modelo_guardado(modelo, ventas, tmp_path):
+def test_la_deriva_viaja_con_el_modelo_guardado(modelo, ventas_nuevas, tmp_path):
     recargado = N.cargar(modelo.guardar(tmp_path / "con_deriva"))
-    assert recargado.deriva(ventas)["veredicto"]["nivel"] == "estable"
+    assert recargado.deriva(ventas_nuevas) == modelo.deriva(ventas_nuevas)
 
 
 def test_para_powerbi_en_csv(modelo, ventas, tmp_path):

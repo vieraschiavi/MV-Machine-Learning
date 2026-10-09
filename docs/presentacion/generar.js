@@ -14,11 +14,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const { META, KPIS, SECCIONES, CIERRE } = require('./contenido');
-
 const ARGS = process.argv.slice(2);
-const SALIDA = path.resolve(ARGS.find((a) => !a.startsWith('--')) || __dirname);
-const PARA = { gerentes: 'Para gerentes', tecnicos: 'Para técnicos', todos: 'Para todos' };
+// `--contenido <archivo>` arma otra guía con el mismo diseño (por ejemplo, la del
+// agente de mercado). Sin él, la guía general del programa.
+const I_CONT = ARGS.indexOf('--contenido');
+const CONTENIDO = path.resolve(I_CONT >= 0 ? ARGS[I_CONT + 1] : path.join(__dirname, 'contenido.js'));
+const BASE_CONT = path.dirname(CONTENIDO);
+const { META, KPIS, SECCIONES, CIERRE } = require(CONTENIDO);
+const POSICIONALES = ARGS.filter((a, i) => !a.startsWith('--') && (I_CONT < 0 || i !== I_CONT + 1));
+const SALIDA = path.resolve(POSICIONALES[0] || BASE_CONT);
+const MARCA = META.marca || 'Guía para gerentes y técnicos';
+const ORIGEN = path.relative(path.resolve(__dirname, '..', '..'), CONTENIDO).split(path.sep).join('/');
+
+// Imágenes (bloque `img`): PNG relativos al archivo de contenido.
+const imagen = (rel) => fs.readFileSync(path.resolve(BASE_CONT, rel));
+function medidasPng(buf) {
+  return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+}
+const PARA = { gerentes: 'Para gerentes', tecnicos: 'Para técnicos', legal: 'Para legal y compliance', todos: 'Para todos' };
 const NIVEL = {
   Estable: 'ok', Verificado: 'ok',
   Vigilar: 'warn', Parcial: 'warn',
@@ -107,6 +120,9 @@ function bloqueHtml(b) {
     case 'qa': return `<dl class="qa">${b.items.map(([q, a]) => `<div><dt>${inl(q)}</dt><dd>${inl(a)}</dd></div>`).join('')}</dl>`;
     case 'ventanas': return VENTANAS_HTML;
     case 'psi': return PSI_HTML;
+    case 'img': return `<figure class="figura"><img alt="${esc(b.alt || b.pie || '')}" `
+      + `src="data:image/png;base64,${imagen(b.src).toString('base64')}">`
+      + `${b.pie ? `<figcaption>${inl(b.pie)}</figcaption>` : ''}</figure>`;
     default: throw new Error(`Bloque desconocido: ${b.t}`);
   }
 }
@@ -188,6 +204,7 @@ p{margin:10px 0;max-width:68ch}
 .para{font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:var(--soft);color:var(--muted)}
 .para-gerentes{background:var(--warn-bg);color:var(--warn)}
 .para-tecnicos{background:var(--soft);color:var(--blue)}
+.para-legal{background:var(--soft);color:var(--ink)}
 ul{padding-left:1.2em;margin:10px 0;max-width:72ch}
 li{margin:6px 0}
 li::marker{color:var(--amber-ink)}
@@ -215,6 +232,8 @@ td.n,th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-
 .v-tr{background:var(--soft);color:var(--ink)} .v-se{background:color-mix(in srgb,var(--blue) 18%,var(--paper));color:var(--ink)}
 .v-ho{background:var(--navy);color:#fff;box-shadow:inset 0 -4px 0 var(--amber)}
 .ventanas figcaption,.escala figcaption{grid-column:1/-1;font-size:14px;color:var(--muted);margin-top:6px}
+.figura{margin:22px 0}.figura img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+.figura figcaption{font-size:14px;color:var(--muted);margin-top:8px;text-align:center}
 .psi-tabla{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
 .z{border-radius:8px;padding:12px 14px;display:grid;gap:2px}
 .z .mono{font:600 13px var(--mono)} .z b{font:800 20px var(--display)} .z small{font-size:13px;opacity:.85}
@@ -282,7 +301,7 @@ function cuerpoHtml() {
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <style>${CSS}</style>
 <header class="portada"><div class="in">
-  <div class="marca">Guía para gerentes y técnicos</div>
+  <div class="marca">${esc(MARCA)}</div>
   <h1>${esc(META.titulo)}</h1>
   <p class="bajada">${inl(META.bajada)}</p>
   <div class="meta">${esc(META.version)} · ${esc(META.autor)}</div>
@@ -292,7 +311,8 @@ function cuerpoHtml() {
   <span class="lbl">Leer como</span>
   <button type="button" id="ver-todo" data-v="todo" aria-pressed="true">Todo</button>
   <button type="button" id="ver-gerentes" data-v="gerentes" aria-pressed="false">Gerente</button>
-  <button type="button" id="ver-tecnicos" data-v="tecnicos" aria-pressed="false">Técnico</button>
+  <button type="button" id="ver-tecnicos" data-v="tecnicos" aria-pressed="false">Técnico</button>${SECCIONES.some((x) => x.para === 'legal')
+    ? '\n  <button type="button" id="ver-legal" data-v="legal" aria-pressed="false">Legal</button>' : ''}
 </div></nav>
 <div class="cuerpo">
   <nav class="indice" aria-label="Índice"><ol>${indice}</ol></nav>
@@ -301,7 +321,7 @@ ${SECCIONES.map(seccionHtml).join('\n')}
 <p class="cierre">${inl(CIERRE)}</p>
   </main>
 </div>
-<footer class="pie">${esc(META.producto)} · ${esc(META.version)} · generado desde docs/presentacion/contenido.js</footer>
+<footer class="pie">${esc(META.producto)} · ${esc(META.version)} · generado desde ${esc(ORIGEN)}</footer>
 <script>${JS}</script>
 `;
 }
@@ -318,7 +338,7 @@ function docxDoc() {
   const D = require('docx');
   const {
     AlignmentType, BorderStyle, Document, Footer, HeadingLevel, LevelFormat, Packer, PageNumber,
-    Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, WidthType,
+    Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, WidthType, ImageRun,
   } = D;
   const ANCHO = 11906 - 2 * 1134;                 // A4 con márgenes de 2 cm
   const C = { navy: '081527', amber: 'F2B441', ink: '122238', muted: '586A80', line: 'D5DEE9',
@@ -414,13 +434,25 @@ function docxDoc() {
         [33, C.okbg, C.ok, 'Estable', 'PSI < 0,10'],
         [33, C.warnbg, C.warn, 'Vigilar', '0,10 a 0,25'],
         [34, C.badbg, C.bad, 'Reentrenar', '0,25 o más']]);
+      case 'img': {
+        const buf = imagen(b.src);
+        const { w, h } = medidasPng(buf);
+        const ancho = Math.round((ANCHO / 1440) * 96);            // ancho útil de la página, en px
+        const out = [new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 160, after: 60 },
+          keepNext: Boolean(b.pie), children: [new ImageRun({ type: 'png', data: buf,
+            transformation: { width: ancho, height: Math.round((ancho * h) / w) },
+            altText: { title: b.alt || b.pie || 'figura', description: b.alt || b.pie || '', name: b.src } })] })];
+        if (b.pie) out.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 },
+          children: runs(b.pie, { size: 17, color: C.muted }) }));
+        return out;
+      }
       default: throw new Error(`Bloque desconocido: ${b.t}`);
     }
   }
 
   const portada = [
     new Paragraph({ spacing: { before: 1800, after: 200 }, children: [new TextRun({
-      text: 'GUÍA PARA GERENTES Y TÉCNICOS', color: 'B07A12', bold: true, size: 20, characterSpacing: 40 })] }),
+      text: MARCA.toUpperCase(), color: 'B07A12', bold: true, size: 20, characterSpacing: 40 })] }),
     new Paragraph({ spacing: { after: 240 }, children: [new TextRun({ text: META.titulo, bold: true, size: 72, color: C.navy })] }),
     new Paragraph({ spacing: { after: 360 },
       border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: C.amber, space: 12 } },

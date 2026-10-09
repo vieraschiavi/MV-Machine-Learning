@@ -44,6 +44,38 @@ Con `cobranzas_panel.xlsx`, probá escribir el objetivo en el cartel:
 *"cuánto voy a cobrar en total"* — y mirá qué bloquea y qué marca para revisar
 la auditoría antes de entrenar.
 
+## Portafolio y mercado
+
+[`generar_portafolio.py`](generar_portafolio.py) escribe dos archivos
+**inventados** de punta a punta (marcas, una molécula ficticia combinada con
+genéricos reales, ventas y tasas):
+
+| Archivo | Qué ejercita |
+|---|---|
+| `portafolio_sintetico.csv` | Ventas YTD de dos años por país, área terapéutica, marca y presentación (mono, dobles y triple): la matriz de contribución, el índice de mix y el siguiente motor |
+| `estudios_mercado_sintetico.csv` | Embudo de hipertensión de tres países por sexo, con rango y fuente: el agente de mercado, el mercado latente y el lanzamiento |
+
+Se recorren en la pestaña **Portafolio y mercado**
+([guía](../docs/PORTAFOLIO_Y_MERCADO.md)).
+
+## Relacionamiento con consentimiento
+
+[`generar_relacionamiento.py`](generar_relacionamiento.py) escribe una base
+**inventada**: ids seudónimos sin mail, teléfono ni nombre; marcas ficticias
+(Vasotril y Glucofin bajo receta, Vitalix y Calcimar D de venta libre).
+
+| Archivo | Qué ejercita |
+|---|---|
+| `relacionamiento_contactos.csv` | 1.500 contactos con país, ciudad, barrio, sexo, edad y los cuatro consentimientos |
+| `relacionamiento_contenidos.csv` | 14 contenidos de los cinco tipos, con condición de venta y audiencia |
+| `relacionamiento_interacciones.csv` | Seis meses de envíos, aperturas, clics, inscripciones, canjes, bajas y quejas (con un 1 % de envíos que no cumplen, para la auditoría) |
+| `censo_sintetico.csv` | Población por ciudad, barrio, sexo, edad y nivel socioeconómico |
+| `prevalencias_sinteticas.csv` | Prevalencia por país, área, sexo y edad, al estilo de una encuesta nacional de salud |
+| `escucha_social_sintetica.csv` | Publicaciones inventadas con autores ficticios y URL de ejemplo, que el análisis descarta |
+
+Se recorren en la pestaña **Relacionamiento**
+([guía](../docs/RELACIONAMIENTO.md)).
+
 ## Notebook para Microsoft Fabric
 
 [`fabric/mv_automl_en_fabric.ipynb`](fabric/mv_automl_en_fabric.ipynb) entrena
