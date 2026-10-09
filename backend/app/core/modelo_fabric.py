@@ -22,7 +22,11 @@ Además de las tablas escribe:
 * ``crear_tablas.sql`` — el DDL de Spark SQL para crear las tablas Delta en el
   Lakehouse;
 * ``cargar_en_lakehouse.py`` — la celda de notebook que lee los archivos y los
-  guarda como tablas Delta.
+  guarda como tablas Delta (primera carga, todo de cero);
+* ``merge_incremental.py`` y ``notebook_relacionamiento.ipynb`` — las cargas
+  siguientes, por MERGE (``fabric_relacionamiento``);
+* ``Relacionamiento.SemanticModel/`` — el modelo semántico en TMDL (Direct Lake),
+  con medidas y relaciones, listo para la integración de Fabric con Git.
 """
 from __future__ import annotations
 
@@ -33,6 +37,7 @@ from typing import Any
 
 import pandas as pd
 
+from . import fabric_relacionamiento as FR
 from .consentimiento import _clave
 from .powerbi_portafolio import FORMATOS, _escribir
 
@@ -60,8 +65,7 @@ RELACIONES = [  # (desde tabla, columna) → (hacia dimensión, columna): muchos
     ("fact_consentimientos", "fecha_key", "dim_fecha", "fecha_key"),
     ("fact_busquedas", "geo_key", "dim_geografia", "geo_key"),
 ]
-_SQL = {"int64": "BIGINT", "Int64": "BIGINT", "int32": "INT", "float64": "DOUBLE", "bool": "BOOLEAN",
-        "datetime64[ns]": "DATE", "object": "STRING", "string": "STRING"}
+_SQL = {"int64": "BIGINT", "double": "DOUBLE", "boolean": "BOOLEAN", "dateTime": "DATE"}
 
 
 def clave(*partes: Any) -> int:
@@ -228,7 +232,10 @@ def _publicos(poblacion: pd.DataFrame | None, prevalencias: pd.DataFrame | None,
 
 
 def _tipo_sql(serie: pd.Series) -> str:
-    return _SQL.get(str(serie.dtype), "STRING")
+    # Por la familia del tipo y no por su nombre: pandas 3 escribe «str» y «datetime64[us]», que antes caían en STRING.
+    if str(serie.dtype) in ("int32", "Int32"):
+        return "INT"
+    return _SQL.get(FR.tipo_tmdl(serie), "STRING")
 
 
 def esquema(tablas: dict[str, pd.DataFrame]) -> dict[str, Any]:
@@ -253,7 +260,7 @@ CARPETA = "Files/mv/relacionamiento_modelo"
 TABLAS = {tablas}
 for t in TABLAS:
     df = {lector}
-    # Primera carga: overwrite. Las siguientes, con claves estables, pueden ser MERGE por la clave de cada tabla.
+    # Primera carga: overwrite. Las siguientes, por MERGE: merge_incremental.py o notebook_relacionamiento.ipynb.
     df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(t)
 '''
 
@@ -274,6 +281,7 @@ def escribir(carpeta: str | Path, tablas: dict[str, pd.DataFrame], formato: str 
                                                  encoding="utf-8")
     for extra in ("modelo.json", "crear_tablas.sql", "cargar_en_lakehouse.py"):
         salida[extra] = ruta / extra
+    salida.update(FR.escribir(ruta, tablas, formato=formato))
     return salida
 
 
