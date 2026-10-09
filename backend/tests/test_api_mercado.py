@@ -102,3 +102,16 @@ def test_el_paquete_para_powerbi_trae_tablas_y_kit(client, portafolio, estudios)
     assert {"portafolio_entidades.csv", "mercado_embudo.csv", "tema_portafolio.json",
             "medidas_portafolio.dax", "burbujas_contribucion.vl.json"} <= nombres
     assert not any(n.endswith(".part") for n in nombres)
+
+
+def test_demasiados_paises_en_un_analisis_se_rechazan_con_motivo(client):
+    filas = [{"pais": f"P{i}", "segmento": "Total", "parametro": k, "valor": v}
+             for i in range(200) for k, v in (("poblacion", 1000), ("prevalencia", 0.1),
+                                              ("diagnosticados", 0.5), ("tratados", 0.5))]
+    r = client.post("/api/mercado/analizar", json={"supuestos": filas})
+    assert r.status_code == 400 and "máximo" in r.json()["detail"]
+
+
+def test_el_paquete_powerbi_sale_solo_con_el_mercado(client, estudios):
+    r = client.post("/api/portafolio/powerbi", json={"mercado": {"estudios_dataset_id": estudios, "n_sim": 100}})
+    assert r.status_code == 200, r.text

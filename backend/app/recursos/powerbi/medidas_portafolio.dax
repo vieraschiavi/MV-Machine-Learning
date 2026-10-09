@@ -92,17 +92,37 @@ Lista desarrollar =
     )
 
 // ── página de mercado ───────────────────────────────────────────────────────
+// mercado_potencial trae una fila por país y una fila «Total»: sin país elegido se
+// usa la fila Total (su P50 sale de la simulación, no de sumar los P50 de cada país).
 Pacientes en clase P50 =
-    CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "en_clase" )
+    IF (
+        ISFILTERED ( mercado_potencial[pais] ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "en_clase",
+            mercado_potencial[pais] <> "Total" ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "en_clase",
+            mercado_potencial[pais] = "Total" )
+    )
 
 Mercado latente P50 =
-    CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "latente" )
+    IF (
+        ISFILTERED ( mercado_potencial[pais] ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "latente",
+            mercado_potencial[pais] <> "Total" ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "latente",
+            mercado_potencial[pais] = "Total" )
+    )
+
+Prevalentes P50 =
+    IF (
+        ISFILTERED ( mercado_potencial[pais] ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "prevalentes",
+            mercado_potencial[pais] <> "Total" ),
+        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "prevalentes",
+            mercado_potencial[pais] = "Total" )
+    )
 
 Latente sobre prevalentes =
-    DIVIDE (
-        [Mercado latente P50],
-        CALCULATE ( SUM ( mercado_potencial[p50] ), mercado_potencial[medida] = "prevalentes" )
-    )
+    DIVIDE ( [Mercado latente P50], [Prevalentes P50] )
 
 Supuestos a validar =
     CALCULATE ( COUNTROWS ( mercado_supuestos ), mercado_supuestos[origen] = "IA (a validar)" )

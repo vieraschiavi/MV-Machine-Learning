@@ -195,3 +195,26 @@ def test_la_narracion_usa_la_consigna_de_mercado(monkeypatch, ia_falsa):
     out = A.narrar(r)
     assert out["text"] == "Lectura ejecutiva."
     assert "latente" in ia_falsa[-1] and "hipótesis" in ia_falsa[-1]
+
+
+def test_sin_precio_en_algun_pais_el_tornado_usa_pacientes_y_no_falla(ia_falsa):
+    sup = pd.DataFrame(A.proponer(CTX)["supuestos"])
+    sup = sup[~((sup["pais"] == "UY") & (sup["parametro"] == "precio_unidad"))]
+    r = A.analizar(sup, n_sim=100)
+    assert r["medida_sensibilidad"] == "en_clase"
+
+
+def test_mayusculas_distintas_son_el_mismo_pais_y_el_estudio_pisa(ia_falsa):
+    ia_falsa.texto = _respuesta(paises=("ar", "uy"))
+    prop = pd.DataFrame(A.proponer(CTX)["supuestos"])
+    assert set(prop["pais"]) == {"AR", "UY"}              # como lo pidió el usuario
+    estudio = pd.DataFrame([{"pais": "ar", "segmento": "HOMBRES", "parametro": "tratados", "valor": 0.5}])
+    tabla, _ = A.combinar(prop, estudio)
+    assert len(tabla) == len(prop)
+    f = tabla[tabla["parametro"] == "tratados"]
+    assert (f["valor"] == 0.5).sum() == 1
+
+
+def test_narrar_con_un_resultado_raro_no_explota(ia_falsa):
+    ia_falsa.texto = "ok"
+    assert A.narrar({"rango": [1, "x"]})["text"] == "ok"

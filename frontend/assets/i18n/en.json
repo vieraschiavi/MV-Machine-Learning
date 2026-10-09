@@ -693,6 +693,7 @@
     "actual_latente": "Patients in the class and latent market",
     "actual_latente_hint": "Solid bar: patients treated with the class. Grey bar: latent (undiagnosed plus untreated).",
     "tornado": "Which assumption moves the result most",
-    "lanzamiento": "Launch forecast (total)"
+    "lanzamiento": "Launch forecast (total)",
+    "nada_que_exportar": "Compute the matrix or the market analysis first: the package carries what is already on screen."
   }
 }

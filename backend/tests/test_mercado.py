@@ -211,3 +211,19 @@ def test_una_proyeccion_por_historia_por_encima_del_techo_se_marca():
 def test_un_pais_sin_supuestos_no_rompe_el_contraste():
     r = M.contrastar(_supuestos(), pd.DataFrame({"pais": ["PE"], "unidades": [10]}))
     assert r.iloc[0]["estado"] == "sin supuestos"
+
+
+# ── bordes encontrados en la revisión ────────────────────────────────────────
+
+def test_sin_precio_en_un_segmento_el_valor_no_se_suma_a_medias():
+    df = _supuestos()
+    df = df[~((df["segmento"] == "Mujeres") & (df["parametro"] == "precio_unidad"))]
+    r = M.potencial(df, n_sim=100)
+    medidas_total = {x["medida"] for x in r["rango"] if x["pais"] == "Total"}
+    assert "valor_clase" not in medidas_total and "en_clase" in medidas_total
+    assert any("valor_clase" in a for a in r["avisos"])
+
+
+def test_un_pais_sin_lo_vendido_no_rompe_el_contraste():
+    r = M.contrastar(_supuestos(), pd.DataFrame({"pais": ["AR"], "unidades": [None]}))
+    assert r.iloc[0]["estado"] == "sin dato"

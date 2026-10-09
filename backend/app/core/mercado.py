@@ -218,18 +218,27 @@ def potencial(supuestos: pd.DataFrame, n_sim: int = 2000, semilla: int = 42) -> 
     tabla, avisos = normalizar(supuestos)
     filas = _por_fila(tabla)
     rng = np.random.default_rng(semilla)
-    por_pais: dict[str, dict[str, np.ndarray]] = {}
+    por_pais: dict[str, dict[str, Any]] = {}
+    filas_por_pais: dict[str, int] = {}
     for f in filas:
         sim = _simular(f["params"], n_sim, rng)
         acc = por_pais.setdefault(f["pais"], {})
+        filas_por_pais[f["pais"]] = filas_por_pais.get(f["pais"], 0) + 1
         for k, v in sim.items():
-            acc[k] = acc.get(k, 0) + v
-    total: dict[str, np.ndarray] = {}
-    for acc in por_pais.values():
-        for k, v in acc.items():
-            total[k] = total.get(k, 0) + v
+            suma, n = acc.get(k, (0, 0))
+            acc[k] = (suma + v, n + 1)
+    # Una medida que no tienen todos los segmentos (precio, participación) no se
+    # suma: el total parecería completo y sería sólo el de los que la tienen.
+    completos = {p: {k: s for k, (s, n) in acc.items() if n == filas_por_pais[p]}
+                 for p, acc in por_pais.items()}
+    comunes = set.intersection(*(set(c) for c in completos.values()))
+    total = {k: sum(c[k] for c in completos.values()) for k in comunes}
     rango = [{"pais": pais, "medida": k, **_cuantiles(v)}
-             for pais, acc in [*por_pais.items(), ("Total", total)] for k, v in acc.items()]
+             for pais, acc in [*completos.items(), ("Total", total)] for k, v in acc.items()]
+    incompletas = sorted({k for acc in por_pais.values() for k in acc} - comunes)
+    if incompletas:
+        avisos.append("Sin rango total para " + ", ".join(incompletas) + ": faltan supuestos "
+                      "(precio o participación) en algún país o segmento.")
     defecto = sorted({k for f in filas for k in f["por_defecto"]})
     if defecto:
         avisos.append("Se asumió por falta de dato: " + ", ".join(
@@ -369,8 +378,12 @@ def contrastar(supuestos: pd.DataFrame, observado: pd.DataFrame,
             filas.append({"pais": pais, "estado": "sin supuestos",
                           "lectura": "No hay embudo cargado para este país."})
             continue
-        e = emb.loc[pais]
-        filas.append(_contraste_pais(pais, e, float(r["unidades"]), _numero(r.get("proyectado")),
+        vendido = _numero(r["unidades"])
+        if vendido is None:
+            filas.append({"pais": pais, "estado": "sin dato",
+                          "lectura": "Falta lo vendido en este país: no se puede contrastar."})
+            continue
+        filas.append(_contraste_pais(pais, emb.loc[pais], vendido, _numero(r.get("proyectado")),
                                      tolerancia))
     return pd.DataFrame(filas)
 

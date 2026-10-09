@@ -693,6 +693,7 @@
     "actual_latente": "Pacientes en la clase y mercado latente",
     "actual_latente_hint": "Barra llena: pacientes tratados con la clase. Barra gris: latente (sin diagnóstico más sin tratamiento).",
     "tornado": "Qué supuesto mueve más el resultado",
-    "lanzamiento": "Proyección del lanzamiento (total)"
+    "lanzamiento": "Proyección del lanzamiento (total)",
+    "nada_que_exportar": "Calculá primero la matriz o el análisis de mercado: el paquete lleva lo que ya está en pantalla."
   }
 }

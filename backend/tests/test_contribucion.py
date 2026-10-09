@@ -133,3 +133,32 @@ def test_presentaciones_sin_escalon_reconocible_avisan_que_pasen_niveles():
     cfg = C.Config(**{**CFG.__dict__, "niveles_mix": {"Alfa Diurético": 2, "Alfa Calcio": 2,
                                                       "Alfa Calcio Diurético": 3}})
     assert "aviso" not in C.calcular(df, cfg, grupo_valor="Cardio")
+
+
+def test_con_fechas_diarias_el_periodo_es_el_mes():
+    fechas = pd.to_datetime(["2026-01-03", "2026-01-20", "2026-02-02", "2026-02-25"])
+    df = pd.DataFrame({"pais": ["AR", "UY", "AR", "UY"], "ventas": [10, 10, 30, 10], "fecha": fechas})
+    r = C.calcular(df, C.Config(entidad="pais", valor="ventas", periodo="fecha"))
+    e = _ent(r)
+    assert set(e) == {"AR", "UY"}
+    assert e["AR"]["contribucion"] == pytest.approx(0.75) and e["AR"]["crecimiento"] == pytest.approx(2.0)
+
+
+def test_una_entidad_sin_presentacion_no_rompe_la_matriz():
+    df = pd.concat([_portafolio(), pd.DataFrame([{"pais": "UY", "presentacion": None,
+                                                 "ventas": 50, "area": "Cardio"}])])
+    e = _ent(C.calcular(df, CFG, grupo_valor="Cardio"))
+    assert e["UY"]["indice_mix"] == pytest.approx(0.0)
+
+
+def test_una_entidad_llamada_total_no_se_mezcla_con_la_region():
+    df = _portafolio().replace({"pais": {"BO": "Total"}})
+    r = C.calcular(df, CFG, grupo_valor="Cardio")
+    assert _ent(r)["Total"]["contribucion"] == pytest.approx(20 / 600)
+    assert r["indice_mix_region"] == pytest.approx(C.calcular(_portafolio(), CFG, "Cardio")["indice_mix_region"])
+
+
+def test_ultimo_periodo_sin_ventas_se_explica():
+    df = pd.DataFrame({"m": ["A", "A"], "v": [10, 0], "p": [1, 2]})
+    with pytest.raises(ValueError, match="último período"):
+        C.calcular(df, C.Config(entidad="m", valor="v", periodo="p"))

@@ -100,10 +100,15 @@ def _consigna(c: Contexto) -> str:
 
 def _filtrar(filas: list[dict[str, Any]], c: Contexto) -> list[dict[str, Any]]:
     """Sólo los países y segmentos pedidos: lo demás es ruido del modelo."""
-    paises = {p.strip().lower() for p in c.paises}
-    segs = {s.strip().lower() for s in c.segmentos}
-    return [f for f in filas if str(f.get("pais", "")).strip().lower() in paises
-            and str(f.get("segmento", "")).strip().lower() in segs]
+    paises = {p.strip().casefold(): p.strip() for p in c.paises}
+    segs = {s.strip().casefold(): s.strip() for s in c.segmentos}
+    out = []
+    for f in filas:
+        p = paises.get(str(f.get("pais", "")).strip().casefold())
+        s = segs.get(str(f.get("segmento", "")).strip().casefold())
+        if p and s:                      # se escribe como lo pidió el usuario, no como lo escribió el modelo
+            out.append({**f, "pais": p, "segmento": s})
+    return out
 
 
 def proponer(c: Contexto, provider: str | None = None, model: str | None = None) -> dict[str, Any]:
@@ -159,11 +164,13 @@ def combinar(propuesta: pd.DataFrame | None, estudios: pd.DataFrame | None) -> t
     if not partes:
         raise M.SupuestosInvalidos("No hay supuestos: cargá un estudio de mercado o pedí una propuesta.")
     todo = pd.concat(partes, ignore_index=True)
-    clave = ["pais", "segmento", "parametro"]
-    pisados = int(todo.duplicated(clave, keep="last").sum())
-    if pisados and len(partes) == 2:
-        avisos.append(f"{pisados} supuesto(s) de la IA reemplazado(s) por el estudio de mercado.")
-    return todo.drop_duplicates(clave, keep="last").reset_index(drop=True), avisos
+    # «argentina» y «Argentina» son el mismo país: la clave no distingue mayúsculas.
+    clave = todo[["pais", "segmento"]].apply(lambda s: s.str.strip().str.casefold()).assign(
+        parametro=todo["parametro"])
+    dup = clave.duplicated(keep="last")
+    if dup.any() and len(partes) == 2:
+        avisos.append(f"{int(dup.sum())} supuesto(s) de la IA reemplazado(s) por el estudio de mercado.")
+    return todo[~dup].reset_index(drop=True), avisos
 
 
 def nivel_de_evidencia(supuestos: pd.DataFrame) -> dict[str, Any]:
@@ -206,7 +213,7 @@ def analizar(supuestos: pd.DataFrame, plan: M.Lanzamiento | None = None,
     pot = M.potencial(supuestos, n_sim=n_sim)
     tabla = pd.DataFrame(pot["supuestos"])
     emb = pd.DataFrame(pot["embudo"])
-    medida = "valor_clase" if "valor_clase" in emb else "en_clase"
+    medida = "valor_clase" if "valor_clase" in emb and emb["valor_clase"].notna().all() else "en_clase"
     tornado = M.sensibilidad(tabla, medida)
     evidencia = nivel_de_evidencia(tabla)
     paises = list(dict.fromkeys(emb["pais"]))
@@ -241,5 +248,6 @@ def narrar(resultado: dict[str, Any], provider: str | None = None, model: str | 
     """Lectura ejecutiva del análisis, escrita por el motor de IA."""
     resumen = {k: resultado.get(k) for k in ("lecturas", "evidencia", "recomendaciones", "contraste")}
     resumen["sensibilidad"] = (resultado.get("sensibilidad") or [])[:5]
-    resumen["total"] = [r for r in resultado.get("rango", []) if r["pais"] == "Total"]
+    resumen["total"] = [r for r in (resultado.get("rango") or [])
+                        if isinstance(r, dict) and r.get("pais") == "Total"]
     return ai.narrate(resumen, "mercado", provider=provider, model=model)

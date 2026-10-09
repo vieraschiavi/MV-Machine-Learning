@@ -53,3 +53,14 @@ def test_una_ruta_abfss_se_rechaza_explicando_que_hacer(tmp_path):
                         valor="ventas_usd", mix="presentacion")
     with pytest.raises(ValueError, match="notebookutils"):
         mv.portafolio_para_powerbi("abfss://ws@onelake.dfs.fabric.microsoft.com/x", contribucion=m)
+
+
+def test_el_modulo_de_portafolio_se_importa_solo_sin_import_circular():
+    # En un proceso aparte: sacar módulos de sys.modules acá descolocaría a las demás pruebas.
+    import subprocess
+    import sys
+    backend = Path(__file__).resolve().parents[1]
+    r = subprocess.run([sys.executable, "-c", "import app.notebook_portafolio as m; print(callable(m.contribucion))"],
+                       cwd=backend, capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.strip() == "True"

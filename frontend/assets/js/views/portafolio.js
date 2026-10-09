@@ -70,6 +70,11 @@ export default {
       const opc = [['', t('port.ninguna')], ...cat];
       cfg.entidad = c.categoricas.includes(cfg.entidad) ? cfg.entidad : c.categoricas[0] || null;
       cfg.valor = c.numericas.includes(cfg.valor) ? cfg.valor : c.numericas[0] || null;
+      // Lo elegido para otro dataset no vale en éste: se limpia lo que no existe.
+      if (!c.categoricas.includes(cfg.mix)) cfg.mix = '';
+      if (!c.categoricas.includes(cfg.grupo)) { cfg.grupo = ''; cfg.grupo_valor = ''; }
+      if (![...c.categoricas, ...c.fechas].includes(cfg.periodo)) cfg.periodo = '';
+      self.matrizLista = false;
       campos.append(
         campo(t('port.entidad'), sel(cat, cfg.entidad, (v) => { cfg.entidad = v; })),
         campo(t('port.valor'), sel(c.numericas.map((x) => [x, x]), cfg.valor, (v) => { cfg.valor = v; })),
@@ -101,6 +106,7 @@ export default {
     clear(this.salidaMatriz).appendChild(note(t('common.loading'), 'info'));
     try {
       const r = await api.post('/api/portafolio/contribucion', this.cuerpoMatriz(ds));
+      this.matrizLista = true;
       audio.beep('done');
       this.pintarMatriz(r, ds, btn);
     } catch (err) { clear(this.salidaMatriz); fail(err); } finally { btn.disabled = false; }
@@ -150,9 +156,14 @@ export default {
   async descargarPowerBI(ds, btn) {
     btn.disabled = true;
     try {
-      const body = { contribucion: this.cuerpoMatriz(ds) };
-      delete body.contribucion.grupo_valor;
+      // Va lo que ya se calculó en pantalla: la matriz, el mercado o los dos.
+      const body = {};
+      if (this.matrizLista) {
+        body.contribucion = this.cuerpoMatriz(ds);
+        delete body.contribucion.grupo_valor;
+      }
       if (this.ultimoMercado) body.mercado = this.ultimoMercado;
+      if (!body.contribucion && !body.mercado) { clear(this.pbiHost).appendChild(note(t('port.nada_que_exportar'), 'warn')); return; }
       const r = await api.post('/api/portafolio/powerbi', body);
       clear(this.pbiHost).appendChild(el('a', { class: 'btn btn-primary mt-1', href: api.withWorkspace(r.download_url), download: '' },
         icon('download', 15), t('common.download')));

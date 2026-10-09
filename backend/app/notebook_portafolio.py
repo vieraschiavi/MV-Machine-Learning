@@ -33,7 +33,17 @@ from .core import agente_mercado as A
 from .core import contribucion as C
 from .core import mercado as M
 from .core import powerbi_portafolio as P
-from .notebook import _ruta_escribible, a_pandas
+
+
+def a_pandas(datos: Any) -> pd.DataFrame:
+    # Import tardío: `notebook` importa este módulo al final, y al revés sería circular.
+    from .notebook import a_pandas as convertir
+    return convertir(datos)
+
+
+def _ruta_escribible(destino: str | Path, verbo: str) -> Path:
+    from .notebook import _ruta_escribible as ruta
+    return ruta(destino, verbo)
 
 
 def contribucion(datos: Any, entidad: str, valor: str, *, mix: str | None = None,

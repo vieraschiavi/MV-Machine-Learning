@@ -28,6 +28,7 @@ from ..core import powerbi_portafolio as P
 from ..core import storage, workspace
 
 router = APIRouter(tags=["portafolio y mercado"])
+MAX_GRUPOS = 150
 
 
 def _limpio(x: Any) -> Any:
@@ -148,13 +149,19 @@ class AnalizarBody(BaseModel):
     lanzamiento: LanzamientoBody | None = None
     inicio: str | None = None
     observado: list[dict[str, Any]] | None = Field(None, max_length=500)
-    n_sim: int = Field(2000, ge=100, le=20000)
+    n_sim: int = Field(2000, ge=100, le=10000)
 
 
 def _analizar(body: AnalizarBody) -> dict[str, Any]:
     estudios = _frame(body.estudios_dataset_id)[1] if body.estudios_dataset_id else None
     propuesta = pd.DataFrame(body.supuestos) if body.supuestos else None
     tabla, avisos = A.combinar(propuesta, estudios)
+    grupos = len(tabla.drop_duplicates(["pais", "segmento"]))
+    if grupos > MAX_GRUPOS:
+        # Cada país·segmento se simula entero en memoria: el tope evita que un
+        # pedido solo se coma la máquina.
+        raise ValueError(f"Hay {grupos} combinaciones de país y segmento; el máximo por análisis es "
+                         f"{MAX_GRUPOS}. Partí el análisis por región.")
     plan = M.Lanzamiento(**body.lanzamiento.model_dump()) if body.lanzamiento else None
     obs = pd.DataFrame(body.observado) if body.observado else None
     r = A.analizar(tabla, plan=plan, observado=obs, inicio=body.inicio or None, n_sim=body.n_sim)
@@ -171,7 +178,7 @@ def analizar(body: AnalizarBody) -> dict[str, Any]:
 
 
 class NarrarBody(BaseModel):
-    resultado: dict[str, Any]
+    resultado: dict[str, Any] = Field(max_length=40)
     provider: str | None = None
     model: str | None = None
 

@@ -29,6 +29,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+REGION = "(región)"                              # fila del mix regional (no choca con una entidad «Total»)
 NOMBRES_NIVEL = {1: "monoterapia", 2: "combinaciones dobles", 3: "triple terapia"}
 ACCIONES = {"Alta": "proteger", "Media": "acelerar", "Baja": "desarrollar"}
 PREGUNTAS = {"proteger": "¿Qué debemos proteger?", "acelerar": "¿Qué debemos acelerar?",
@@ -77,6 +78,11 @@ def _preparar(df: pd.DataFrame, cfg: Config, grupo_valor: str | None) -> tuple[p
     d = df[usadas].copy()
     d[cfg.valor] = pd.to_numeric(d[cfg.valor], errors="coerce").fillna(0.0)
     d[cfg.entidad] = d[cfg.entidad].astype(str).str.strip()
+    if cfg.mix:
+        d[cfg.mix] = d[cfg.mix].fillna("(sin presentación)").astype(str)
+    if cfg.periodo and pd.api.types.is_datetime64_any_dtype(d[cfg.periodo]):
+        # Con fechas diarias, «el último período» sería un solo día: se agrupa por mes.
+        d[cfg.periodo] = d[cfg.periodo].dt.to_period("M").astype(str)
     if cfg.grupo and grupo_valor is not None:
         d = d[d[cfg.grupo].astype(str) == str(grupo_valor)]
     if d.empty or d[cfg.valor].sum() <= 0:
@@ -85,6 +91,8 @@ def _preparar(df: pd.DataFrame, cfg: Config, grupo_valor: str | None) -> tuple[p
         return d, None
     periodos = sorted(d[cfg.periodo].dropna().unique())
     actual = d[d[cfg.periodo] == periodos[-1]]
+    if actual[cfg.valor].sum() <= 0:
+        raise ValueError(f"El último período ({periodos[-1]}) no tiene ventas positivas.")
     anterior = d[d[cfg.periodo] == periodos[-2]] if len(periodos) > 1 else None
     return actual, anterior
 
@@ -95,7 +103,7 @@ def _mix(d: pd.DataFrame, cfg: Config) -> tuple[pd.DataFrame, dict[str, int]]:
                for s in d[cfg.mix].dropna().unique()}
     g = d.groupby([cfg.entidad, cfg.mix], sort=False)[cfg.valor].sum().reset_index()
     g.columns = ["entidad", "segmento", "ventas"]
-    reg = g.groupby("segmento", sort=False)["ventas"].sum().reset_index().assign(entidad="Total")
+    reg = g.groupby("segmento", sort=False)["ventas"].sum().reset_index().assign(entidad=REGION)
     largo = pd.concat([g, reg[["entidad", "segmento", "ventas"]]], ignore_index=True)
     largo["segmento"] = largo["segmento"].astype(str)
     tot = largo.groupby("entidad")["ventas"].transform("sum")
@@ -151,7 +159,7 @@ def calcular(df: pd.DataFrame, cfg: Config, grupo_valor: str | None = None) -> d
     if cfg.mix:
         largo, niveles = _mix(actual, cfg)
         kmax = max(niveles.values())
-        region = largo[largo["entidad"] == "Total"]
+        region = largo[largo["entidad"] == REGION]
         por = dict(list(largo.groupby("entidad")))
         ent["indice_mix"] = [_indice(por[e], kmax) for e in ent["entidad"]]
         ent["etapa_mix"] = [_etapa(i, kmax) for i in ent["indice_mix"]]
@@ -166,7 +174,7 @@ def calcular(df: pd.DataFrame, cfg: Config, grupo_valor: str | None = None) -> d
     out["lectura"] = _lectura(ent, out["kpis"], cfg)
     if largo is not None:
         out["mix"] = _registros(largo)
-        out["indice_mix_region"] = _indice(largo[largo["entidad"] == "Total"], kmax)
+        out["indice_mix_region"] = _indice(largo[largo["entidad"] == REGION], kmax)
         if kmax == 1:
             out["aviso"] = ("No se pudo distinguir el escalón de las presentaciones por el nombre: "
                             "pasá `niveles_mix` (presentación → 1, 2, 3) para que el eje X tenga sentido.")
@@ -193,7 +201,7 @@ def _kpis(ent: pd.DataFrame, largo: pd.DataFrame | None, cfg: Config, total: flo
              "texto": f"Lo explican {len(top)} {cfg.etiqueta}: {', '.join(top['entidad'])}"},
             {"kpi": "entidades", "valor": float(len(ent)), "texto": f"{cfg.etiqueta} con ventas"}]
     if largo is not None:
-        reg = largo[largo["entidad"] == "Total"]
+        reg = largo[largo["entidad"] == REGION]
         comb = float(reg.loc[reg["nivel_mix"] > 1, "participacion"].sum())
         segs = reg.loc[reg["nivel_mix"] > 1, "segmento"].tolist()
         kpis.append({"kpi": "combinaciones", "valor": comb,

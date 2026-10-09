@@ -46,7 +46,13 @@ def tablas_contribucion(por_grupo: dict[str, dict[str, Any]]) -> dict[str, pd.Da
     t: dict[str, list[pd.DataFrame]] = {k: [] for k in ("entidades", "mix", "kpis", "lectura")}
     grupos = None
     for g, r in por_grupo.items():
-        t["entidades"].append(pd.DataFrame(r["entidades"]).assign(grupo=g, eje_x=r["eje_x"]))
+        ent = pd.DataFrame(r["entidades"]).assign(grupo=g, eje_x=r["eje_x"])
+        # Las medidas DAX y el visual Deneb nombran estas columnas: existen siempre,
+        # vacías cuando el eje X es el crecimiento y no el mix.
+        for col in ("indice_mix", "etapa_mix", "siguiente_motor", "crecimiento"):
+            if col not in ent:
+                ent[col] = None
+        t["entidades"].append(ent)
         if r.get("mix"):
             t["mix"].append(pd.DataFrame(r["mix"]).assign(grupo=g))
         t["kpis"].append(pd.DataFrame(r["kpis"]).assign(grupo=g))
