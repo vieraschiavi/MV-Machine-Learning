@@ -21,7 +21,9 @@ import pandas as pd
 
 from . import escucha as S
 from . import modelo_fabric as F
+from . import politicas_legales as PL
 from . import powerbi_relacionamiento as P
+from . import registro_consentimientos as RC
 from . import relacionamiento as R
 from . import territorio as T
 
@@ -30,10 +32,20 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
              *, poblacion: pd.DataFrame | None = None, prevalencias: pd.DataFrame | None = None,
              escucha: pd.DataFrame | None = None, area: str | None = None, por_barrio: bool = False,
              segmentar: tuple[str, ...] = (), temas: dict[str, list[str]] | None = None,
-             hoy: Any = None, ajustes: dict | None = None, por_contacto: int = 3) -> dict[str, Any]:
+             hoy: Any = None, ajustes: dict | None = None, por_contacto: int = 3,
+             politicas_guardadas: bool = True, consentimientos: pd.DataFrame | None = None) -> dict[str, Any]:
     """Todo el análisis. Devuelve tablas (DataFrames), avisos y lo necesario para el modelo."""
+    if politicas_guardadas:
+        # Lo que legal validó en este workspace es la base; un ajuste del pedido simula un escenario encima.
+        ajustes = PL.combinar(ajustes)
+    avisos_libro: list[str] = []
+    libro = None
+    if consentimientos is not None:
+        # El libro de consentimientos manda sobre la tabla: para quien tiene eventos, el estado sale de ahí.
+        contactos, avisos_libro = RC.aplicar(contactos, consentimientos)
+        libro = RC.preparar(consentimientos)[0]
     r = R.analizar(contactos, contenidos, interacciones, hoy=hoy, ajustes=ajustes, por_contacto=por_contacto)
-    avisos = list(r["avisos"])
+    avisos = [*avisos_libro, *r["avisos"]]
     ct, co = r["_preparado"]["contactos"], r["_preparado"]["contenidos"]
     pob = T.preparar_poblacion(poblacion) if poblacion is not None else None
     pv = T.preparar_prevalencias(prevalencias) if prevalencias is not None else None
@@ -61,7 +73,8 @@ def analizar(contactos: pd.DataFrame, contenidos: pd.DataFrame, interacciones: p
         r["farmacovigilancia"], r["escucha_publicaciones"] = e["farmacovigilancia"], e["publicaciones"]
         avisos += e["avisos"]
     r["avisos"] = avisos
-    r["_preparado"] = {**r["_preparado"], "contactos": ct, "poblacion": pob, "prevalencias": pv}
+    r["_preparado"] = {**r["_preparado"], "contactos": ct, "poblacion": pob, "prevalencias": pv,
+                       "consentimientos": libro}
     return r
 
 
@@ -81,7 +94,7 @@ def modelo(r: dict[str, Any]) -> dict[str, pd.DataFrame]:
     return F.construir(contactos=p["contactos"], contenidos=p["contenidos"], interacciones=p["interacciones"],
                        recomendaciones=r["recomendaciones"], poblacion=p["poblacion"],
                        prevalencias=p["prevalencias"], escucha=r["escucha_menciones"],
-                       cobertura=r["cobertura"], hoy=r["hoy"])
+                       cobertura=r["cobertura"], consentimientos=p.get("consentimientos"), hoy=r["hoy"])
 
 
 def exportar(carpeta: str | Path, r: dict[str, Any], formato: str = "parquet") -> dict[str, Path]:

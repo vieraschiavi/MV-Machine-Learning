@@ -91,3 +91,12 @@ def test_rx_al_publico_solo_con_el_visto_de_legal_y_contactos_vacios(client, ids
     if up.status_code == 200:          # si la ingesta acepta una tabla sin filas, el análisis no da 500
         r = client.post("/api/relacionamiento/analizar", json={**base, "contactos_dataset_id": up.json()["dataset"]["id"]})
         assert r.status_code == 400, r.text
+
+
+def test_formulario_y_textos_de_consentimiento(client):
+    r = client.get("/api/relacionamiento/formulario", params={"idioma": "es", "accion": "https://crm.x/alta"})
+    assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
+    assert r.text.count('type="checkbox"') == 4
+    assert client.get("/api/relacionamiento/formulario", params={"accion": "javascript:alert(1)"}).status_code == 400
+    assert client.get("/api/relacionamiento/textos-consentimiento").json()["es"]["contacto"]["version"].startswith("v-")
+    assert client.get("/api/relacionamiento/plantilla/consentimientos").status_code == 200
